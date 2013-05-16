@@ -42,13 +42,80 @@
 namespace hubo_walk_space
 {
 
+HuboWalkPanel::HuboWalkPanel(QWidget *parent)
+    : rviz::Panel(parent)
+{
+    content = new HuboWalkWidget;
+    QHBoxLayout* panelLayout = new QHBoxLayout;
+    panelLayout->addWidget(content);
+    setLayout(panelLayout);
+}
+
+HuboWalkWidget::~HuboWalkWidget()
+{
+    refreshManager->alive = false;
+    refreshManager->terminate();
+}
+
+HuboWalkWidget::HuboWalkWidget(QWidget *parent)
+    : QTabWidget(parent)
+{
+
+    groupStyleSheet = "QGroupBox {"
+                      "border: 1px solid gray;"
+                      "border-radius: 9px;"
+                      "margin-top: 0.5em;"
+                      "}"
+                      "QGroupBox::title {"
+                      "subcontrol-origin: margin;"
+                      "left: 10px;"
+                      "padding: 0 3px 0 3px;"
+                      "}";
+
+    initializeAchStructs();
+
+    initializeCommandTab();
+    std::cerr << "Command Tab loaded" << std::endl;
+
+    addTab(commandTab, "Joint Command");
+
+    initializeAchConnections();
+
+    refreshManager = new HuboRefreshManager;
+    refreshManager->parentWidget = this;
+    connect(this, SIGNAL(sendWaitTime(int)), refreshManager, SLOT(getWaitTime(int)));
+    refreshManager->start();
+}
+
+void HuboRefreshManager::run()
+{
+    alive = true;
+    waitTime = 1000;
+    connect(this, SIGNAL(signalRefresh()), parentWidget, SLOT(refreshState()));
+    while(alive)
+    {
+        emit signalRefresh();
+        this->msleep(waitTime);
+    }
+    emit finished();
+}
+
+void HuboRefreshManager::getWaitTime(int t)
+{
+    waitTime = t;
+}
+
+void HuboWalkWidget::achCreateCatch(QProcess::ProcessError err)
+{
+    ROS_INFO("Creating Ach Channel Failed: Error Code %d", (int)err);
+}
+
+void HuboWalkWidget::initializeCommandTab()
+{
 
 
-
-
-
-
-
+    commandTab = new QWidget;
+    commandTab->setLayout(masterCTLayout);
 }
 
 #include <pluginlib/class_list_macros.h>

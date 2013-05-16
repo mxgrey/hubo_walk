@@ -75,11 +75,29 @@
 namespace hubo_walk_space
 {
 
+class HuboRefreshManager : public QThread
+{
+Q_OBJECT
+public:
+    HuboInitWidget* parentWidget;
+    bool alive;
+    int waitTime;
+
+protected:
+    virtual void run();
+
+protected slots:
+    void getWaitTime(int t);
+
+signals:
+    void signalRefresh();
+
+};
+
+
 // Here we declare our new subclass of rviz::Panel.  Every panel which
 // can be added via the Panels/Add_New_Panel menu is a subclass of
 // rviz::Panel.
-
-
 class HuboWalkWidget: public QTabWidget
 {
 // This class uses Qt slots and is a subclass of QObject, so it needs
@@ -107,7 +125,7 @@ public:
   bool balConnected;
   
   // Update timer
-  QTimer refreshTimer;
+  HuboRefreshManager* refreshManager;
   int getRefreshTime();
 
   // Ach Channels for sending and receiving data
@@ -116,13 +134,15 @@ public:
   ach_channel_t cmdChan;
   bool cmdOpen;
 
-  void initializeAch();
+  void initializeAchConnections();
+  void initializeAchStructs();
   void sendCommand();
 
   void setIPAddress(int a, int b, int c, int d);
   int getIPAddress(int index);
 
   // Structs for storing data to transmit
+  // TODO: Make the correct structs
   struct hubo_state h_state;
   struct hubo_board_cmd h_cmd;
   struct hubo_param h_param;
@@ -133,6 +153,9 @@ protected:
   int ipAddrB;
   int ipAddrC;
   int ipAddrD;
+
+signals:
+  void sendWaitTime(int t);
 
   // Slots will be "connected" to signals in order to respond to user events
 protected Q_SLOTS:
@@ -183,9 +206,15 @@ private:
     QDoubleSpinBox* strideBox;
     QSpinBox* stepBox;
     QCheckBox* continuousBox;
+    QPushButton* forwardButton;
+    QPushButton* leftButton;
+    QPushButton* rightButton;
+    QPushButton* backButton;
+    QPushButton* stopButton;
   ///////////////
 
 
+// TODO: Update all the following
   ///////////////
   void initializeJointStateTab();
   QWidget* jointStateTab;
