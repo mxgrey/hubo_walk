@@ -63,7 +63,9 @@
 #include <QClipboard>
 #include <QPalette>
 #include <QColor>
+#include <QThread>
 #include <QCheckBox>
+#include <QComboBox>
 
 #include <vector>
 
@@ -75,11 +77,13 @@
 namespace hubo_walk_space
 {
 
+class HuboWalkWidget;
+
 class HuboRefreshManager : public QThread
 {
 Q_OBJECT
 public:
-    HuboInitWidget* parentWidget;
+    HuboWalkWidget* parentWidget;
     bool alive;
     int waitTime;
 
@@ -112,6 +116,7 @@ public:
   // someone using the class for something else to pass in a parent
   // widget as they normally would with Qt.
   HuboWalkWidget( QWidget* parent = 0 );
+  ~HuboWalkWidget();
 
   QString groupStyleSheet;
 
@@ -148,6 +153,11 @@ public:
   struct hubo_param h_param;
   
   
+  // Handling profiles TODO
+  //std::vector<zmp_params> profiles;
+  std::vector<QString> profileNames;
+  void fillProfileSelect();
+  
 protected:
   int ipAddrA;
   int ipAddrB;
@@ -160,7 +170,20 @@ signals:
   // Slots will be "connected" to signals in order to respond to user events
 protected Q_SLOTS:
 
+  // Handle button events
+  void handleProfileSave();
+  void handleProfileDelete();
+  void handleProfileSaveAs();
+  void handleJoyLaunch();
+  void handleContinuous();
   
+  void handleForward();
+  void handleLeft();
+  void handleTurnLeft();
+  void handleRight();
+  void handleTurnRight();
+  void handleBackward();
+  void handleStop();
 
   // Update all state information
   void refreshState();
@@ -204,72 +227,53 @@ private:
     
     
     QDoubleSpinBox* strideBox;
-    QSpinBox* stepBox;
+    QSpinBox* stepCountBox;
+    QDoubleSpinBox* radiusBox;
     QCheckBox* continuousBox;
     QPushButton* forwardButton;
     QPushButton* leftButton;
     QPushButton* rightButton;
     QPushButton* backButton;
     QPushButton* stopButton;
+    QPushButton* turnLeftButton;
+    QPushButton* turnRightButton;
   ///////////////
 
 
 // TODO: Update all the following
   ///////////////
-  void initializeJointStateTab();
-  QWidget* jointStateTab;
-
-    QLineEdit* stateFlags;
-
-    QButtonGroup* jointStateGroup;
-    std::vector<QPushButton*> jointStateButtons;
-    QPushButton* copyJoints;
-
-    QButtonGroup* radSelectGroup;
-    QRadioButton* radSelect;
-    QRadioButton* degSelect;
+  void initializeZmpParamTab();
+  QWidget* zmpParamTab;
+  
+    QComboBox* profileSelect;
+    QPushButton* saveProfile;
+    QPushButton* deleteProfile;
+    QPushButton* saveAsProfile;
+    QLineEdit* saveAsEdit;
+    
+    QDoubleSpinBox* xOffsetBox;
+    QDoubleSpinBox* yOffsetBox;
+    QDoubleSpinBox* jerkPenalBox;
+    QDoubleSpinBox* lookAheadBox;
+    
+    QDoubleSpinBox* startupTimeBox;
+    QDoubleSpinBox* shutdownTimeBox;
+    QDoubleSpinBox* doubleSupportBox;
+    QDoubleSpinBox* singleSupportBox;
+    
+    QComboBox* walkTypeSelect;
+    QComboBox* ikSenseSelect;
+    
+    QDoubleSpinBox* liftoffHeightBox;
+    QDoubleSpinBox* stepDistanceBox;
+    QDoubleSpinBox* lateralDistanceBox;
+    QDoubleSpinBox* sideStepDistanceBox;
+    
+    QDoubleSpinBox* comHeightBox;
+    QDoubleSpinBox* comIKAngleWeightBox;
   ///////////////
 
-  std::vector<QString> ftName;
 
-
-  ///////////////
-  void initializeSensorCmdTab();
-  QWidget* sensorCmdTab;
-
-    QButtonGroup* radioSensorButtons;
-    QRadioButton* nullSensor;
-    QRadioButton* initSensor; // Note: Not used... feels dangerous
-                              // It can change board settings in bad ways
-
-    QPushButton* rhFTButton;
-    QPushButton* lhFTButton;
-    QPushButton* rfFTButton;
-    QPushButton* lfFTButton;
-    QPushButton* imuButton;
-  ///////////////
-
-
-  ///////////////
-  void initializeSensorStateTab();
-  QWidget* sensorStateTab;
-
-    QGroupBox* ftBox;
-    std::vector<QLineEdit*> ft_mx;
-    std::vector<QLineEdit*> ft_my;
-    std::vector<QLineEdit*> ft_fz;
-    QPushButton* copyFT;
-
-    QGroupBox* imuBox;
-    QLineEdit* a_x;
-    QLineEdit* a_y;
-    QLineEdit* a_z;
-
-    QLineEdit* w_x;
-    QLineEdit* w_y;
-    QLineEdit* w_z;
-    QPushButton* copyIMU;
-  ///////////////
 
 };
 

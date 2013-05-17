@@ -1,0 +1,16 @@
+<library path="${prefix}/lib/libhubo_walk">
+  <class name="HuboWalkPanel"
+         type="hubo_walk_space::HuboWalkPanel"
+         base_class_type="rviz::Panel">
+    <description>
+      A panel widget to interface with commanding Hubo to walk
+    </description>
+  </class>
+  <class name="HuboWalkWidget"
+         type="hubo_walk_space::HuboWalkWidget"
+         base_class_type="QTabWidget">
+    <description>
+      The widget which is laid on top of the HuboWalkPanel
+    </description>
+  </class>
+</library>

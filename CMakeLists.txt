@@ -17,9 +17,6 @@ catkin_package(
     CATKIN_DEPENDS roscpp rospy
     DEPENDS ach QtCore QtGui )
 
-## I prefer the Qt signals and slots to avoid defining "emit", "slots",
-## etc because they can conflict with boost signals, so define QT_NO_KEYWORDS here.
-add_definitions(-DQT_NO_KEYWORDS)
 
 
 ## Here we specify which header files need to be run through "moc",
@@ -33,6 +30,7 @@ qt4_wrap_cpp(MOC_FILES
 ## the previous command which is stored in ``${MOC_FILES}``.
 set(SOURCE_FILES
   src/hubo_walk.cpp
+  src/hubo_walk_slots.cpp
   include/hubo_walk.h
   ${MOC_FILES}
 )
