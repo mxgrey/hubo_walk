@@ -1,11 +1,9 @@
 Questions/Support: mxgrey@gatech.edu
 
-RViz plugin for initializing Hubo hardware
-
-Finally, a graphical user interface for running the Hubo hardware on Linux! :D
+RViz plugin for commanding Hubo to walk
 
 As was decided at the Drexel meeting in February, GUIs for operating Hubo on Linux
-are going to be ROS-based (specifically using RViz). This is the first step in making
+are going to be ROS-based (specifically using RViz). This is the second bit of effort in making
 that integration a reality.
 
 
