@@ -66,6 +66,7 @@
 #include <QThread>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QVector>
 
 #include <vector>
 
@@ -81,12 +82,6 @@ namespace hubo_walk_space
 
 class HuboWalkWidget;
 
-class zmpProfile
-{
-public:
-    QString name;
-
-};
 
 class HuboRefreshManager : public QThread
 {
@@ -112,8 +107,6 @@ class ZmpProfile
 public:
     QString name;
     zmp_cmd_t vals;
-    
-    
 };
 
 
@@ -154,8 +147,8 @@ public:
   // Ach Channels for sending and receiving data
   ach_channel_t stateChan;
   bool stateOpen;
-  ach_channel_t cmdChan;
-  bool cmdOpen;
+  ach_channel_t zmpCmdChan;
+  bool zmpCmdOpen;
 
   void initializeAchConnections();
   void initializeAchStructs();
@@ -166,16 +159,85 @@ public:
 
   // Structs for storing data to transmit
   // TODO: Make the correct structs
-  struct hubo_state h_state;
-  struct hubo_board_cmd h_cmd;
-  struct hubo_param h_param;
+  struct zmp_cmd cmd;
   
   
   // Handling profiles TODO
   //std::vector<zmp_params> profiles;
-  std::vector<ZmpProfile> zmpProfiles;
-  void fillProfileSelect();
+  QVector<ZmpProfile> zmpProfiles;
+  void fillProfile(zmp_cmd_t &vals);
   
+  
+  QWidget* commandTab;
+
+    QPushButton* achdConnect;
+    QPushButton* achdDisconnect;
+    QLabel* statusLabel;
+    QLineEdit* ipAddrAEdit;
+    QLineEdit* ipAddrBEdit;
+    QLineEdit* ipAddrCEdit;
+    QLineEdit* ipAddrDEdit;
+    
+    
+    QButtonGroup* radioSelectGroup;
+    QRadioButton* guiSelect;
+    QRadioButton* joySelect;
+    QPushButton* joyLaunch;
+    QLabel* joyStatus;
+    
+    
+    QDoubleSpinBox* strideBox;
+    QDoubleSpinBox* walkDistanceBox;
+    QSpinBox* maxStepBox;
+    QDoubleSpinBox* radiusBox;
+    QCheckBox* continuousBox;
+    QPushButton* forwardButton;
+    QPushButton* leftButton;
+    QPushButton* rightButton;
+    QPushButton* backButton;
+    QPushButton* stopButton;
+    QPushButton* turnLeftButton;
+    QPushButton* turnRightButton;
+  ///////////////
+    
+    
+    // TODO: Update all the following
+    ///////////////
+    QWidget* zmpParamTab;
+    
+      QComboBox* profileSelect;
+      QPushButton* saveProfile;
+      QPushButton* deleteProfile;
+      QPushButton* saveAsProfile;
+      QLineEdit* saveAsEdit;
+      
+      QDoubleSpinBox* xOffsetBox;
+      QDoubleSpinBox* yOffsetBox;
+      QDoubleSpinBox* jerkPenalBox;
+      QDoubleSpinBox* lookAheadBox;
+      
+      QDoubleSpinBox* startupTimeBox;
+      QDoubleSpinBox* shutdownTimeBox;
+      QDoubleSpinBox* doubleSupportBox;
+      QDoubleSpinBox* singleSupportBox;
+      
+      QComboBox* walkTypeSelect;
+      QComboBox* ikSenseSelect;
+      
+      QDoubleSpinBox* liftoffHeightBox;
+      QDoubleSpinBox* stepDistanceBox;
+      QDoubleSpinBox* sideStepDistanceBox;
+      QDoubleSpinBox* lateralDistanceBox;
+      
+      QDoubleSpinBox* comHeightBox;
+      QDoubleSpinBox* comIKAngleWeightBox;
+    ///////////////
+  
+      void updateProfileBox();
+      
+      ik_error_sensitivity int2ikSense(int index);
+      int ikSense2int(ik_error_sensitivity ik_sense);
+      
 protected:
   int ipAddrA;
   int ipAddrB;
@@ -193,7 +255,7 @@ protected Q_SLOTS:
   void handleProfileDelete();
   void handleProfileSaveAs();
   void handleJoyLaunch();
-  void handleContinuous();
+  void handleProfileSelect(int index);
   
   void handleForward();
   void handleLeft();
@@ -226,70 +288,11 @@ private:
 
   ///////////////
   void initializeCommandTab();
-  QWidget* commandTab;
-
-    QPushButton* achdConnect;
-    QPushButton* achdDisconnect;
-    QLabel* statusLabel;
-    QLineEdit* ipAddrAEdit;
-    QLineEdit* ipAddrBEdit;
-    QLineEdit* ipAddrCEdit;
-    QLineEdit* ipAddrDEdit;
-    
-    
-    QButtonGroup* radioSelectGroup;
-    QRadioButton* guiSelect;
-    QRadioButton* joySelect;
-    QPushButton* joyLaunch;
-    QLabel* joyStatus;
-    
-    
-    QDoubleSpinBox* strideBox;
-    QDoubleSpinBox* walkDistanceBox;
-    QDoubleSpinBox* radiusBox;
-    QCheckBox* continuousBox;
-    QPushButton* forwardButton;
-    QPushButton* leftButton;
-    QPushButton* rightButton;
-    QPushButton* backButton;
-    QPushButton* stopButton;
-    QPushButton* turnLeftButton;
-    QPushButton* turnRightButton;
-  ///////////////
-
-
-// TODO: Update all the following
-  ///////////////
-  void initializeZmpParamTab();
-  QWidget* zmpParamTab;
   
-    QComboBox* profileSelect;
-    QPushButton* saveProfile;
-    QPushButton* deleteProfile;
-    QPushButton* saveAsProfile;
-    QLineEdit* saveAsEdit;
-    
-    QDoubleSpinBox* xOffsetBox;
-    QDoubleSpinBox* yOffsetBox;
-    QDoubleSpinBox* jerkPenalBox;
-    QDoubleSpinBox* lookAheadBox;
-    
-    QDoubleSpinBox* startupTimeBox;
-    QDoubleSpinBox* shutdownTimeBox;
-    QDoubleSpinBox* doubleSupportBox;
-    QDoubleSpinBox* singleSupportBox;
-    
-    QComboBox* walkTypeSelect;
-    QComboBox* ikSenseSelect;
-    
-    QDoubleSpinBox* liftoffHeightBox;
-    QDoubleSpinBox* stepDistanceBox;
-    QDoubleSpinBox* sideStepDistanceBox;
-    QDoubleSpinBox* lateralDistanceBox;
-    
-    QDoubleSpinBox* comHeightBox;
-    QDoubleSpinBox* comIKAngleWeightBox;
-  ///////////////
+
+
+  void initializeZmpParamTab();
+  
 
 
 
