@@ -74,6 +74,8 @@
 #include <hubo.h>
 #include <hubo-jointparams.h>
 
+#include <zmp-daemon.h>
+
 namespace hubo_walk_space
 {
 
@@ -96,6 +98,15 @@ protected slots:
 signals:
     void signalRefresh();
 
+};
+
+class ZmpProfile
+{
+public:
+    QString name;
+    zmp_cmd_t vals;
+    
+    
 };
 
 
@@ -155,7 +166,7 @@ public:
   
   // Handling profiles TODO
   //std::vector<zmp_params> profiles;
-  std::vector<QString> profileNames;
+  std::vector<ZmpProfile> zmpProfiles;
   void fillProfileSelect();
   
 protected:

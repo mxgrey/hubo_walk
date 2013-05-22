@@ -65,6 +65,30 @@ void HuboWalkPanel::load(const rviz::Config &config)
 void HuboWalkPanel::save(rviz::Config config) const
 {
     rviz::Panel::save(config);
+    config.mapSetValue("Class", getClassId());
+
+    rviz::Config ip_config = config.mapMakeChild("HuboIP");
+
+    QVariant a = QVariant(content->getIPAddress(0));
+    QVariant b = QVariant(content->getIPAddress(1));
+    QVariant c = QVariant(content->getIPAddress(2));
+    QVariant d = QVariant(content->getIPAddress(3));
+
+    ip_config.mapSetValue("ipAddrA", a);
+    ip_config.mapSetValue("ipAddrB", b);
+    ip_config.mapSetValue("ipAddrC", c);
+    ip_config.mapSetValue("ipAddrD", d);
+    
+    rviz::Config p_config = config.mapMakeChild("ZmpProfiles");
+    
+    QVariant pNum = content->zmpProfiles.size();
+    p_config.mapSetValue("ZmpProfileNum", pNum);
+    
+    for(int i=0; i < (int)pNum; i++)
+    {
+    }
+    
+    
 }
 
 HuboWalkWidget::HuboWalkWidget(QWidget *parent)
