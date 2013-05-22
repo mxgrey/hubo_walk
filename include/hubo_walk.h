@@ -214,6 +214,7 @@ public:
       QDoubleSpinBox* xOffsetBox;
       QDoubleSpinBox* yOffsetBox;
       QDoubleSpinBox* jerkPenalBox;
+      double penalFactor;
       QDoubleSpinBox* lookAheadBox;
       
       QDoubleSpinBox* startupTimeBox;

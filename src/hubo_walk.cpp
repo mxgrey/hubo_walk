@@ -170,6 +170,7 @@ void HuboWalkPanel::save(rviz::Config config) const
     
     for(int i=0; i < int(content->zmpProfiles.size()); i++)
     {
+        content->zmpProfiles[i].name.replace(" ","_");
         p_config.mapSetValue("ZmpProfileName"+QString::number(i),
                              QVariant(content->zmpProfiles[i].name));
         p_config.mapSetValue("max_step_count"+QString::number(i),
@@ -576,11 +577,11 @@ void HuboWalkWidget::initializeZmpParamTab()
     xOffsetBox->setSizePolicy(pbsize);
     xOffsetBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     xOffsetBox->setToolTip(xoffsetLab->toolTip());
+    xOffsetBox->setDecimals(4);
     xOffsetBox->setValue(0.038);
     xOffsetBox->setSingleStep(0.01);
     xOffsetBox->setMinimum(-10);
     xOffsetBox->setMaximum(10);
-    xOffsetBox->setDecimals(3);
     xoffsetLay->addWidget(xOffsetBox);
     
     zmpSettingsLayout->addLayout(xoffsetLay);
@@ -596,11 +597,11 @@ void HuboWalkWidget::initializeZmpParamTab()
     yOffsetBox->setSizePolicy(pbsize);
     yOffsetBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     yOffsetBox->setToolTip(yoffsetLab->toolTip());
+    yOffsetBox->setDecimals(4);
     yOffsetBox->setValue(0);
     yOffsetBox->setSingleStep(0.01);
     yOffsetBox->setMinimum(-10);
     yOffsetBox->setMaximum(10);
-    yOffsetBox->setDecimals(3);
     yoffsetLay->addWidget(yOffsetBox);
     
     zmpSettingsLayout->addLayout(yoffsetLay);
@@ -616,11 +617,16 @@ void HuboWalkWidget::initializeZmpParamTab()
     jerkPenalBox->setSizePolicy(pbsize);
     jerkPenalBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     jerkPenalBox->setToolTip(jerkPenaltyLab->toolTip());
-    jerkPenalBox->setValue(1e-8);
-    jerkPenalBox->setSingleStep(0.001);
+    jerkPenalBox->setValue(1);
+    jerkPenalBox->setSingleStep(0.1);
     jerkPenalBox->setMinimum(0);
     jerkPenalBox->setMaximum(1000);
     jerkLayout->addWidget(jerkPenalBox);
+
+    penalFactor = 1e-8;
+    QLabel* penalFactorLab = new QLabel;
+    penalFactorLab->setText(" x "+QString::number(penalFactor,'g'));
+    jerkLayout->addWidget(penalFactorLab);
     
     zmpSettingsLayout->addLayout(jerkLayout);
     
@@ -665,11 +671,11 @@ void HuboWalkWidget::initializeZmpParamTab()
     startupTimeBox->setSizePolicy(pbsize);
     startupTimeBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     startupTimeBox->setToolTip(startupTimeLab->toolTip());
+    startupTimeBox->setDecimals(3);
     startupTimeBox->setValue(1.0);
     startupTimeBox->setSingleStep(0.01);
     startupTimeBox->setMinimum(0);
     startupTimeBox->setMaximum(1000);
-    startupTimeBox->setDecimals(3);
     startupTimeLay->addWidget(startupTimeBox);
     
     timeSettingsLayout->addLayout(startupTimeLay);
@@ -685,11 +691,11 @@ void HuboWalkWidget::initializeZmpParamTab()
     shutdownTimeBox->setSizePolicy(pbsize);
     shutdownTimeBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     shutdownTimeBox->setToolTip(shutdownTimeLab->toolTip());
+    shutdownTimeBox->setDecimals(3);
     shutdownTimeBox->setValue(1.0);
     shutdownTimeBox->setSingleStep(0.01);
     shutdownTimeBox->setMinimum(0);
     shutdownTimeBox->setMaximum(1000);
-    shutdownTimeBox->setDecimals(3);
     shutdownTimeLay->addWidget(shutdownTimeBox);
     
     timeSettingsLayout->addLayout(shutdownTimeLay);
@@ -706,11 +712,11 @@ void HuboWalkWidget::initializeZmpParamTab()
     doubleSupportBox->setSizePolicy(pbsize);
     doubleSupportBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     doubleSupportBox->setToolTip(doubleSupTimeLab->toolTip());
+    doubleSupportBox->setDecimals(3);
     doubleSupportBox->setValue(0.01);
     doubleSupportBox->setSingleStep(0.01);
     doubleSupportBox->setMinimum(0);
     doubleSupportBox->setMaximum(1000);
-    doubleSupportBox->setDecimals(3);
     doubleSupTimeLay->addWidget(doubleSupportBox);
     
     timeSettingsLayout->addLayout(doubleSupTimeLay);
@@ -727,11 +733,11 @@ void HuboWalkWidget::initializeZmpParamTab()
     singleSupportBox->setSizePolicy(pbsize);
     singleSupportBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     singleSupportBox->setToolTip(singleSupTimeLab->toolTip());
+    singleSupportBox->setDecimals(3);
     singleSupportBox->setValue(0.50);
     singleSupportBox->setSingleStep(0.01);
     singleSupportBox->setMinimum(0);
     singleSupportBox->setMaximum(1000);
-    singleSupportBox->setDecimals(3);
     singleSupTimeLay->addWidget(singleSupportBox);
     
     timeSettingsLayout->addLayout(singleSupTimeLay);
@@ -775,11 +781,11 @@ void HuboWalkWidget::initializeZmpParamTab()
     liftoffHeightBox->setSizePolicy(pbsize);
     liftoffHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     liftoffHeightBox->setToolTip(footliftLab->toolTip());
+    liftoffHeightBox->setDecimals(4);
     liftoffHeightBox->setValue(0.04);
     liftoffHeightBox->setSingleStep(0.01);
     liftoffHeightBox->setMinimum(0);
     liftoffHeightBox->setMaximum(2);
-    liftoffHeightBox->setDecimals(4);
     footLiftLay->addWidget(liftoffHeightBox);
     
     swingSettingsLayout->addLayout(footLiftLay);
@@ -795,11 +801,11 @@ void HuboWalkWidget::initializeZmpParamTab()
     stepDistanceBox->setSizePolicy(pbsize);
     stepDistanceBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     stepDistanceBox->setToolTip(stepDistanceLab->toolTip());
+    stepDistanceBox->setDecimals(4);
     stepDistanceBox->setValue(0.1);
     stepDistanceBox->setSingleStep(0.01);
     stepDistanceBox->setMinimum(0);
     stepDistanceBox->setMaximum(5);
-    stepDistanceBox->setDecimals(4);
     stepDistanceLay->addWidget(stepDistanceBox);
     
     swingSettingsLayout->addLayout(stepDistanceLay);
@@ -815,11 +821,11 @@ void HuboWalkWidget::initializeZmpParamTab()
     sideStepDistanceBox->setSizePolicy(pbsize);
     sideStepDistanceBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     sideStepDistanceBox->setToolTip(sideStepDistanceLab->toolTip());
+    sideStepDistanceBox->setDecimals(4);
     sideStepDistanceBox->setValue(0.01);
     sideStepDistanceBox->setSingleStep(0.01);
     sideStepDistanceBox->setMinimum(0);
     sideStepDistanceBox->setMaximum(5);
-    sideStepDistanceBox->setDecimals(4);
     sideStepDistanceLay->addWidget(sideStepDistanceBox);
 
     swingSettingsLayout->addLayout(sideStepDistanceLay);
@@ -836,11 +842,11 @@ void HuboWalkWidget::initializeZmpParamTab()
     lateralDistanceBox->setSizePolicy(pbsize);
     lateralDistanceBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     lateralDistanceBox->setToolTip(lateralDistanceLab->toolTip());
+    lateralDistanceBox->setDecimals(4);
     lateralDistanceBox->setValue(0.0885);
     lateralDistanceBox->setSingleStep(0.01);
     lateralDistanceBox->setMinimum(0);
     lateralDistanceBox->setMaximum(5);
-    lateralDistanceBox->setDecimals(4);
     lateralDistanceLay->addWidget(lateralDistanceBox);
     
     swingSettingsLayout->addLayout(lateralDistanceLay);
@@ -867,6 +873,7 @@ void HuboWalkWidget::initializeZmpParamTab()
     comHeightBox->setSizePolicy(pbsize);
     comHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     comHeightBox->setToolTip(comHeightLab->toolTip());
+    comHeightBox->setDecimals(3);
     comHeightBox->setValue(0.5);
     comHeightBox->setSingleStep(0.01);
     comHeightBox->setMinimum(0);
@@ -886,6 +893,7 @@ void HuboWalkWidget::initializeZmpParamTab()
     comIKAngleWeightBox->setSizePolicy(pbsize);
     comIKAngleWeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     comIKAngleWeightBox->setToolTip(comIKAngleWeightLab->toolTip());
+    comIKAngleWeightBox->setDecimals(3);
     comIKAngleWeightBox->setValue(0);
     comIKAngleWeightBox->setSingleStep(0.01);
     comIKAngleWeightBox->setMinimum(0);

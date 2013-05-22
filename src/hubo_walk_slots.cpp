@@ -108,7 +108,7 @@ void HuboWalkWidget::fillProfile(zmp_cmd_t &vals)
     vals.shutdown_time = shutdownTimeBox->value() ;
     vals.double_support_time = doubleSupportBox->value() ;
     vals.single_support_time = singleSupportBox->value() ;
-    vals.zmp_jerk_penalty = jerkPenalBox->value() ;
+    vals.zmp_jerk_penalty = jerkPenalBox->value()*penalFactor ;
     vals.ik_sense = int2ikSense(ikSenseSelect->currentIndex()) ;
 }
 
@@ -136,7 +136,7 @@ void HuboWalkWidget::handleProfileSelect(int index)
     shutdownTimeBox->setValue(zmpProfiles[index].vals.shutdown_time ) ;
     doubleSupportBox->setValue(zmpProfiles[index].vals.double_support_time ) ;
     singleSupportBox->setValue(zmpProfiles[index].vals.single_support_time ) ;
-    jerkPenalBox->setValue(zmpProfiles[index].vals.zmp_jerk_penalty ) ;
+    jerkPenalBox->setValue(zmpProfiles[index].vals.zmp_jerk_penalty/penalFactor ) ;
     ikSenseSelect->setCurrentIndex(ikSense2int(zmpProfiles[index].vals.ik_sense));
     
     saveAsEdit->clear();
