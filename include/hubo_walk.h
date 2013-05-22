@@ -81,6 +81,13 @@ namespace hubo_walk_space
 
 class HuboWalkWidget;
 
+class zmpProfile
+{
+public:
+    QString name;
+
+};
+
 class HuboRefreshManager : public QThread
 {
 Q_OBJECT
@@ -238,7 +245,7 @@ private:
     
     
     QDoubleSpinBox* strideBox;
-    QSpinBox* stepCountBox;
+    QDoubleSpinBox* walkDistanceBox;
     QDoubleSpinBox* radiusBox;
     QCheckBox* continuousBox;
     QPushButton* forwardButton;
@@ -277,8 +284,8 @@ private:
     
     QDoubleSpinBox* liftoffHeightBox;
     QDoubleSpinBox* stepDistanceBox;
-    QDoubleSpinBox* lateralDistanceBox;
     QDoubleSpinBox* sideStepDistanceBox;
+    QDoubleSpinBox* lateralDistanceBox;
     
     QDoubleSpinBox* comHeightBox;
     QDoubleSpinBox* comIKAngleWeightBox;

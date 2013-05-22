@@ -256,6 +256,7 @@ void HuboWalkWidget::initializeCommandTab()
     
     joySelect = new QRadioButton;
     joySelect->setText("Joystick");
+    joySelect->setCheckable(false);
     joySelect->setToolTip("Use a handheld controller to control Hubo's walking\n"
                           "(The controller must be plugged into this computer)");
     radioSelectGroup->addButton(joySelect);
@@ -291,18 +292,19 @@ void HuboWalkWidget::initializeCommandTab()
     QVBoxLayout* controlLayout = new QVBoxLayout;
     
     QHBoxLayout* paramLayout = new QHBoxLayout;
-    QLabel* stepLab = new QLabel;
-    stepLab->setText("Steps:");
-    stepLab->setToolTip("Number of steps after a click");
-    paramLayout->addWidget(stepLab, 0, Qt::AlignRight);
-    stepCountBox = new QSpinBox;
-    stepCountBox->setToolTip(stepLab->toolTip());
-    paramLayout->addWidget(stepCountBox, 0, Qt::AlignLeft);
+    QLabel* walkLab = new QLabel;
+    walkLab->setText("Walk Distance:");
+    walkLab->setToolTip("Distance to walk (m) after a click");
+    paramLayout->addWidget(walkLab, 0, Qt::AlignRight);
+    walkDistanceBox = new QDoubleSpinBox;
+    walkDistanceBox->setSingleStep(0.5);
+    walkDistanceBox->setToolTip(walkLab->toolTip());
+    paramLayout->addWidget(walkDistanceBox, 0, Qt::AlignLeft);
     
     continuousBox = new QCheckBox;
     continuousBox->setChecked(false);
     continuousBox->setText("Continuous");
-    continuousBox->setToolTip("Ignore the step count and walk until Stop is selected");
+    continuousBox->setToolTip("Ignore the walk distance, and walk until Stop is selected");
     paramLayout->addWidget(continuousBox, 0, Qt::AlignLeft);
     connect(continuousBox, SIGNAL(toggled(bool)), this, SLOT(handleContinuous()));
     
@@ -642,6 +644,25 @@ void HuboWalkWidget::initializeZmpParamTab()
     stepDistanceLay->addWidget(stepDistanceBox);
     
     swingSettingsLayout->addLayout(stepDistanceLay);
+
+    QHBoxLayout* sideStepDistanceLay = new QHBoxLayout;
+    QLabel* sideStepDistanceLab = new QLabel;
+    sideStepDistanceLab->setText("Side Step Distance:");
+    sideStepDistanceLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    sideStepDistanceLab->setToolTip("How far sideways (m) should the swing foot step?");
+    sideStepDistanceLay->addWidget(sideStepDistanceLab);
+
+    sideStepDistanceBox = new QDoubleSpinBox;
+    sideStepDistanceBox->setSizePolicy(pbsize);
+    sideStepDistanceBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    sideStepDistanceBox->setToolTip(sideStepDistanceLab->toolTip());
+    sideStepDistanceBox->setSingleStep(0.01);
+    sideStepDistanceBox->setMinimum(0);
+    sideStepDistanceBox->setMaximum(5);
+    sideStepDistanceLay->addWidget(sideStepDistanceBox);
+
+    swingSettingsLayout->addLayout(sideStepDistanceLay);
+
     
     QHBoxLayout* lateralDistanceLay = new QHBoxLayout;
     QLabel* lateralDistanceLab = new QLabel;
@@ -662,7 +683,7 @@ void HuboWalkWidget::initializeZmpParamTab()
     swingSettingsLayout->addLayout(lateralDistanceLay);
     
     QGroupBox* swingSettingsBox = new QGroupBox;
-    swingSettingsBox->setTitle("Time Settings");
+    swingSettingsBox->setTitle("Swing Foot Settings");
     swingSettingsBox->setStyleSheet(groupStyleSheet);
     swingSettingsBox->setLayout(swingSettingsLayout);
     rightColumn->addWidget(swingSettingsBox);
