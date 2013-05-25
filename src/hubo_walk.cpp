@@ -236,7 +236,7 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
     addTab(commandTab, "Command");
     addTab(zmpParamTab, "ZMP Parameters");
 
-//    initializeAchConnections();
+    initializeAchConnections();
 
 //    refreshManager = new HuboRefreshManager;
 //    refreshManager->parentWidget = this;
@@ -396,7 +396,6 @@ void HuboWalkWidget::initializeCommandTab()
     joyStatus = new QLabel;
     joyStatus->setText("Off");
     joyStatusLayout->addWidget(joyStatus);
-    std::cerr << "Up to addLayout" << std::endl;
     joyStatusLayout->setAlignment(Qt::AlignTop);
     joyLayout->addLayout(joyStatusLayout);
     
@@ -502,7 +501,7 @@ void HuboWalkWidget::initializeCommandTab()
     backButton->setText("Backward");
     backButton->setSizePolicy(pbsize);
     wasdLayout->addWidget(backButton, 2, 1, 1, 1, Qt::AlignCenter);
-    connect(backButton, SIGNAL(clicked()), this, SLOT(handleBack()));
+    connect(backButton, SIGNAL(clicked()), this, SLOT(handleBackward()));
     
     controlLayout->addLayout(wasdLayout);
     

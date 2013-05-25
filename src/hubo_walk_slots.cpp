@@ -51,45 +51,54 @@ void HuboWalkWidget::handleBackward()
 {
     cmd.walk_type = walk_line;
     cmd.cmd_state = WALKING_BACKWARD;
+    sendCommand();
 }
 
 void HuboWalkWidget::handleLeft()
 {
     cmd.walk_type = walk_line;
     cmd.cmd_state = SIDESTEPPING_LEFT;
+    sendCommand();
 }
 
 void HuboWalkWidget::handleRight()
 {
     cmd.walk_type = walk_line;
     cmd.cmd_state = SIDESTEPPING_RIGHT;
+    sendCommand();
 }
 
 void HuboWalkWidget::handleTurnLeft()
 {
     cmd.walk_type = walk_circle;
     cmd.cmd_state = WALKING_FORWARD;
+    sendCommand();
 }
 
 void HuboWalkWidget::handleTurnRight()
 {
     cmd.walk_type = walk_circle;
     cmd.cmd_state = WALKING_FORWARD;
+    sendCommand();
 }
 
 void HuboWalkWidget::handleStop()
 {
     cmd.walk_type = walk_line;
     cmd.cmd_state = STOP;
+    sendCommand();
 }
 
 void HuboWalkWidget::sendCommand()
 {
     fillProfile(cmd);
     cmd.walk_dist = walkDistanceBox->value();
+    cmd.sidewalk_dist = walkDistanceBox->value();
     cmd.walk_circle_radius = radiusBox->value();
     cmd.walk_continuous = continuousBox->isChecked();
-    ach_put(&zmpCmdChan, &cmd, sizeof(cmd));
+    ach_status_t r = ach_put(&zmpCmdChan, &cmd, sizeof(cmd));
+    if( r != ACH_OK )
+        std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
 }
 
 void HuboWalkWidget::fillProfile(zmp_cmd_t &vals)
@@ -117,7 +126,8 @@ void HuboWalkWidget::handleProfileSave()
     int index = profileSelect->currentIndex();
     fillProfile(zmpProfiles[index].vals);
     
-    saveAsEdit->setText("Remember to save your RViz session!");
+    saveAsEdit->clear();
+    saveAsEdit->setPlaceholderText("Remember to save your RViz session! (Ctrl-S)");
 }
 
 void HuboWalkWidget::handleProfileSelect(int index)
@@ -156,8 +166,9 @@ void HuboWalkWidget::handleProfileSaveAs()
     zmpProfiles.append(tempProf);
     updateProfileBox();
     profileSelect->setCurrentIndex(profileSelect->findText(tempProf.name));
-    
-    saveAsEdit->setText("Remember to save your RViz session!");
+
+    saveAsEdit->clear();
+    saveAsEdit->setPlaceholderText("Remember to save your RViz session! (Ctrl-S)");
 }
 
 void HuboWalkWidget::updateProfileBox()
@@ -240,6 +251,10 @@ void HuboWalkWidget::initializeAchConnections()
 {
     achChannelZmp.start("ach mk " + QString::fromLocal8Bit(CHAN_ZMP_CMD_NAME)
                         + " -1 -m 10 -n 8000 -o 666", QIODevice::ReadWrite);
+    achChannelZmp.waitForFinished();
+    ach_status_t r = ach_open(&zmpCmdChan, CHAN_ZMP_CMD_NAME, NULL);
+    if( r != ACH_OK )
+        std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
 }
 
 void HuboWalkWidget::achdConnectSlot()
