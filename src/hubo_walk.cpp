@@ -419,6 +419,7 @@ void HuboWalkWidget::initializeCommandTab()
     walkLayout->addWidget(walkLab, 0, Qt::AlignRight);
     walkDistanceBox = new QDoubleSpinBox;
     walkDistanceBox->setSingleStep(0.5);
+    walkDistanceBox->setValue(1.0);
     walkDistanceBox->setToolTip(walkLab->toolTip());
     walkLayout->addWidget(walkDistanceBox, 0, Qt::AlignLeft);
     distanceLayout->addLayout(walkLayout);
