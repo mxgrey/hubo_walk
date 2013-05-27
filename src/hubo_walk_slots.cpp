@@ -99,7 +99,19 @@ void HuboWalkWidget::sendCommand()
     ach_status_t r = ach_put(&zmpCmdChan, &cmd, sizeof(cmd));
     if( r != ACH_OK )
         std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
+    sendBalParams();
 }
+
+void HuboWalkWidget::sendBalParams()
+{
+    fillbalProfile(balParams);
+    ach_status_t r = ach_put(&balanceParamChan, &balParams, sizeof(balParams));
+    if( r != ACH_OK )
+        std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
+    else
+        std::cout << "Parameters sent" << std::endl;
+}
+
 
 void HuboWalkWidget::fillProfile(zmp_cmd_t &vals)
 {
@@ -178,6 +190,92 @@ void HuboWalkWidget::updateProfileBox()
         profileSelect->addItem(zmpProfiles[i].name);
 }
 
+
+///////////// BALANCE
+
+void HuboWalkWidget::fillbalProfile(balance_gains_t &vals)
+{
+    vals.flattening_gain[LEFT] = flattenBoxL->value();
+    vals.flattening_gain[RIGHT] = flattenBoxR->value() ;
+    vals.force_min_threshold[LEFT] = threshMinBoxL->value();
+    vals.force_min_threshold[RIGHT] = threshMinBoxR->value();
+    vals.force_max_threshold[LEFT] = threshMaxBoxL->value();
+    vals.force_max_threshold[RIGHT] = threshMaxBoxR->value();
+    vals.straightening_pitch_gain[LEFT] = straightenPBoxL->value() ;
+    vals.straightening_pitch_gain[RIGHT] = straightenPBoxR->value() ;
+    vals.straightening_roll_gain[LEFT] = straightenRBoxL->value() ;
+    vals.straightening_roll_gain[RIGHT] = straightenRBoxR->value() ;
+    vals.spring_gain[LEFT] = springBoxL->value() ;
+    vals.spring_gain[RIGHT] = springBoxR->value() ;
+    vals.damping_gain[LEFT] = dampBoxL->value() ;
+    vals.damping_gain[RIGHT] = dampBoxR->value() ;
+    vals.fz_response[LEFT] = responseBoxL->value() ;
+    vals.fz_response[RIGHT] = responseBoxR->value() ;
+}
+
+void HuboWalkWidget::handlebalProfileSave()
+{
+    int index = balProfileSelect->currentIndex();
+    fillbalProfile(balProfiles[index].vals);
+
+    balSaveAsEdit->clear();
+    balSaveAsEdit->setPlaceholderText("Remember to save your RViz session! (Ctrl-S)");
+}
+
+void HuboWalkWidget::handlebalProfileSelect(int index)
+{
+    flattenBoxL->setValue( balProfiles[index].vals.flattening_gain[LEFT] );
+    flattenBoxR->setValue( balProfiles[index].vals.flattening_gain[RIGHT] );
+    threshMinBoxL->setValue( balProfiles[index].vals.force_min_threshold[LEFT] );
+    threshMinBoxR->setValue( balProfiles[index].vals.force_min_threshold[RIGHT] );
+    threshMaxBoxL->setValue( balProfiles[index].vals.force_max_threshold[LEFT] );
+    threshMaxBoxR->setValue( balProfiles[index].vals.force_max_threshold[RIGHT] );
+    straightenPBoxL->setValue( balProfiles[index].vals.straightening_pitch_gain[LEFT] );
+    straightenPBoxR->setValue( balProfiles[index].vals.straightening_pitch_gain[RIGHT] );
+    straightenRBoxL->setValue( balProfiles[index].vals.straightening_roll_gain[LEFT] );
+    straightenRBoxR->setValue( balProfiles[index].vals.straightening_roll_gain[RIGHT] );
+    springBoxL->setValue( balProfiles[index].vals.spring_gain[LEFT] );
+    springBoxR->setValue( balProfiles[index].vals.spring_gain[RIGHT] );
+    dampBoxL->setValue( balProfiles[index].vals.damping_gain[LEFT] );
+    dampBoxR->setValue( balProfiles[index].vals.damping_gain[RIGHT] );
+    responseBoxL->setValue( balProfiles[index].vals.fz_response[LEFT] );
+    responseBoxR->setValue( balProfiles[index].vals.fz_response[RIGHT] );
+
+    balSaveAsEdit->clear();
+}
+
+void HuboWalkWidget::handlebalProfileDelete()
+{
+    balProfiles.remove(balProfileSelect->currentIndex());
+    updatebalProfileBox();
+}
+
+void HuboWalkWidget::handlebalProfileSaveAs()
+{
+    BalProfile tempProf;
+    tempProf.name = balSaveAsEdit->text();
+    fillbalProfile(tempProf.vals);
+    balProfiles.append(tempProf);
+    updatebalProfileBox();
+    balProfileSelect->setCurrentIndex(balProfileSelect->findText(tempProf.name));
+
+    balSaveAsEdit->clear();
+    balSaveAsEdit->setPlaceholderText("Remember to save your RViz session! (Ctrl-S)");
+}
+
+void HuboWalkWidget::updatebalProfileBox()
+{
+    balProfileSelect->clear();
+    for(int i=0; i < balProfiles.size(); i++)
+        balProfileSelect->addItem(balProfiles[i].name);
+}
+
+
+///////////// END: BALANCE
+
+
+
+
 void HuboWalkWidget::handleJoyLaunch()
 {
     
@@ -255,6 +353,13 @@ void HuboWalkWidget::initializeAchConnections()
     ach_status_t r = ach_open(&zmpCmdChan, CHAN_ZMP_CMD_NAME, NULL);
     if( r != ACH_OK )
         std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
+
+    achChannelBal.start("ach mk " + QString::fromLocal8Bit(BALANCE_PARAM_CHAN)
+                        + " -1 -m 10 -n 8000 -o 666", QIODevice::ReadWrite);
+    achChannelBal.waitForFinished();
+    r = ach_open(&balanceParamChan, BALANCE_PARAM_CHAN, NULL );
+    if( r != ACH_OK )
+        std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
 }
 
 void HuboWalkWidget::achdConnectSlot()
@@ -264,6 +369,33 @@ void HuboWalkWidget::achdConnectSlot()
                                  + "." + QString::number(ipAddrC)
                                  + "." + QString::number(ipAddrD)
                     + " " + QString::fromLocal8Bit(CHAN_ZMP_CMD_NAME));
+    connect(&achdZmp, SIGNAL(finished(int)), this, SLOT(achdExitFinished(int)));
+    connect(&achdZmp, SIGNAL(error(QProcess::ProcessError)), this, SLOT(achdExitError(QProcess::ProcessError)));
+    achdBal.start("achd push " + QString::number(ipAddrA)
+                                 + "." + QString::number(ipAddrB)
+                                 + "." + QString::number(ipAddrC)
+                                 + "." + QString::number(ipAddrD)
+                    + " " + QString::fromLocal8Bit(BALANCE_PARAM_CHAN));
+    connect(&achdBal, SIGNAL(finished(int)), this, SLOT(achdExitFinished(int)));
+    connect(&achdBal, SIGNAL(error(QProcess::ProcessError)), this, SLOT(achdExitError(QProcess::ProcessError)));
+    statusLabel->setText("Connected");
+}
+
+void HuboWalkWidget::achdDisconnectSlot()
+{
+    achdZmp.kill();
+    achdBal.kill();
+    statusLabel->setText("Disconnected");
+}
+
+void HuboWalkWidget::achdExitError(QProcess::ProcessError err)
+{
+    statusLabel->setText("Disconnected");
+}
+
+void HuboWalkWidget::achdExitFinished(int num)
+{
+    statusLabel->setText("Disconnected");
 }
 
 }

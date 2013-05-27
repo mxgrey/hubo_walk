@@ -75,7 +75,11 @@
 #include <hubo.h>
 #include <hubo-jointparams.h>
 
+//#include <hubo_motion_ros/AchNetworkWidget.h>
 #include <zmp-daemon.h>
+#include <balance-daemon.h>
+//#include <hubo_motion_ros/include/hubo_motion_ros/AchNetworkWidget.h>
+
 
 namespace hubo_walk_space
 {
@@ -109,6 +113,12 @@ public:
     zmp_cmd_t vals;
 };
 
+class BalProfile
+{
+public:
+    QString name;
+    balance_gains_t vals;
+};
 
 // Here we declare our new subclass of rviz::Panel.  Every panel which
 // can be added via the Panels/Add_New_Panel menu is a subclass of
@@ -148,6 +158,7 @@ public:
   ach_channel_t stateChan;
   bool stateOpen;
   ach_channel_t zmpCmdChan;
+  ach_channel_t balanceParamChan;
   bool zmpCmdOpen;
 
   void initializeAchConnections();
@@ -160,13 +171,17 @@ public:
   // Structs for storing data to transmit
   // TODO: Make the correct structs
   struct zmp_cmd cmd;
+  struct balance_gains balParams;
   
   
   // Handling profiles TODO
   //std::vector<zmp_params> profiles;
   QVector<ZmpProfile> zmpProfiles;
   void fillProfile(zmp_cmd_t &vals);
-  
+  void updateProfileBox();
+  QVector<BalProfile> balProfiles;
+  void fillbalProfile(balance_gains_t &vals);
+  void updatebalProfileBox();
   
   QWidget* commandTab;
 
@@ -233,12 +248,43 @@ public:
       QDoubleSpinBox* comHeightBox;
       QDoubleSpinBox* comIKAngleWeightBox;
     ///////////////
-  
-      void updateProfileBox();
+
       
       ik_error_sensitivity int2ikSense(int index);
       int ikSense2int(ik_error_sensitivity ik_sense);
-      
+
+
+    QWidget* balParamTab;
+
+      QComboBox* balProfileSelect;
+      QPushButton* savebalProfile;
+      QPushButton* deletebalProfile;
+      QPushButton* saveAsbalProfile;
+      QLineEdit* balSaveAsEdit;
+
+      QDoubleSpinBox* flattenBoxL;
+      QDoubleSpinBox* flattenBoxR;
+      QDoubleSpinBox* threshMinBoxL;
+      QDoubleSpinBox* threshMinBoxR;
+      QDoubleSpinBox* threshMaxBoxL;
+      QDoubleSpinBox* threshMaxBoxR;
+
+      QDoubleSpinBox* straightenPBoxL;
+      QDoubleSpinBox* straightenPBoxR;
+
+      QDoubleSpinBox* straightenRBoxL;
+      QDoubleSpinBox* straightenRBoxR;
+
+      QDoubleSpinBox* springBoxL;
+      QDoubleSpinBox* springBoxR;
+      QDoubleSpinBox* dampBoxL;
+      QDoubleSpinBox* dampBoxR;
+      QDoubleSpinBox* responseBoxL;
+      QDoubleSpinBox* responseBoxR;
+
+      QPushButton* updateBalParams;
+
+
 protected:
   int ipAddrA;
   int ipAddrB;
@@ -251,12 +297,20 @@ signals:
   // Slots will be "connected" to signals in order to respond to user events
 protected Q_SLOTS:
 
+  void sendBalParams();
+
   // Handle button events
   void handleProfileSave();
   void handleProfileDelete();
   void handleProfileSaveAs();
-  void handleJoyLaunch();
   void handleProfileSelect(int index);
+
+  void handlebalProfileSave();
+  void handlebalProfileDelete();
+  void handlebalProfileSaveAs();
+  void handlebalProfileSelect(int index);
+
+  void handleJoyLaunch();
   
   void handleForward();
   void handleLeft();
@@ -270,18 +324,10 @@ protected Q_SLOTS:
   void refreshState();
 
   // Deal with achd crashes/failures
-  void achdZStartedSlot();
-  void achdBStartedSlot();
-  void achdZExitError(QProcess::ProcessError err);
-  void achdZExitFinished(int num, QProcess::ExitStatus status);
-  void achdBExitError(QProcess::ProcessError err);
-  void achdBExitFinished(int num, QProcess::ExitStatus status);
+  void achdExitError(QProcess::ProcessError err);
+  void achdExitFinished(int num);
   void achdConnectSlot();
   void achdDisconnectSlot();
-  void achCreateCatch(QProcess::ProcessError err);
-  
-  void achCreateZHandle();
-  void achCreateBHandle();
   
   void ipEditHandle(const QString &text);
 
@@ -289,10 +335,8 @@ private:
 
   ///////////////
   void initializeCommandTab();
-  
-
-
   void initializeZmpParamTab();
+  void initializeBalParamTab();
   
 
 

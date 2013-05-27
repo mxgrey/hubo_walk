@@ -67,10 +67,9 @@ void HuboWalkPanel::load(const rviz::Config &config)
         ROS_INFO("Loading the IP Address Failed");
     else
         content->setIPAddress(a.toInt(), b.toInt(), c.toInt(), d.toInt());
-    
+
     
     rviz::Config p_config = config.mapGetChild("ZmpProfiles");
-    
     QVariant pNum;
     
     if( p_config.mapGetValue("ZmpProfileNum", &pNum) )
@@ -139,7 +138,80 @@ void HuboWalkPanel::load(const rviz::Config &config)
         content->profileSelect->setCurrentIndex(selectedProfile.toInt());
     }
     else
-        ROS_INFO("No profiles found");
+        ROS_INFO("No zmp profiles found");
+
+
+    rviz::Config pb_config = config.mapGetChild("BalProfiles");
+    QVariant pbNum;
+
+    if( pb_config.mapGetValue("BalProfileNum", &pbNum) )
+    {
+        QVariant selectedProfile;
+        config.mapGetValue("SelectedBalProfile", &selectedProfile);
+        content->balProfiles.resize(size_t(pbNum.toInt()));
+
+        for(int i=0; i < int(content->balProfiles.size()); i++)
+        {
+            QVariant temp;
+            pb_config.mapGetValue("BalProfileName"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].name = temp.toString();
+            pb_config.mapGetValue("flatten_l"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.flattening_gain[LEFT] = size_t(temp.toDouble());
+            pb_config.mapGetValue("flatten_r"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.flattening_gain[RIGHT] = temp.toDouble();
+            pb_config.mapGetValue("thresh_min_l"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.force_min_threshold[LEFT] = size_t(temp.toDouble());
+            pb_config.mapGetValue("thresh_min_r"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.force_min_threshold[RIGHT] = size_t(temp.toDouble());
+            pb_config.mapGetValue("thresh_max_l"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.force_max_threshold[LEFT] = size_t(temp.toDouble());
+            pb_config.mapGetValue("thresh_max_r"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.force_max_threshold[RIGHT] = size_t(temp.toDouble());
+            pb_config.mapGetValue("straightenP_l"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.straightening_pitch_gain[LEFT] = temp.toDouble();
+            pb_config.mapGetValue("straightenP_r"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.straightening_pitch_gain[RIGHT] = temp.toDouble();
+            pb_config.mapGetValue("straightenR_l"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.straightening_roll_gain[LEFT] = temp.toDouble();
+            pb_config.mapGetValue("straightenR_r"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.straightening_roll_gain[RIGHT] = temp.toDouble();
+            pb_config.mapGetValue("spring_l"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.spring_gain[LEFT] = temp.toDouble();
+            pb_config.mapGetValue("spring_r"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.spring_gain[RIGHT] = temp.toDouble();
+            pb_config.mapGetValue("damp_l"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.damping_gain[LEFT] = temp.toDouble();
+            pb_config.mapGetValue("damp_r"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.damping_gain[RIGHT] = temp.toDouble();
+            pb_config.mapGetValue("response_l"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.fz_response[LEFT] = temp.toDouble();
+            pb_config.mapGetValue("response_r"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.fz_response[RIGHT] = temp.toDouble();
+        }
+
+        content->updatebalProfileBox();
+        content->balProfileSelect->setCurrentIndex(selectedProfile.toInt());
+    }
+    else
+        ROS_INFO("No balance profiles found");
+
     
 }
 
@@ -206,7 +278,54 @@ void HuboWalkPanel::save(rviz::Config config) const
         p_config.mapSetValue("ik_sense"+QString::number(i),
                              QVariant(int(content->zmpProfiles[i].vals.ik_sense)));
     }
-    
+
+
+    QVariant selectedbalProfile = QVariant(content->balProfileSelect->currentIndex());
+    config.mapSetValue("SelectedBalProfile", selectedbalProfile);
+
+    rviz::Config pb_config = config.mapMakeChild("BalProfiles");
+
+    QVariant pbNum = QVariant(int(content->balProfiles.size()));
+    pb_config.mapSetValue("BalProfileNum", pbNum);
+
+    for(int i=0; i < int(content->balProfiles.size()); i++)
+    {
+        content->balProfiles[i].name.replace(" ","_");
+        pb_config.mapSetValue("BalProfileName"+QString::number(i),
+                             QVariant(content->balProfiles[i].name));
+        pb_config.mapSetValue("flatten_l"+QString::number(i),
+                             QVariant(int(content->balProfiles[i].vals.flattening_gain[LEFT])));
+        pb_config.mapSetValue("flatten_r"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.flattening_gain[RIGHT]));
+        pb_config.mapSetValue("thresh_min_l"+QString::number(i),
+                             QVariant(int(content->balProfiles[i].vals.force_min_threshold[LEFT])));
+        pb_config.mapSetValue("thresh_min_r"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.force_min_threshold[RIGHT]));
+        pb_config.mapSetValue("thresh_max_l"+QString::number(i),
+                             QVariant(int(content->balProfiles[i].vals.force_max_threshold[LEFT])));
+        pb_config.mapSetValue("thresh_max_r"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.force_max_threshold[RIGHT]));
+        pb_config.mapSetValue("straightenP_l"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.straightening_pitch_gain[LEFT]));
+        pb_config.mapSetValue("straightenP_r"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.straightening_pitch_gain[RIGHT]));
+        pb_config.mapSetValue("straightenR_l"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.straightening_roll_gain[LEFT]));
+        pb_config.mapSetValue("straightenR_r"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.straightening_roll_gain[RIGHT]));
+        pb_config.mapSetValue("spring_l"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.spring_gain[LEFT]));
+        pb_config.mapSetValue("spring_r"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.spring_gain[RIGHT]));
+        pb_config.mapSetValue("damp_l"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.damping_gain[LEFT]));
+        pb_config.mapSetValue("damp_r"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.damping_gain[RIGHT]));
+        pb_config.mapSetValue("response_l"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.fz_response[LEFT]));
+        pb_config.mapSetValue("response_r"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.fz_response[RIGHT]));
+    }
     
 }
 
@@ -232,9 +351,13 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
     
     initializeZmpParamTab();
     std::cerr << "ZMP Parameters Tab loaded" << std::endl;
+
+    initializeBalParamTab();
+    std::cerr << "Balance Parameters Tab loaded" << std::endl;
     
     addTab(commandTab, "Command");
     addTab(zmpParamTab, "ZMP Parameters");
+    addTab(balParamTab, "Balance Parameters");
 
     initializeAchConnections();
 
@@ -262,15 +385,11 @@ void HuboRefreshManager::getWaitTime(int t)
     waitTime = t;
 }
 
-void HuboWalkWidget::achCreateCatch(QProcess::ProcessError err)
-{
-    ROS_INFO("Creating Ach Channel Failed: Error Code %d", (int)err);
-}
 
 void HuboWalkWidget::initializeCommandTab()
 {
     QSizePolicy pbsize(QSizePolicy::Maximum, QSizePolicy::Maximum);
-    
+
     // Set up the networking box
     QVBoxLayout* achdLayout = new QVBoxLayout;
 
@@ -419,7 +538,7 @@ void HuboWalkWidget::initializeCommandTab()
     walkLayout->addWidget(walkLab, 0, Qt::AlignRight);
     walkDistanceBox = new QDoubleSpinBox;
     walkDistanceBox->setSingleStep(0.5);
-    walkDistanceBox->setValue(1.0);
+    walkDistanceBox->setValue(0.1);
     walkDistanceBox->setToolTip(walkLab->toolTip());
     walkLayout->addWidget(walkDistanceBox, 0, Qt::AlignLeft);
     distanceLayout->addLayout(walkLayout);
@@ -928,6 +1047,256 @@ void HuboWalkWidget::initializeZmpParamTab()
     
     profileSelect->setCurrentIndex(0);
 }
+
+
+void HuboWalkWidget::initializeBalParamTab()
+{
+    QSizePolicy pbsize(QSizePolicy::Maximum, QSizePolicy::Maximum);
+
+    QHBoxLayout* balProfileLayoutTop = new QHBoxLayout;
+    QLabel* balProfileLab = new QLabel;
+    balProfileLab->setText("Profile:");
+    balProfileLayoutTop->addWidget(balProfileLab, 0, Qt::AlignVCenter | Qt::AlignRight);
+
+    balProfileSelect = new QComboBox;
+    balProfileLayoutTop->addWidget(balProfileSelect);
+    connect(balProfileSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(handlebalProfileSelect(int)));
+
+    savebalProfile = new QPushButton;
+    savebalProfile->setSizePolicy(pbsize);
+    savebalProfile->setText("Save");
+    savebalProfile->setToolTip("Save the values below into the currently selected profile");
+    balProfileLayoutTop->addWidget(savebalProfile);
+    connect(savebalProfile, SIGNAL(clicked()), this, SLOT(handlebalProfileSave()));
+
+    deletebalProfile = new QPushButton;
+    deletebalProfile->setSizePolicy(pbsize);
+    deletebalProfile->setText("Delete");
+    deletebalProfile->setToolTip("Remove the current profile from the list\n"
+                                 "WARNING: This is permanent!");
+    balProfileLayoutTop->addWidget(deletebalProfile);
+    connect(deletebalProfile, SIGNAL(clicked()), this, SLOT(handlebalProfileDelete()));
+
+    QHBoxLayout* balProfileLayoutBottom = new QHBoxLayout;
+    saveAsbalProfile = new QPushButton;
+    saveAsbalProfile->setSizePolicy(pbsize);
+    saveAsbalProfile->setText("Save As...");
+    saveAsbalProfile->setToolTip("Save the values below as a new profile with the following name:");
+    balProfileLayoutBottom->addWidget(saveAsbalProfile);
+    connect(saveAsbalProfile, SIGNAL(clicked()), this, SLOT(handlebalProfileSaveAs()));
+
+    balSaveAsEdit = new QLineEdit;
+    balSaveAsEdit->setToolTip("Enter a name for a new profile");
+    balProfileLayoutBottom->addWidget(balSaveAsEdit);
+
+    QVBoxLayout* balProfileLayoutMaster = new QVBoxLayout;
+    balProfileLayoutMaster->addLayout(balProfileLayoutTop);
+    balProfileLayoutMaster->addLayout(balProfileLayoutBottom);
+
+
+    QVBoxLayout* bottomLayout = new QVBoxLayout;
+
+    QHBoxLayout* flatLayout = new QHBoxLayout;
+    QLabel* flatLab = new QLabel;
+    flatLab->setText("Flattening Gains:");
+    flatLab->setToolTip("Gains for foot flattening (Left/Right)");
+    flatLayout->addWidget(flatLab);
+    flattenBoxL = new QDoubleSpinBox;
+    flattenBoxL->setDecimals(4);
+    flattenBoxL->setSingleStep(0.005);
+    flattenBoxL->setMinimum(0);
+    flattenBoxL->setMaximum(99999);
+    flattenBoxL->setValue(0.001);
+    flatLayout->addWidget(flattenBoxL);
+    flattenBoxR = new QDoubleSpinBox;
+    flattenBoxR->setDecimals(4);
+    flattenBoxR->setSingleStep(0.005);
+    flattenBoxR->setMinimum(0);
+    flattenBoxR->setMaximum(99999);
+    flattenBoxR->setValue(0.001);
+    flatLayout->addWidget(flattenBoxR);
+
+    bottomLayout->addLayout(flatLayout);
+
+    QHBoxLayout* threshMinLayout = new QHBoxLayout;
+    QLabel* threshMinLab = new QLabel;
+    threshMinLab->setText("Minimum Force Threshold:");
+    threshMinLab->setToolTip("Minimum force cut-off for flattening foot (Left/Right)");
+    threshMinLayout->addWidget(threshMinLab);
+    threshMinBoxL = new QDoubleSpinBox;
+    threshMinBoxL->setDecimals(4);
+    threshMinBoxL->setSingleStep(1);
+    threshMinBoxL->setMinimum(-99999);
+    threshMinBoxL->setMaximum(99999);
+    threshMinBoxL->setValue(10);
+    threshMinLayout->addWidget(threshMinBoxL);
+    threshMinBoxR = new QDoubleSpinBox;
+    threshMinBoxR->setDecimals(4);
+    threshMinBoxR->setSingleStep(1);
+    threshMinBoxR->setMinimum(-99999);
+    threshMinBoxR->setMaximum(99999);
+    threshMinBoxR->setValue(10);
+    threshMinLayout->addWidget(threshMinBoxR);
+
+    bottomLayout->addLayout(threshMinLayout);
+
+    QHBoxLayout* threshMaxLayout = new QHBoxLayout;
+    QLabel* threshMaxLab = new QLabel;
+    threshMaxLab->setText("Maximum Force Threshold:");
+    threshMaxLab->setToolTip("Minimum force cut-off for flattening foot (Left/Right)");
+    threshMaxLayout->addWidget(threshMaxLab);
+    threshMaxBoxL = new QDoubleSpinBox;
+    threshMaxBoxL->setDecimals(4);
+    threshMaxBoxL->setSingleStep(1);
+    threshMaxBoxL->setMinimum(-99999);
+    threshMaxBoxL->setMaximum(99999);
+    threshMaxBoxL->setValue(10);
+    threshMaxLayout->addWidget(threshMaxBoxL);
+    threshMaxBoxR = new QDoubleSpinBox;
+    threshMaxBoxR->setDecimals(4);
+    threshMaxBoxR->setSingleStep(1);
+    threshMaxBoxR->setMinimum(-99999);
+    threshMaxBoxR->setMaximum(99999);
+    threshMaxBoxR->setValue(10);
+    threshMaxLayout->addWidget(threshMaxBoxR);
+
+    bottomLayout->addLayout(threshMaxLayout);
+
+    QHBoxLayout* straightenPLayout = new QHBoxLayout;
+    QLabel* straightenPLab = new QLabel;
+    straightenPLab->setText("Torso pitch-straightening Gain:");
+    straightenPLab->setToolTip("Gain for keeping torso upright (Left/Right)");
+    straightenPLayout->addWidget(straightenPLab);
+    straightenPBoxL = new QDoubleSpinBox;
+    straightenPBoxL->setDecimals(4);
+    straightenPBoxL->setSingleStep(1);
+    straightenPBoxL->setMinimum(-99999);
+    straightenPBoxL->setMaximum(99999);
+    straightenPBoxL->setValue(10);
+    straightenPLayout->addWidget(straightenPBoxL);
+    straightenPBoxR = new QDoubleSpinBox;
+    straightenPBoxR->setDecimals(4);
+    straightenPBoxR->setSingleStep(1);
+    straightenPBoxR->setMinimum(-99999);
+    straightenPBoxR->setMaximum(99999);
+    straightenPBoxR->setValue(10);
+    straightenPLayout->addWidget(straightenPBoxR);
+
+    bottomLayout->addLayout(straightenPLayout);
+
+    QHBoxLayout* straightenRLayout = new QHBoxLayout;
+    QLabel* straightenRLab = new QLabel;
+    straightenRLab->setText("Torso roll-straightening Gain:");
+    straightenRLab->setToolTip("Gain for keeping torso upright (Left/Right)");
+    straightenRLayout->addWidget(straightenRLab);
+    straightenRBoxL = new QDoubleSpinBox;
+    straightenRBoxL->setDecimals(4);
+    straightenRBoxL->setSingleStep(1);
+    straightenRBoxL->setMinimum(-99999);
+    straightenRBoxL->setMaximum(99999);
+    straightenRBoxL->setValue(10);
+    straightenRLayout->addWidget(straightenRBoxL);
+    straightenRBoxR = new QDoubleSpinBox;
+    straightenRBoxR->setDecimals(4);
+    straightenRBoxR->setSingleStep(1);
+    straightenRBoxR->setMinimum(-99999);
+    straightenRBoxR->setMaximum(99999);
+    straightenRBoxR->setValue(10);
+    straightenRLayout->addWidget(straightenRBoxR);
+
+    bottomLayout->addLayout(straightenRLayout);
+
+    QHBoxLayout* springLayout = new QHBoxLayout;
+    QLabel* springLab = new QLabel;
+    springLab->setText("Leg Stiffness Gain:");
+    springLab->setToolTip("Gain for keeping the legs stiff (Left/Right)");
+    springLayout->addWidget(springLab);
+    springBoxL = new QDoubleSpinBox;
+    springBoxL->setDecimals(4);
+    springBoxL->setSingleStep(1);
+    springBoxL->setMinimum(-99999);
+    springBoxL->setMaximum(99999);
+    springBoxL->setValue(10);
+    springLayout->addWidget(springBoxL);
+    springBoxR = new QDoubleSpinBox;
+    springBoxR->setDecimals(4);
+    springBoxR->setSingleStep(1);
+    springBoxR->setMinimum(-99999);
+    springBoxR->setMaximum(99999);
+    springBoxR->setValue(10);
+    springLayout->addWidget(springBoxR);
+
+    bottomLayout->addLayout(springLayout);
+
+    QHBoxLayout* dampLayout = new QHBoxLayout;
+    QLabel* dampLab = new QLabel;
+    dampLab->setText("Leg Stiffness Gain:");
+    dampLab->setToolTip("Gain for keeping the legs stiff (Left/Right)");
+    dampLayout->addWidget(dampLab);
+    dampBoxL = new QDoubleSpinBox;
+    dampBoxL->setDecimals(4);
+    dampBoxL->setSingleStep(1);
+    dampBoxL->setMinimum(-99999);
+    dampBoxL->setMaximum(99999);
+    dampBoxL->setValue(10);
+    dampLayout->addWidget(dampBoxL);
+    dampBoxR = new QDoubleSpinBox;
+    dampBoxR->setDecimals(4);
+    dampBoxR->setSingleStep(1);
+    dampBoxR->setMinimum(-99999);
+    dampBoxR->setMaximum(99999);
+    dampBoxR->setValue(10);
+    dampLayout->addWidget(dampBoxR);
+
+    bottomLayout->addLayout(dampLayout);
+
+    QHBoxLayout* responseLayout = new QHBoxLayout;
+    QLabel* responseLab = new QLabel;
+    responseLab->setText("Leg Stiffness Gain:");
+    responseLab->setToolTip("Gain for keeping the legs stiff (Left/Right)");
+    responseLayout->addWidget(responseLab);
+    responseBoxL = new QDoubleSpinBox;
+    responseBoxL->setDecimals(4);
+    responseBoxL->setSingleStep(1);
+    responseBoxL->setMinimum(-99999);
+    responseBoxL->setMaximum(99999);
+    responseBoxL->setValue(10);
+    responseLayout->addWidget(responseBoxL);
+    responseBoxR = new QDoubleSpinBox;
+    responseBoxR->setDecimals(4);
+    responseBoxR->setSingleStep(1);
+    responseBoxR->setMinimum(-99999);
+    responseBoxR->setMaximum(99999);
+    responseBoxR->setValue(10);
+    responseLayout->addWidget(responseBoxR);
+
+    bottomLayout->addLayout(responseLayout);
+
+    updateBalParams = new QPushButton;
+    updateBalParams->setText("Send");
+    updateBalParams->setToolTip("Send this set of parameters to the balancing daemon");
+    connect(updateBalParams, SIGNAL(clicked()), this, SLOT(sendBalParams()));
+    bottomLayout->addWidget(updateBalParams);
+
+    balSaveAsEdit->setText("Default");
+    handlebalProfileSaveAs();
+    balSaveAsEdit->setText("Default-Backup");
+    handlebalProfileSaveAs();
+    balSaveAsEdit->clear();
+
+    balProfileSelect->setCurrentIndex(0);
+
+    QVBoxLayout* masterBalLayout = new QVBoxLayout;
+    masterBalLayout->addLayout(balProfileLayoutMaster);
+    masterBalLayout->addLayout(bottomLayout);
+
+    balParamTab = new QWidget;
+    balParamTab->setLayout(masterBalLayout);
+}
+
+
+
+
 
 
 }
