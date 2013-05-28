@@ -538,7 +538,7 @@ void HuboWalkWidget::initializeCommandTab()
     walkLayout->addWidget(walkLab, 0, Qt::AlignRight);
     walkDistanceBox = new QDoubleSpinBox;
     walkDistanceBox->setSingleStep(0.5);
-    walkDistanceBox->setValue(0.1);
+    walkDistanceBox->setValue(0.2);
     walkDistanceBox->setToolTip(walkLab->toolTip());
     walkLayout->addWidget(walkDistanceBox, 0, Qt::AlignLeft);
     distanceLayout->addLayout(walkLayout);
@@ -1230,8 +1230,8 @@ void HuboWalkWidget::initializeBalParamTab()
 
     QHBoxLayout* dampLayout = new QHBoxLayout;
     QLabel* dampLab = new QLabel;
-    dampLab->setText("Leg Stiffness Gain:");
-    dampLab->setToolTip("Gain for keeping the legs stiff (Left/Right)");
+    dampLab->setText("Leg Damping Gain:");
+    dampLab->setToolTip("Gain for damping leg movement (Left/Right)");
     dampLayout->addWidget(dampLab);
     dampBoxL = new QDoubleSpinBox;
     dampBoxL->setDecimals(4);
@@ -1252,8 +1252,8 @@ void HuboWalkWidget::initializeBalParamTab()
 
     QHBoxLayout* responseLayout = new QHBoxLayout;
     QLabel* responseLab = new QLabel;
-    responseLab->setText("Leg Stiffness Gain:");
-    responseLab->setToolTip("Gain for keeping the legs stiff (Left/Right)");
+    responseLab->setText("Leg Response Gain:");
+    responseLab->setToolTip("Gain for how much legs should respond to force (Left/Right)");
     responseLayout->addWidget(responseLab);
     responseBoxL = new QDoubleSpinBox;
     responseBoxL->setDecimals(4);
