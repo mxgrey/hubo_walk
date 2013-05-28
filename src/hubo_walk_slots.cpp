@@ -117,7 +117,7 @@ void HuboWalkWidget::fillProfile(zmp_cmd_t &vals)
 {
     vals.max_step_count = maxStepBox->value();
     vals.step_length = stepDistanceBox->value() ;
-    vals.footstep_y = lateralDistanceBox->value() ;
+    vals.halfStanceWidth = lateralDistanceBox->value() ;
     vals.foot_liftoff_z = liftoffHeightBox->value() ;
     vals.sidestep_length = sideStepDistanceBox->value() ;
     vals.com_height = comHeightBox->value() ;
@@ -146,7 +146,7 @@ void HuboWalkWidget::handleProfileSelect(int index)
 {
     maxStepBox->setValue(zmpProfiles[index].vals.max_step_count );
     stepDistanceBox->setValue(zmpProfiles[index].vals.step_length ) ;
-    lateralDistanceBox->setValue(zmpProfiles[index].vals.footstep_y ) ;
+    lateralDistanceBox->setValue(zmpProfiles[index].vals.halfStanceWidth ) ;
     liftoffHeightBox->setValue(zmpProfiles[index].vals.foot_liftoff_z ) ;
     sideStepDistanceBox->setValue(zmpProfiles[index].vals.sidestep_length ) ;
     comHeightBox->setValue(zmpProfiles[index].vals.com_height ) ;

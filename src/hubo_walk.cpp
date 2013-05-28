@@ -90,9 +90,9 @@ void HuboWalkPanel::load(const rviz::Config &config)
             p_config.mapGetValue("step_length"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.step_length = temp.toDouble();
-            p_config.mapGetValue("footstep_y"+QString::number(i),
+            p_config.mapGetValue("halfStanceWidth"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.footstep_y = temp.toDouble();
+            content->zmpProfiles[i].vals.halfStanceWidth = temp.toDouble();
             p_config.mapGetValue("foot_liftoff_z"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.foot_liftoff_z = temp.toDouble();
@@ -249,8 +249,8 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(int(content->zmpProfiles[i].vals.max_step_count)));
         p_config.mapSetValue("step_length"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.step_length));
-        p_config.mapSetValue("footstep_y"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.footstep_y));
+        p_config.mapSetValue("halfStanceWidth"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.halfStanceWidth));
         p_config.mapSetValue("foot_liftoff_z"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.foot_liftoff_z));
         p_config.mapSetValue("sidestep_length"+QString::number(i),
@@ -791,7 +791,7 @@ void HuboWalkWidget::initializeZmpParamTab()
     startupTimeBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     startupTimeBox->setToolTip(startupTimeLab->toolTip());
     startupTimeBox->setDecimals(3);
-    startupTimeBox->setValue(1.0);
+    startupTimeBox->setValue(0.5);
     startupTimeBox->setSingleStep(0.01);
     startupTimeBox->setMinimum(0);
     startupTimeBox->setMaximum(1000);
@@ -811,7 +811,7 @@ void HuboWalkWidget::initializeZmpParamTab()
     shutdownTimeBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     shutdownTimeBox->setToolTip(shutdownTimeLab->toolTip());
     shutdownTimeBox->setDecimals(3);
-    shutdownTimeBox->setValue(1.0);
+    shutdownTimeBox->setValue(0.5);
     shutdownTimeBox->setSingleStep(0.01);
     shutdownTimeBox->setMinimum(0);
     shutdownTimeBox->setMaximum(1000);
