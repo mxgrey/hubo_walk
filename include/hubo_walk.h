@@ -264,6 +264,7 @@ public:
 
       QDoubleSpinBox* flattenBoxL;
       QDoubleSpinBox* flattenBoxR;
+      QDoubleSpinBox* decayBox;
       QDoubleSpinBox* threshMinBoxL;
       QDoubleSpinBox* threshMinBoxR;
       QDoubleSpinBox* threshMaxBoxL;

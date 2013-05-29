@@ -162,6 +162,10 @@ void HuboWalkPanel::load(const rviz::Config &config)
             pb_config.mapGetValue("flatten_r"+QString::number(i),
                                  &temp);
             content->balProfiles[i].vals.flattening_gain[RIGHT] = temp.toDouble();
+            pb_config.mapGetValue("decay_gain"+QString::number(i),
+                                  &temp);
+            content->balProfiles[i].vals.decay_gain[LEFT] = temp.toDouble();
+            content->balProfiles[i].vals.decay_gain[RIGHT] = temp.toDouble();
             pb_config.mapGetValue("thresh_min_l"+QString::number(i),
                                  &temp);
             content->balProfiles[i].vals.force_min_threshold[LEFT] = size_t(temp.toDouble());
@@ -294,15 +298,17 @@ void HuboWalkPanel::save(rviz::Config config) const
         pb_config.mapSetValue("BalProfileName"+QString::number(i),
                              QVariant(content->balProfiles[i].name));
         pb_config.mapSetValue("flatten_l"+QString::number(i),
-                             QVariant(int(content->balProfiles[i].vals.flattening_gain[LEFT])));
+                             QVariant(content->balProfiles[i].vals.flattening_gain[LEFT]));
         pb_config.mapSetValue("flatten_r"+QString::number(i),
                              QVariant(content->balProfiles[i].vals.flattening_gain[RIGHT]));
+        pb_config.mapSetValue("decay_gain"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.decay_gain[LEFT]));
         pb_config.mapSetValue("thresh_min_l"+QString::number(i),
-                             QVariant(int(content->balProfiles[i].vals.force_min_threshold[LEFT])));
+                             QVariant(content->balProfiles[i].vals.force_min_threshold[LEFT]));
         pb_config.mapSetValue("thresh_min_r"+QString::number(i),
                              QVariant(content->balProfiles[i].vals.force_min_threshold[RIGHT]));
         pb_config.mapSetValue("thresh_max_l"+QString::number(i),
-                             QVariant(int(content->balProfiles[i].vals.force_max_threshold[LEFT])));
+                             QVariant(content->balProfiles[i].vals.force_max_threshold[LEFT]));
         pb_config.mapSetValue("thresh_max_r"+QString::number(i),
                              QVariant(content->balProfiles[i].vals.force_max_threshold[RIGHT]));
         pb_config.mapSetValue("straightenP_l"+QString::number(i),
@@ -559,7 +565,7 @@ void HuboWalkWidget::initializeCommandTab()
     maxStepBox = new QSpinBox;
     maxStepBox->setSingleStep(1);
     maxStepBox->setToolTip(maxStepLab->toolTip());
-    maxStepBox->setValue(20);
+    maxStepBox->setValue(10);
     paramLayout->addWidget(maxStepBox, 0, Qt::AlignLeft | Qt::AlignVCenter);
     
     
@@ -1117,6 +1123,20 @@ void HuboWalkWidget::initializeBalParamTab()
     flatLayout->addWidget(flattenBoxR);
 
     bottomLayout->addLayout(flatLayout);
+
+    QHBoxLayout* decayLayout = new QHBoxLayout;
+    QLabel* decayLab = new QLabel;
+    decayLab->setText("Decay Gain:");
+    decayLayout->addWidget(decayLab);
+    decayBox = new QDoubleSpinBox;
+    decayBox->setDecimals(4);
+    decayBox->setSingleStep(0.005);
+    decayBox->setMinimum(0);
+    decayBox->setMaximum(99999);
+    decayBox->setValue(0.001);
+    decayLayout->addWidget(decayBox);
+
+    bottomLayout->addLayout(decayLayout);
 
     QHBoxLayout* threshMinLayout = new QHBoxLayout;
     QLabel* threshMinLab = new QLabel;

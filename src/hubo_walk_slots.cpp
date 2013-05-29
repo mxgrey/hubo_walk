@@ -197,6 +197,8 @@ void HuboWalkWidget::fillbalProfile(balance_gains_t &vals)
 {
     vals.flattening_gain[LEFT] = flattenBoxL->value();
     vals.flattening_gain[RIGHT] = flattenBoxR->value() ;
+    vals.decay_gain[LEFT] = decayBox->value() ;
+    vals.decay_gain[RIGHT] = decayBox->value() ;
     vals.force_min_threshold[LEFT] = threshMinBoxL->value();
     vals.force_min_threshold[RIGHT] = threshMinBoxR->value();
     vals.force_max_threshold[LEFT] = threshMaxBoxL->value();
@@ -226,6 +228,7 @@ void HuboWalkWidget::handlebalProfileSelect(int index)
 {
     flattenBoxL->setValue( balProfiles[index].vals.flattening_gain[LEFT] );
     flattenBoxR->setValue( balProfiles[index].vals.flattening_gain[RIGHT] );
+    decayBox->setValue( balProfiles[index].vals.decay_gain[LEFT] );
     threshMinBoxL->setValue( balProfiles[index].vals.force_min_threshold[LEFT] );
     threshMinBoxR->setValue( balProfiles[index].vals.force_min_threshold[RIGHT] );
     threshMaxBoxL->setValue( balProfiles[index].vals.force_max_threshold[LEFT] );
