@@ -158,7 +158,7 @@ void HuboWalkPanel::load(const rviz::Config &config)
             content->balProfiles[i].name = temp.toString();
             pb_config.mapGetValue("flatten_l"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.flattening_gain[LEFT] = size_t(temp.toDouble());
+            content->balProfiles[i].vals.flattening_gain[LEFT] = temp.toDouble();
             pb_config.mapGetValue("flatten_r"+QString::number(i),
                                  &temp);
             content->balProfiles[i].vals.flattening_gain[RIGHT] = temp.toDouble();
@@ -168,16 +168,16 @@ void HuboWalkPanel::load(const rviz::Config &config)
             content->balProfiles[i].vals.decay_gain[RIGHT] = temp.toDouble();
             pb_config.mapGetValue("thresh_min_l"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.force_min_threshold[LEFT] = size_t(temp.toDouble());
+            content->balProfiles[i].vals.force_min_threshold[LEFT] = temp.toDouble();
             pb_config.mapGetValue("thresh_min_r"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.force_min_threshold[RIGHT] = size_t(temp.toDouble());
+            content->balProfiles[i].vals.force_min_threshold[RIGHT] = temp.toDouble();
             pb_config.mapGetValue("thresh_max_l"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.force_max_threshold[LEFT] = size_t(temp.toDouble());
+            content->balProfiles[i].vals.force_max_threshold[LEFT] = temp.toDouble();
             pb_config.mapGetValue("thresh_max_r"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.force_max_threshold[RIGHT] = size_t(temp.toDouble());
+            content->balProfiles[i].vals.force_max_threshold[RIGHT] = temp.toDouble();
             pb_config.mapGetValue("straightenP_l"+QString::number(i),
                                  &temp);
             content->balProfiles[i].vals.straightening_pitch_gain[LEFT] = temp.toDouble();
@@ -1132,7 +1132,7 @@ void HuboWalkWidget::initializeBalParamTab()
     decayBox->setDecimals(4);
     decayBox->setSingleStep(0.005);
     decayBox->setMinimum(0);
-    decayBox->setMaximum(99999);
+    decayBox->setMaximum(1);
     decayBox->setValue(0.001);
     decayLayout->addWidget(decayBox);
 
@@ -1170,14 +1170,14 @@ void HuboWalkWidget::initializeBalParamTab()
     threshMaxBoxL->setSingleStep(1);
     threshMaxBoxL->setMinimum(-99999);
     threshMaxBoxL->setMaximum(99999);
-    threshMaxBoxL->setValue(10);
+    threshMaxBoxL->setValue(50);
     threshMaxLayout->addWidget(threshMaxBoxL);
     threshMaxBoxR = new QDoubleSpinBox;
     threshMaxBoxR->setDecimals(4);
     threshMaxBoxR->setSingleStep(1);
     threshMaxBoxR->setMinimum(-99999);
     threshMaxBoxR->setMaximum(99999);
-    threshMaxBoxR->setValue(10);
+    threshMaxBoxR->setValue(50);
     threshMaxLayout->addWidget(threshMaxBoxR);
 
     bottomLayout->addLayout(threshMaxLayout);
