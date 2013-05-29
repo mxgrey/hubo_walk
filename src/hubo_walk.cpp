@@ -907,7 +907,7 @@ void HuboWalkWidget::initializeZmpParamTab()
     liftoffHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     liftoffHeightBox->setToolTip(footliftLab->toolTip());
     liftoffHeightBox->setDecimals(4);
-    liftoffHeightBox->setValue(0.04);
+    liftoffHeightBox->setValue(0.06);
     liftoffHeightBox->setSingleStep(0.01);
     liftoffHeightBox->setMinimum(0);
     liftoffHeightBox->setMaximum(2);
