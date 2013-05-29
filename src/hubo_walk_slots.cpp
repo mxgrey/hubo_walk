@@ -56,14 +56,14 @@ void HuboWalkWidget::handleBackward()
 
 void HuboWalkWidget::handleLeft()
 {
-    cmd.walk_type = walk_line;
+    cmd.walk_type = walk_sidestep;
     cmd.cmd_state = SIDESTEPPING_LEFT;
     sendCommand();
 }
 
 void HuboWalkWidget::handleRight()
 {
-    cmd.walk_type = walk_line;
+    cmd.walk_type = walk_sidestep;
     cmd.cmd_state = SIDESTEPPING_RIGHT;
     sendCommand();
 }
