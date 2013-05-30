@@ -61,7 +61,7 @@ void HuboWalkPanel::load(const rviz::Config &config)
 {
     rviz::Panel::load(config);
 
-    content->handlebalProfileSave();
+
 
     rviz::Config ip_config = config.mapGetChild("HuboIP");
     QVariant a, b, c, d;
