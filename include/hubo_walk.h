@@ -156,14 +156,14 @@ public:
 
   // Ach Channels for sending and receiving data
   ach_channel_t stateChan;
-  bool stateOpen;
   ach_channel_t zmpCmdChan;
   ach_channel_t balanceParamChan;
-  bool zmpCmdOpen;
+  ach_channel_t balanceCmdChan;
 
   void initializeAchConnections();
-  void initializeAchStructs();
+//  void initializeAchStructs();
   void sendCommand();
+  void sendBalCommand();
 
   void setIPAddress(int a, int b, int c, int d);
   int getIPAddress(int index);
@@ -172,6 +172,7 @@ public:
   // TODO: Make the correct structs
   struct zmp_cmd cmd;
   struct balance_gains balParams;
+  struct balance_cmd balCmd;
   
   
   // Handling profiles TODO
@@ -213,10 +214,14 @@ public:
     QPushButton* stopButton;
     QPushButton* turnLeftButton;
     QPushButton* turnRightButton;
+
+    double heightScale;
+    QSlider* heightSlide;
+    QPushButton* staticButton;
+    QPushButton* balOffButton;
   ///////////////
     
-    
-    // TODO: Update all the following
+
     ///////////////
     QWidget* zmpParamTab;
     
@@ -299,6 +304,9 @@ signals:
 protected Q_SLOTS:
 
   void sendBalParams();
+
+  void handleStaticButton();
+  void handleBalOffButton();
 
   // Handle button events
   void handleProfileSave();

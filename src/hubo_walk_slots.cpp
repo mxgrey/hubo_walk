@@ -98,8 +98,32 @@ void HuboWalkWidget::sendCommand()
     cmd.walk_continuous = continuousBox->isChecked();
     ach_status_t r = ach_put(&zmpCmdChan, &cmd, sizeof(cmd));
     if( r != ACH_OK )
-        std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
+        std::cout << "ZMP Command Ach Error: " << ach_result_to_string(r) << std::endl;
+    balCmd.cmd_request = BAL_ZMP_WALKING;
+    sendBalCommand();
     sendBalParams();
+}
+
+void HuboWalkWidget::handleStaticButton()
+{
+    balCmd.height = heightSlide->value()/heightScale;
+    balCmd.cmd_request = BAL_LEGS_ONLY;
+    sendBalCommand();
+}
+
+void HuboWalkWidget::handleBalOffButton()
+{
+    balCmd.cmd_request = BAL_READY;
+    sendBalCommand();
+}
+
+void HuboWalkWidget::sendBalCommand()
+{
+
+    ach_status_t r = ach_put( &balanceCmdChan, &balCmd, sizeof(balCmd) );
+    if( r != ACH_OK )
+        std::cout << "Balance Command Ach Error: " << ach_result_to_string(r) << std::endl;
+
 }
 
 void HuboWalkWidget::sendBalParams()
@@ -361,6 +385,13 @@ void HuboWalkWidget::initializeAchConnections()
                         + " -1 -m 10 -n 8000 -o 666", QIODevice::ReadWrite);
     achChannelBal.waitForFinished();
     r = ach_open(&balanceParamChan, BALANCE_PARAM_CHAN, NULL );
+    if( r != ACH_OK )
+        std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
+
+    achChannelBal.start("ach mk " + QString::fromLocal8Bit(BALANCE_CMD_CHAN)
+                        + " -1 -m 10 -n 8000 -o 666", QIODevice::ReadWrite);
+    achChannelBal.waitForFinished();
+    r = ach_open(&balanceCmdChan, BALANCE_CMD_CHAN, NULL );
     if( r != ACH_OK )
         std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
 }

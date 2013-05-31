@@ -535,59 +535,57 @@ void HuboWalkWidget::initializeCommandTab()
     controlSelectBox->setLayout(controlSelectLayout);
     
     
-    QVBoxLayout* controlLayout = new QVBoxLayout;
+    QHBoxLayout* controlLayout = new QHBoxLayout;
     
-    QHBoxLayout* paramLayout = new QHBoxLayout;
-    
-    QVBoxLayout* distanceLayout = new QVBoxLayout;
-    QHBoxLayout* walkLayout = new QHBoxLayout;
+    QGroupBox* zmpCtrlGroup = new QGroupBox;
+    zmpCtrlGroup->setTitle("ZMP Commands");
+    zmpCtrlGroup->setStyleSheet(groupStyleSheet);
+    QHBoxLayout* zmpCtrlLayout = new QHBoxLayout;
+    QVBoxLayout* paramLayout = new QVBoxLayout;
+
     QLabel* walkLab = new QLabel;
     walkLab->setText("Walk Distance:");
     walkLab->setToolTip("Distance to walk (m) after a click");
-    walkLayout->addWidget(walkLab, 0, Qt::AlignRight);
+    paramLayout->addWidget(walkLab, 0, Qt::AlignLeft);
     walkDistanceBox = new QDoubleSpinBox;
     walkDistanceBox->setSingleStep(0.5);
     walkDistanceBox->setValue(0.2);
     walkDistanceBox->setToolTip(walkLab->toolTip());
-    walkLayout->addWidget(walkDistanceBox, 0, Qt::AlignLeft);
-    distanceLayout->addLayout(walkLayout);
+    paramLayout->addWidget(walkDistanceBox, 0, Qt::AlignLeft);
     
     continuousBox = new QCheckBox;
     continuousBox->setChecked(false);
     continuousBox->setText("Continuous");
     continuousBox->setToolTip("Ignore the walk distance, and walk until Stop is selected");
-    distanceLayout->addWidget(continuousBox, 0, Qt::AlignLeft);
-    
-    paramLayout->addLayout(distanceLayout);
-    
-    
+    paramLayout->addWidget(continuousBox, 0, Qt::AlignLeft);
+
     QLabel* maxStepLab = new QLabel;
-    maxStepLab->setText("Max Step Count:");
+    maxStepLab->setText("Max Steps:");
     maxStepLab->setToolTip("Cut-off for number of steps to take");
-    paramLayout->addWidget(maxStepLab, 0, Qt::AlignRight | Qt::AlignVCenter);
+    paramLayout->addWidget(maxStepLab, 0, Qt::AlignLeft | Qt::AlignBottom);
     maxStepBox = new QSpinBox;
     maxStepBox->setSingleStep(1);
     maxStepBox->setToolTip(maxStepLab->toolTip());
     maxStepBox->setValue(10);
-    paramLayout->addWidget(maxStepBox, 0, Qt::AlignLeft | Qt::AlignVCenter);
+    paramLayout->addWidget(maxStepBox, 0, Qt::AlignLeft | Qt::AlignTop);
     
     
     QLabel* turnLab = new QLabel;
     turnLab->setText("Turn Radius:");
     turnLab->setToolTip("Radius of curvature (m) for turning");
-    paramLayout->addWidget(turnLab, 0, Qt::AlignRight | Qt::AlignVCenter);
+    paramLayout->addWidget(turnLab, 0, Qt::AlignLeft | Qt::AlignBottom);
     radiusBox = new QDoubleSpinBox;
     radiusBox->setValue(5.0);
     radiusBox->setMinimum(0);
     radiusBox->setSingleStep(0.1);
     radiusBox->setMaximum(10000);
     radiusBox->setToolTip(turnLab->toolTip());
-    paramLayout->addWidget(radiusBox, 0, Qt::AlignLeft | Qt::AlignVCenter);
-    
-    controlLayout->addLayout(paramLayout);
+    paramLayout->addWidget(radiusBox, 0, Qt::AlignLeft | Qt::AlignTop);
+
+    zmpCtrlLayout->addLayout(paramLayout);
     
     QGridLayout* wasdLayout = new QGridLayout;
-    wasdLayout->setAlignment(Qt::AlignCenter);
+    wasdLayout->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     
     turnLeftButton = new QPushButton;
     turnLeftButton->setText("  Turn  ");
@@ -632,8 +630,44 @@ void HuboWalkWidget::initializeCommandTab()
     wasdLayout->addWidget(backButton, 2, 1, 1, 1, Qt::AlignCenter);
     connect(backButton, SIGNAL(clicked()), this, SLOT(handleBackward()));
     
-    controlLayout->addLayout(wasdLayout);
-    
+    zmpCtrlLayout->addLayout(wasdLayout);
+
+    zmpCtrlGroup->setLayout(zmpCtrlLayout);
+    controlLayout->addWidget(zmpCtrlGroup, 0, Qt::AlignLeft);
+
+
+    QGroupBox* balCtrlGroup = new QGroupBox;
+    balCtrlGroup->setTitle("Static Commands");
+    balCtrlGroup->setStyleSheet(groupStyleSheet);
+    QVBoxLayout* balLayout = new QVBoxLayout;
+
+    heightScale = 1000;
+    QLabel* heightLabel = new QLabel;
+    heightLabel->setText("Height");
+    balLayout->addWidget(heightLabel);
+    heightSlide = new QSlider(Qt::Vertical);
+    // TODO: Put the following values in a header
+    heightSlide->setMaximum((2*0.3002+0.28947+0.0795)*heightScale);
+    // ^ Taken from hubo-motion-rt/src/balance-daemon.cpp
+    heightSlide->setMinimum((0.25+0.28947+0.0795)*heightScale);
+    // ^ Taken from hubo-motion-rt/src/balance-daemon.cpp
+    heightSlide->setValue(heightSlide->maximum());
+    balLayout->addWidget(heightSlide);
+
+    staticButton = new QPushButton;
+    staticButton->setText("Static");
+    staticButton->setToolTip("Enter a static balance mode which allows Hubo to squat up and down");
+    balLayout->addWidget(staticButton);
+    connect( staticButton, SIGNAL(clicked()), this, SLOT(handleStaticButton()) );
+
+    balOffButton = new QPushButton;
+    balOffButton->setText(" Off  ");
+    balOffButton->setToolTip("Turn off all forms of balance control");
+    balLayout->addWidget(balOffButton);
+    connect( balOffButton, SIGNAL(clicked()), this, SLOT(handleBalOffButton()) );
+
+    balCtrlGroup->setLayout(balLayout);
+    controlLayout->addWidget(balCtrlGroup);
     
     QVBoxLayout* masterCTLayout = new QVBoxLayout;
     masterCTLayout->addWidget(networkBox);
