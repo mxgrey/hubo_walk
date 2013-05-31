@@ -203,6 +203,7 @@ public:
     
     QDoubleSpinBox* strideBox;
     QDoubleSpinBox* walkDistanceBox;
+    QDoubleSpinBox* rotateAngleBox;
     QSpinBox* maxStepBox;
     QDoubleSpinBox* radiusBox;
     QCheckBox* continuousBox;

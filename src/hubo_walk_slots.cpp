@@ -70,15 +70,15 @@ void HuboWalkWidget::handleRight()
 
 void HuboWalkWidget::handleTurnLeft()
 {
-    cmd.walk_type = walk_circle;
-    cmd.cmd_state = WALKING_FORWARD;
+    cmd.walk_type = turn_in_place;
+    cmd.cmd_state = ROTATING_LEFT;
     sendCommand();
 }
 
 void HuboWalkWidget::handleTurnRight()
 {
-    cmd.walk_type = walk_circle;
-    cmd.cmd_state = WALKING_FORWARD;
+    cmd.walk_type = turn_in_place;
+    cmd.cmd_state = ROTATING_RIGHT;
     sendCommand();
 }
 
@@ -94,6 +94,7 @@ void HuboWalkWidget::sendCommand()
     fillProfile(cmd);
     cmd.walk_dist = walkDistanceBox->value();
     cmd.sidewalk_dist = walkDistanceBox->value();
+    cmd.turnInPlace_angle = rotateAngleBox->value();
     cmd.walk_circle_radius = radiusBox->value();
     cmd.walk_continuous = continuousBox->isChecked();
     ach_status_t r = ach_put(&zmpCmdChan, &cmd, sizeof(cmd));

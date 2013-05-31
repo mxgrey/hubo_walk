@@ -551,6 +551,18 @@ void HuboWalkWidget::initializeCommandTab()
     walkDistanceBox->setToolTip(walkLab->toolTip());
     walkLayout->addWidget(walkDistanceBox, 0, Qt::AlignLeft);
     distanceLayout->addLayout(walkLayout);
+
+    QHBoxLayout* rotateAngleLayout = new QHBoxLayout;
+    QLabel* rotateAngleLab = new QLabel;
+    rotateAngleLab->setText("Turn-in-place Angle:");
+    rotateAngleLab->setToolTip("Angle (rad) after a click");
+    rotateAngleLayout->addWidget(rotateAngleLab, 0, Qt::AlignRight);
+    rotateAngleBox = new QDoubleSpinBox;
+    rotateAngleBox->setSingleStep(0.1);
+    rotateAngleBox->setValue(0.5);
+    rotateAngleBox->setToolTip(rotateAngleLab->toolTip());
+    rotateAngleLayout->addWidget(rotateAngleBox, 0, Qt::AlignLeft);
+    distanceLayout->addLayout(rotateAngleLayout);
     
     continuousBox = new QCheckBox;
     continuousBox->setChecked(false);
@@ -569,6 +581,7 @@ void HuboWalkWidget::initializeCommandTab()
     maxStepBox->setSingleStep(1);
     maxStepBox->setToolTip(maxStepLab->toolTip());
     maxStepBox->setValue(10);
+    maxStepBox->setMaximum(10);
     paramLayout->addWidget(maxStepBox, 0, Qt::AlignLeft | Qt::AlignVCenter);
     
     
