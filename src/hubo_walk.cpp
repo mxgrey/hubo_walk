@@ -559,6 +559,16 @@ void HuboWalkWidget::initializeCommandTab()
     continuousBox->setToolTip("Ignore the walk distance, and walk until Stop is selected");
     paramLayout->addWidget(continuousBox, 0, Qt::AlignLeft);
 
+    QLabel* rotateAngleLab = new QLabel;
+    rotateAngleLab->setText("Turn-in-place\nAngle:");
+    rotateAngleLab->setToolTip("Angle (rad) after a click");
+    paramLayout->addWidget(rotateAngleLab, 0, Qt::AlignLeft | Qt::AlignBottom);
+    rotateAngleBox = new QDoubleSpinBox;
+    rotateAngleBox->setSingleStep(0.1);
+    rotateAngleBox->setValue(0.5);
+    rotateAngleBox->setToolTip(rotateAngleLab->toolTip());
+    paramLayout->addWidget(rotateAngleBox, 0, Qt::AlignLeft | Qt::AlignTop);
+
     QLabel* maxStepLab = new QLabel;
     maxStepLab->setText("Max Steps:");
     maxStepLab->setToolTip("Cut-off for number of steps to take");
@@ -568,7 +578,6 @@ void HuboWalkWidget::initializeCommandTab()
     maxStepBox->setToolTip(maxStepLab->toolTip());
     maxStepBox->setValue(10);
     paramLayout->addWidget(maxStepBox, 0, Qt::AlignLeft | Qt::AlignTop);
-    
     
     QLabel* turnLab = new QLabel;
     turnLab->setText("Turn Radius:");
