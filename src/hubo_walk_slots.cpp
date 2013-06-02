@@ -107,6 +107,7 @@ void HuboWalkWidget::sendCommand()
 
 void HuboWalkWidget::handleStaticButton()
 {
+    sendBalParams();
     balCmd.height = heightSlide->value()/heightScale;
     balCmd.cmd_request = BAL_LEGS_ONLY;
     sendBalCommand();
@@ -133,8 +134,6 @@ void HuboWalkWidget::sendBalParams()
     ach_status_t r = ach_put(&balanceParamChan, &balParams, sizeof(balParams));
     if( r != ACH_OK )
         std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
-    else
-        std::cout << "Parameters sent" << std::endl;
 }
 
 
@@ -413,6 +412,16 @@ void HuboWalkWidget::achdConnectSlot()
                     + " " + QString::fromLocal8Bit(BALANCE_PARAM_CHAN));
     connect(&achdBal, SIGNAL(finished(int)), this, SLOT(achdExitFinished(int)));
     connect(&achdBal, SIGNAL(error(QProcess::ProcessError)), this, SLOT(achdExitError(QProcess::ProcessError)));
+
+
+    achdBalCmd.start("achd push " + QString::number(ipAddrA)
+                                 + "." + QString::number(ipAddrB)
+                                 + "." + QString::number(ipAddrC)
+                                 + "." + QString::number(ipAddrD)
+                    + " " + QString::fromLocal8Bit(BALANCE_CMD_CHAN));
+    connect(&achdBalCmd, SIGNAL(finished(int)), this, SLOT(achdExitFinished(int)));
+    connect(&achdBalCmd, SIGNAL(error(QProcess::ProcessError)), this, SLOT(achdExitError(QProcess::ProcessError)));
+
     statusLabel->setText("Connected");
 }
 
@@ -420,6 +429,7 @@ void HuboWalkWidget::achdDisconnectSlot()
 {
     achdZmp.kill();
     achdBal.kill();
+    achdBalCmd.kill();
     statusLabel->setText("Disconnected");
 }
 

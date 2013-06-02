@@ -149,6 +149,7 @@ public:
   bool zmpConnected;
   QProcess achdBal;
   bool balConnected;
+  QProcess achdBalCmd;
   
   // Update timer
   HuboRefreshManager* refreshManager;

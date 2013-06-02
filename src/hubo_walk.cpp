@@ -504,6 +504,7 @@ void HuboWalkWidget::initializeCommandTab()
     joySelect = new QRadioButton;
     joySelect->setText("Joystick");
     joySelect->setCheckable(false);
+    joySelect->setDisabled(true);
     joySelect->setToolTip("Use a handheld controller to control Hubo's walking\n"
                           "(The controller must be plugged into this computer)");
     radioSelectGroup->addButton(joySelect);
@@ -514,6 +515,7 @@ void HuboWalkWidget::initializeCommandTab()
     joyLaunch->setSizePolicy(pbsize);
     joyLaunch->setText("Launch Joystick");
     joyLaunch->setToolTip("Begin a program which will read for joystick commands");
+    joyLaunch->setDisabled(true);
     joyLayout->addWidget(joyLaunch, 0, Qt::AlignBottom);
     connect(joyLaunch, SIGNAL(clicked()), this, SLOT(handleJoyLaunch()));
     
@@ -557,6 +559,8 @@ void HuboWalkWidget::initializeCommandTab()
     continuousBox->setChecked(false);
     continuousBox->setText("Continuous");
     continuousBox->setToolTip("Ignore the walk distance, and walk until Stop is selected");
+    continuousBox->setChecked(true);
+    continuousBox->setDisabled(true);
     paramLayout->addWidget(continuousBox, 0, Qt::AlignLeft);
 
     QLabel* rotateAngleLab = new QLabel;
@@ -662,9 +666,10 @@ void HuboWalkWidget::initializeCommandTab()
     // ^ Taken from hubo-motion-rt/src/balance-daemon.cpp
     heightSlide->setValue(heightSlide->maximum());
     balLayout->addWidget(heightSlide);
+    connect( heightSlide, SIGNAL(valueChanged(int)), this, SLOT(handleStaticButton()) );
 
     staticButton = new QPushButton;
-    staticButton->setText("Static");
+    staticButton->setText("Balance");
     staticButton->setToolTip("Enter a static balance mode which allows Hubo to squat up and down");
     balLayout->addWidget(staticButton);
     connect( staticButton, SIGNAL(clicked()), this, SLOT(handleStaticButton()) );
