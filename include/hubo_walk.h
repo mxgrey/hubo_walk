@@ -247,7 +247,7 @@ public:
       QComboBox* walkTypeSelect;
       QComboBox* ikSenseSelect;
       
-      QDoubleSpinBox* liftoffHeightBox;
+      QDoubleSpinBox* stepHeightBox;
       QDoubleSpinBox* stepDistanceBox;
       QDoubleSpinBox* sideStepDistanceBox;
       QDoubleSpinBox* lateralDistanceBox;
