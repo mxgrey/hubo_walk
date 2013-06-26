@@ -546,6 +546,8 @@ void HuboWalkWidget::initializeCommandTab()
     QHBoxLayout* zmpCtrlLayout = new QHBoxLayout;
     QVBoxLayout* paramLayout = new QVBoxLayout;
 
+    QVBoxLayout* distanceLayout = new QVBoxLayout;
+    QHBoxLayout* walkLayout = new QHBoxLayout;
     QLabel* walkLab = new QLabel;
     walkLab->setText("Walk Distance:");
     walkLab->setToolTip("Distance to walk (m) after a click");
@@ -557,18 +559,6 @@ void HuboWalkWidget::initializeCommandTab()
     walkLayout->addWidget(walkDistanceBox, 0, Qt::AlignLeft);
     distanceLayout->addLayout(walkLayout);
 
-    QHBoxLayout* rotateAngleLayout = new QHBoxLayout;
-    QLabel* rotateAngleLab = new QLabel;
-    rotateAngleLab->setText("Turn-in-place Angle:");
-    rotateAngleLab->setToolTip("Angle (rad) after a click");
-    rotateAngleLayout->addWidget(rotateAngleLab, 0, Qt::AlignRight);
-    rotateAngleBox = new QDoubleSpinBox;
-    rotateAngleBox->setSingleStep(0.1);
-    rotateAngleBox->setValue(0.5);
-    rotateAngleBox->setToolTip(rotateAngleLab->toolTip());
-    rotateAngleLayout->addWidget(rotateAngleBox, 0, Qt::AlignLeft);
-    distanceLayout->addLayout(rotateAngleLayout);
-    
     continuousBox = new QCheckBox;
     continuousBox->setChecked(false);
     continuousBox->setText("Continuous");
