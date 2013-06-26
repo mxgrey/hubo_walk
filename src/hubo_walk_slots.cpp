@@ -119,18 +119,18 @@ void HuboWalkWidget::fillProfile(zmp_cmd_t &vals)
     vals.max_step_count = maxStepBox->value();
     vals.step_length = stepDistanceBox->value() ;
     vals.halfStanceWidth = lateralDistanceBox->value() ;
-    vals.foot_liftoff_z = liftoffHeightBox->value() ;
+    vals.step_height = stepHeightBox->value() ;
     vals.sidestep_length = sideStepDistanceBox->value() ;
     vals.com_height = comHeightBox->value() ;
-    vals.com_ik_ascl = comIKAngleWeightBox->value() ;
+    vals.com_ik_angle_weight = comIKAngleWeightBox->value() ;
     vals.zmpoff_y = yOffsetBox->value() ;
     vals.zmpoff_x = xOffsetBox->value() ;
     vals.lookahead_time = lookAheadBox->value() ;
-    vals.startup_time = startupTimeBox->value() ;
-    vals.shutdown_time = shutdownTimeBox->value() ;
-    vals.double_support_time = doubleSupportBox->value() ;
-    vals.single_support_time = singleSupportBox->value() ;
-    vals.zmp_jerk_penalty = jerkPenalBox->value()*penalFactor ;
+    vals.walk_startup_time = startupTimeBox->value() ;
+    vals.walk_shutdown_time = shutdownTimeBox->value() ;
+    vals.min_double_support_time = doubleSupportBox->value() ;
+    vals.min_single_support_time = singleSupportBox->value() ;
+    vals.zmp_R = jerkPenalBox->value()*penalFactor ;
     vals.ik_sense = int2ikSense(ikSenseSelect->currentIndex()) ;
 }
 
@@ -148,18 +148,18 @@ void HuboWalkWidget::handleProfileSelect(int index)
     maxStepBox->setValue(zmpProfiles[index].vals.max_step_count );
     stepDistanceBox->setValue(zmpProfiles[index].vals.step_length ) ;
     lateralDistanceBox->setValue(zmpProfiles[index].vals.halfStanceWidth ) ;
-    liftoffHeightBox->setValue(zmpProfiles[index].vals.foot_liftoff_z ) ;
+    stepHeightBox->setValue(zmpProfiles[index].vals.step_height ) ;
     sideStepDistanceBox->setValue(zmpProfiles[index].vals.sidestep_length ) ;
     comHeightBox->setValue(zmpProfiles[index].vals.com_height ) ;
-    comIKAngleWeightBox->setValue(zmpProfiles[index].vals.com_ik_ascl ) ;
+    comIKAngleWeightBox->setValue(zmpProfiles[index].vals.com_ik_angle_weight ) ;
     yOffsetBox->setValue(zmpProfiles[index].vals.zmpoff_y ) ;
     xOffsetBox->setValue(zmpProfiles[index].vals.zmpoff_x ) ;
     lookAheadBox->setValue(zmpProfiles[index].vals.lookahead_time ) ;
-    startupTimeBox->setValue(zmpProfiles[index].vals.startup_time ) ;
-    shutdownTimeBox->setValue(zmpProfiles[index].vals.shutdown_time ) ;
-    doubleSupportBox->setValue(zmpProfiles[index].vals.double_support_time ) ;
-    singleSupportBox->setValue(zmpProfiles[index].vals.single_support_time ) ;
-    jerkPenalBox->setValue(zmpProfiles[index].vals.zmp_jerk_penalty/penalFactor ) ;
+    startupTimeBox->setValue(zmpProfiles[index].vals.walk_startup_time ) ;
+    shutdownTimeBox->setValue(zmpProfiles[index].vals.walk_shutdown_time ) ;
+    doubleSupportBox->setValue(zmpProfiles[index].vals.min_double_support_time ) ;
+    singleSupportBox->setValue(zmpProfiles[index].vals.min_single_support_time ) ;
+    jerkPenalBox->setValue(zmpProfiles[index].vals.zmp_R/penalFactor ) ;
     ikSenseSelect->setCurrentIndex(ikSense2int(zmpProfiles[index].vals.ik_sense));
     
     saveAsEdit->clear();

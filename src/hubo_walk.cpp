@@ -96,9 +96,9 @@ void HuboWalkPanel::load(const rviz::Config &config)
             p_config.mapGetValue("halfStanceWidth"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.halfStanceWidth = temp.toDouble();
-            p_config.mapGetValue("foot_liftoff_z"+QString::number(i),
+            p_config.mapGetValue("step_height"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.foot_liftoff_z = temp.toDouble();
+            content->zmpProfiles[i].vals.step_height = temp.toDouble();
             p_config.mapGetValue("sidestep_length"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.sidestep_length = temp.toDouble();
@@ -107,7 +107,7 @@ void HuboWalkPanel::load(const rviz::Config &config)
             content->zmpProfiles[i].vals.com_height = temp.toDouble();
             p_config.mapGetValue("com_ik_ascl"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.com_ik_ascl = temp.toDouble();
+            content->zmpProfiles[i].vals.com_ik_angle_weight = temp.toDouble();
             p_config.mapGetValue("zmpoff_y"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.zmpoff_y = temp.toDouble();
@@ -119,19 +119,19 @@ void HuboWalkPanel::load(const rviz::Config &config)
             content->zmpProfiles[i].vals.lookahead_time = temp.toDouble();
             p_config.mapGetValue("startup_time"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.startup_time = temp.toDouble();
+            content->zmpProfiles[i].vals.walk_startup_time = temp.toDouble();
             p_config.mapGetValue("shutdown_time"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.shutdown_time = temp.toDouble();
+            content->zmpProfiles[i].vals.walk_shutdown_time = temp.toDouble();
             p_config.mapGetValue("double_support_time"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.double_support_time = temp.toDouble();
+            content->zmpProfiles[i].vals.min_double_support_time = temp.toDouble();
             p_config.mapGetValue("single_support_time"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.single_support_time = temp.toDouble();
-            p_config.mapGetValue("zmp_jerk_penalty"+QString::number(i),
+            content->zmpProfiles[i].vals.min_single_support_time = temp.toDouble();
+            p_config.mapGetValue("zmp_R"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.zmp_jerk_penalty = temp.toDouble();
+            content->zmpProfiles[i].vals.zmp_R = temp.toDouble();
             p_config.mapGetValue("ik_sense"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.ik_sense = ik_error_sensitivity(temp.toInt());
@@ -258,14 +258,14 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpProfiles[i].vals.step_length));
         p_config.mapSetValue("halfStanceWidth"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.halfStanceWidth));
-        p_config.mapSetValue("foot_liftoff_z"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.foot_liftoff_z));
+        p_config.mapSetValue("step_height"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.step_height));
         p_config.mapSetValue("sidestep_length"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.sidestep_length));
         p_config.mapSetValue("com_height"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.com_height));
         p_config.mapSetValue("com_ik_ascl"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.com_ik_ascl));
+                             QVariant(content->zmpProfiles[i].vals.com_ik_angle_weight));
         p_config.mapSetValue("zmpoff_y"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.zmpoff_y));
         p_config.mapSetValue("zmpoff_x"+QString::number(i),
@@ -273,15 +273,15 @@ void HuboWalkPanel::save(rviz::Config config) const
         p_config.mapSetValue("lookahead_time"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.lookahead_time));
         p_config.mapSetValue("startup_time"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.startup_time));
+                             QVariant(content->zmpProfiles[i].vals.walk_startup_time));
         p_config.mapSetValue("shutdown_time"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.shutdown_time));
+                             QVariant(content->zmpProfiles[i].vals.walk_shutdown_time));
         p_config.mapSetValue("double_support_time"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.double_support_time));
+                             QVariant(content->zmpProfiles[i].vals.min_double_support_time));
         p_config.mapSetValue("single_support_time"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.single_support_time));
-        p_config.mapSetValue("zmp_jerk_penalty"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.zmp_jerk_penalty));
+                             QVariant(content->zmpProfiles[i].vals.min_single_support_time));
+        p_config.mapSetValue("zmp_R"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.zmp_R));
         p_config.mapSetValue("ik_sense"+QString::number(i),
                              QVariant(int(content->zmpProfiles[i].vals.ik_sense)));
     }
@@ -918,16 +918,16 @@ void HuboWalkWidget::initializeZmpParamTab()
     footliftLab->setToolTip("How heigh (m) should the swing foot lift off the ground?");
     footLiftLay->addWidget(footliftLab);
 
-    liftoffHeightBox = new QDoubleSpinBox;
-    liftoffHeightBox->setSizePolicy(pbsize);
-    liftoffHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
-    liftoffHeightBox->setToolTip(footliftLab->toolTip());
-    liftoffHeightBox->setDecimals(4);
-    liftoffHeightBox->setValue(0.06);
-    liftoffHeightBox->setSingleStep(0.01);
-    liftoffHeightBox->setMinimum(0);
-    liftoffHeightBox->setMaximum(2);
-    footLiftLay->addWidget(liftoffHeightBox);
+    stepHeightBox = new QDoubleSpinBox;
+    stepHeightBox->setSizePolicy(pbsize);
+    stepHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    stepHeightBox->setToolTip(footliftLab->toolTip());
+    stepHeightBox->setDecimals(4);
+    stepHeightBox->setValue(0.06);
+    stepHeightBox->setSingleStep(0.01);
+    stepHeightBox->setMinimum(0);
+    stepHeightBox->setMaximum(2);
+    footLiftLay->addWidget(stepHeightBox);
     
     swingSettingsLayout->addLayout(footLiftLay);
     
