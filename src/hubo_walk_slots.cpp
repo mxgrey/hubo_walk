@@ -99,8 +99,33 @@ void HuboWalkWidget::sendCommand()
     cmd.walk_continuous = continuousBox->isChecked();
     ach_status_t r = ach_put(&zmpCmdChan, &cmd, sizeof(cmd));
     if( r != ACH_OK )
-        std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
+        std::cout << "ZMP Command Ach Error: " << ach_result_to_string(r) << std::endl;
+    balCmd.cmd_request = BAL_ZMP_WALKING;
+    sendBalCommand();
     sendBalParams();
+}
+
+void HuboWalkWidget::handleStaticButton()
+{
+    sendBalParams();
+    balCmd.height = heightSlide->value()/heightScale;
+    balCmd.cmd_request = BAL_LEGS_ONLY;
+    sendBalCommand();
+}
+
+void HuboWalkWidget::handleBalOffButton()
+{
+    balCmd.cmd_request = BAL_READY;
+    sendBalCommand();
+}
+
+void HuboWalkWidget::sendBalCommand()
+{
+
+    ach_status_t r = ach_put( &balanceCmdChan, &balCmd, sizeof(balCmd) );
+    if( r != ACH_OK )
+        std::cout << "Balance Command Ach Error: " << ach_result_to_string(r) << std::endl;
+
 }
 
 void HuboWalkWidget::sendBalParams()
@@ -109,8 +134,6 @@ void HuboWalkWidget::sendBalParams()
     ach_status_t r = ach_put(&balanceParamChan, &balParams, sizeof(balParams));
     if( r != ACH_OK )
         std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
-    else
-        std::cout << "Parameters sent" << std::endl;
 }
 
 
@@ -364,6 +387,13 @@ void HuboWalkWidget::initializeAchConnections()
     r = ach_open(&balanceParamChan, BALANCE_PARAM_CHAN, NULL );
     if( r != ACH_OK )
         std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
+
+    achChannelBal.start("ach mk " + QString::fromLocal8Bit(BALANCE_CMD_CHAN)
+                        + " -1 -m 10 -n 8000 -o 666", QIODevice::ReadWrite);
+    achChannelBal.waitForFinished();
+    r = ach_open(&balanceCmdChan, BALANCE_CMD_CHAN, NULL );
+    if( r != ACH_OK )
+        std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
 }
 
 void HuboWalkWidget::achdConnectSlot()
@@ -382,6 +412,16 @@ void HuboWalkWidget::achdConnectSlot()
                     + " " + QString::fromLocal8Bit(BALANCE_PARAM_CHAN));
     connect(&achdBal, SIGNAL(finished(int)), this, SLOT(achdExitFinished(int)));
     connect(&achdBal, SIGNAL(error(QProcess::ProcessError)), this, SLOT(achdExitError(QProcess::ProcessError)));
+
+
+    achdBalCmd.start("achd push " + QString::number(ipAddrA)
+                                 + "." + QString::number(ipAddrB)
+                                 + "." + QString::number(ipAddrC)
+                                 + "." + QString::number(ipAddrD)
+                    + " " + QString::fromLocal8Bit(BALANCE_CMD_CHAN));
+    connect(&achdBalCmd, SIGNAL(finished(int)), this, SLOT(achdExitFinished(int)));
+    connect(&achdBalCmd, SIGNAL(error(QProcess::ProcessError)), this, SLOT(achdExitError(QProcess::ProcessError)));
+
     statusLabel->setText("Connected");
 }
 
@@ -389,6 +429,7 @@ void HuboWalkWidget::achdDisconnectSlot()
 {
     achdZmp.kill();
     achdBal.kill();
+    achdBalCmd.kill();
     statusLabel->setText("Disconnected");
 }
 

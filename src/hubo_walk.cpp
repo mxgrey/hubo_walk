@@ -53,8 +53,9 @@ HuboWalkPanel::HuboWalkPanel(QWidget *parent)
 
 HuboWalkWidget::~HuboWalkWidget()
 {
-    refreshManager->alive = false;
-    refreshManager->terminate();
+    // TODO: Turn these back on
+//    refreshManager->alive = false;
+//    refreshManager->exit();
 }
 
 void HuboWalkPanel::load(const rviz::Config &config)
@@ -504,6 +505,7 @@ void HuboWalkWidget::initializeCommandTab()
     joySelect = new QRadioButton;
     joySelect->setText("Joystick");
     joySelect->setCheckable(false);
+    joySelect->setDisabled(true);
     joySelect->setToolTip("Use a handheld controller to control Hubo's walking\n"
                           "(The controller must be plugged into this computer)");
     radioSelectGroup->addButton(joySelect);
@@ -514,6 +516,7 @@ void HuboWalkWidget::initializeCommandTab()
     joyLaunch->setSizePolicy(pbsize);
     joyLaunch->setText("Launch Joystick");
     joyLaunch->setToolTip("Begin a program which will read for joystick commands");
+    joyLaunch->setDisabled(true);
     joyLayout->addWidget(joyLaunch, 0, Qt::AlignBottom);
     connect(joyLaunch, SIGNAL(clicked()), this, SLOT(handleJoyLaunch()));
     
@@ -535,16 +538,18 @@ void HuboWalkWidget::initializeCommandTab()
     controlSelectBox->setLayout(controlSelectLayout);
     
     
-    QVBoxLayout* controlLayout = new QVBoxLayout;
+    QHBoxLayout* controlLayout = new QHBoxLayout;
     
-    QHBoxLayout* paramLayout = new QHBoxLayout;
-    
-    QVBoxLayout* distanceLayout = new QVBoxLayout;
-    QHBoxLayout* walkLayout = new QHBoxLayout;
+    QGroupBox* zmpCtrlGroup = new QGroupBox;
+    zmpCtrlGroup->setTitle("ZMP Commands");
+    zmpCtrlGroup->setStyleSheet(groupStyleSheet);
+    QHBoxLayout* zmpCtrlLayout = new QHBoxLayout;
+    QVBoxLayout* paramLayout = new QVBoxLayout;
+
     QLabel* walkLab = new QLabel;
     walkLab->setText("Walk Distance:");
     walkLab->setToolTip("Distance to walk (m) after a click");
-    walkLayout->addWidget(walkLab, 0, Qt::AlignRight);
+    paramLayout->addWidget(walkLab, 0, Qt::AlignLeft);
     walkDistanceBox = new QDoubleSpinBox;
     walkDistanceBox->setSingleStep(0.5);
     walkDistanceBox->setValue(0.2);
@@ -568,15 +573,24 @@ void HuboWalkWidget::initializeCommandTab()
     continuousBox->setChecked(false);
     continuousBox->setText("Continuous");
     continuousBox->setToolTip("Ignore the walk distance, and walk until Stop is selected");
-    distanceLayout->addWidget(continuousBox, 0, Qt::AlignLeft);
-    
-    paramLayout->addLayout(distanceLayout);
-    
-    
+    continuousBox->setChecked(true);
+    continuousBox->setDisabled(true);
+    paramLayout->addWidget(continuousBox, 0, Qt::AlignLeft);
+
+    QLabel* rotateAngleLab = new QLabel;
+    rotateAngleLab->setText("Turn-in-place\nAngle:");
+    rotateAngleLab->setToolTip("Angle (rad) after a click");
+    paramLayout->addWidget(rotateAngleLab, 0, Qt::AlignLeft | Qt::AlignBottom);
+    rotateAngleBox = new QDoubleSpinBox;
+    rotateAngleBox->setSingleStep(0.1);
+    rotateAngleBox->setValue(0.5);
+    rotateAngleBox->setToolTip(rotateAngleLab->toolTip());
+    paramLayout->addWidget(rotateAngleBox, 0, Qt::AlignLeft | Qt::AlignTop);
+
     QLabel* maxStepLab = new QLabel;
-    maxStepLab->setText("Max Step Count:");
+    maxStepLab->setText("Max Steps:");
     maxStepLab->setToolTip("Cut-off for number of steps to take");
-    paramLayout->addWidget(maxStepLab, 0, Qt::AlignRight | Qt::AlignVCenter);
+    paramLayout->addWidget(maxStepLab, 0, Qt::AlignLeft | Qt::AlignBottom);
     maxStepBox = new QSpinBox;
     maxStepBox->setSingleStep(1);
     maxStepBox->setToolTip(maxStepLab->toolTip());
@@ -584,23 +598,22 @@ void HuboWalkWidget::initializeCommandTab()
     maxStepBox->setMaximum(10);
     paramLayout->addWidget(maxStepBox, 0, Qt::AlignLeft | Qt::AlignVCenter);
     
-    
     QLabel* turnLab = new QLabel;
     turnLab->setText("Turn Radius:");
     turnLab->setToolTip("Radius of curvature (m) for turning");
-    paramLayout->addWidget(turnLab, 0, Qt::AlignRight | Qt::AlignVCenter);
+    paramLayout->addWidget(turnLab, 0, Qt::AlignLeft | Qt::AlignBottom);
     radiusBox = new QDoubleSpinBox;
     radiusBox->setValue(5.0);
     radiusBox->setMinimum(0);
     radiusBox->setSingleStep(0.1);
     radiusBox->setMaximum(10000);
     radiusBox->setToolTip(turnLab->toolTip());
-    paramLayout->addWidget(radiusBox, 0, Qt::AlignLeft | Qt::AlignVCenter);
-    
-    controlLayout->addLayout(paramLayout);
+    paramLayout->addWidget(radiusBox, 0, Qt::AlignLeft | Qt::AlignTop);
+
+    zmpCtrlLayout->addLayout(paramLayout);
     
     QGridLayout* wasdLayout = new QGridLayout;
-    wasdLayout->setAlignment(Qt::AlignCenter);
+    wasdLayout->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     
     turnLeftButton = new QPushButton;
     turnLeftButton->setText("  Turn  ");
@@ -645,8 +658,45 @@ void HuboWalkWidget::initializeCommandTab()
     wasdLayout->addWidget(backButton, 2, 1, 1, 1, Qt::AlignCenter);
     connect(backButton, SIGNAL(clicked()), this, SLOT(handleBackward()));
     
-    controlLayout->addLayout(wasdLayout);
-    
+    zmpCtrlLayout->addLayout(wasdLayout);
+
+    zmpCtrlGroup->setLayout(zmpCtrlLayout);
+    controlLayout->addWidget(zmpCtrlGroup, 0, Qt::AlignLeft);
+
+
+    QGroupBox* balCtrlGroup = new QGroupBox;
+    balCtrlGroup->setTitle("Static Commands");
+    balCtrlGroup->setStyleSheet(groupStyleSheet);
+    QVBoxLayout* balLayout = new QVBoxLayout;
+
+    heightScale = 1000;
+    QLabel* heightLabel = new QLabel;
+    heightLabel->setText("Height");
+    balLayout->addWidget(heightLabel);
+    heightSlide = new QSlider(Qt::Vertical);
+    // TODO: Put the following values in a header
+    heightSlide->setMaximum((2*0.3002+0.28947+0.0795)*heightScale);
+    // ^ Taken from hubo-motion-rt/src/balance-daemon.cpp
+    heightSlide->setMinimum((0.25+0.28947+0.0795)*heightScale);
+    // ^ Taken from hubo-motion-rt/src/balance-daemon.cpp
+    heightSlide->setValue(heightSlide->maximum());
+    balLayout->addWidget(heightSlide);
+    connect( heightSlide, SIGNAL(valueChanged(int)), this, SLOT(handleStaticButton()) );
+
+    staticButton = new QPushButton;
+    staticButton->setText("Balance");
+    staticButton->setToolTip("Enter a static balance mode which allows Hubo to squat up and down");
+    balLayout->addWidget(staticButton);
+    connect( staticButton, SIGNAL(clicked()), this, SLOT(handleStaticButton()) );
+
+    balOffButton = new QPushButton;
+    balOffButton->setText(" Off  ");
+    balOffButton->setToolTip("Turn off all forms of balance control");
+    balLayout->addWidget(balOffButton);
+    connect( balOffButton, SIGNAL(clicked()), this, SLOT(handleBalOffButton()) );
+
+    balCtrlGroup->setLayout(balLayout);
+    controlLayout->addWidget(balCtrlGroup);
     
     QVBoxLayout* masterCTLayout = new QVBoxLayout;
     masterCTLayout->addWidget(networkBox);
@@ -923,7 +973,7 @@ void HuboWalkWidget::initializeZmpParamTab()
     stepHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     stepHeightBox->setToolTip(footliftLab->toolTip());
     stepHeightBox->setDecimals(4);
-    stepHeightBox->setValue(0.06);
+    stepHeightBox->setValue(0.04);
     stepHeightBox->setSingleStep(0.01);
     stepHeightBox->setMinimum(0);
     stepHeightBox->setMaximum(2);
@@ -963,7 +1013,7 @@ void HuboWalkWidget::initializeZmpParamTab()
     sideStepDistanceBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     sideStepDistanceBox->setToolTip(sideStepDistanceLab->toolTip());
     sideStepDistanceBox->setDecimals(4);
-    sideStepDistanceBox->setValue(0.01);
+    sideStepDistanceBox->setValue(0.04);
     sideStepDistanceBox->setSingleStep(0.01);
     sideStepDistanceBox->setMinimum(0);
     sideStepDistanceBox->setMaximum(5);
@@ -1125,14 +1175,14 @@ void HuboWalkWidget::initializeBalParamTab()
     flatLayout->addWidget(flatLab);
     flattenBoxL = new QDoubleSpinBox;
     flattenBoxL->setDecimals(4);
-    flattenBoxL->setSingleStep(0.005);
+    flattenBoxL->setSingleStep(0.003);
     flattenBoxL->setMinimum(0);
     flattenBoxL->setMaximum(99999);
     flattenBoxL->setValue(0.001);
     flatLayout->addWidget(flattenBoxL);
     flattenBoxR = new QDoubleSpinBox;
     flattenBoxR->setDecimals(4);
-    flattenBoxR->setSingleStep(0.005);
+    flattenBoxR->setSingleStep(0.003);
     flattenBoxR->setMinimum(0);
     flattenBoxR->setMaximum(99999);
     flattenBoxR->setValue(0.001);
@@ -1146,10 +1196,10 @@ void HuboWalkWidget::initializeBalParamTab()
     decayLayout->addWidget(decayLab);
     decayBox = new QDoubleSpinBox;
     decayBox->setDecimals(4);
-    decayBox->setSingleStep(0.005);
+    decayBox->setSingleStep(0.05);
     decayBox->setMinimum(0);
     decayBox->setMaximum(1);
-    decayBox->setValue(0.001);
+    decayBox->setValue(0.5);
     decayLayout->addWidget(decayBox);
 
     bottomLayout->addLayout(decayLayout);
@@ -1200,7 +1250,7 @@ void HuboWalkWidget::initializeBalParamTab()
 
     QHBoxLayout* straightenPLayout = new QHBoxLayout;
     QLabel* straightenPLab = new QLabel;
-    straightenPLab->setText("Torso pitch-straightening Gain:");
+    straightenPLab->setText("IMU Offset Gain:");
     straightenPLab->setToolTip("Gain for keeping torso upright (Left/Right)");
     straightenPLayout->addWidget(straightenPLab);
     straightenPBoxL = new QDoubleSpinBox;
@@ -1208,102 +1258,102 @@ void HuboWalkWidget::initializeBalParamTab()
     straightenPBoxL->setSingleStep(1);
     straightenPBoxL->setMinimum(-99999);
     straightenPBoxL->setMaximum(99999);
-    straightenPBoxL->setValue(10);
+    straightenPBoxL->setValue(0.04);
     straightenPLayout->addWidget(straightenPBoxL);
     straightenPBoxR = new QDoubleSpinBox;
     straightenPBoxR->setDecimals(4);
     straightenPBoxR->setSingleStep(1);
     straightenPBoxR->setMinimum(-99999);
     straightenPBoxR->setMaximum(99999);
-    straightenPBoxR->setValue(10);
+    straightenPBoxR->setValue(0.04);
     straightenPLayout->addWidget(straightenPBoxR);
 
     bottomLayout->addLayout(straightenPLayout);
 
     QHBoxLayout* straightenRLayout = new QHBoxLayout;
     QLabel* straightenRLab = new QLabel;
-    straightenRLab->setText("Torso roll-straightening Gain:");
-    straightenRLab->setToolTip("Gain for keeping torso upright (Left/Right)");
+    straightenRLab->setText("N/A:");
+    straightenRLab->setToolTip("N/A");
     straightenRLayout->addWidget(straightenRLab);
     straightenRBoxL = new QDoubleSpinBox;
     straightenRBoxL->setDecimals(4);
     straightenRBoxL->setSingleStep(1);
     straightenRBoxL->setMinimum(-99999);
     straightenRBoxL->setMaximum(99999);
-    straightenRBoxL->setValue(10);
+    straightenRBoxL->setValue(0);
     straightenRLayout->addWidget(straightenRBoxL);
     straightenRBoxR = new QDoubleSpinBox;
     straightenRBoxR->setDecimals(4);
     straightenRBoxR->setSingleStep(1);
     straightenRBoxR->setMinimum(-99999);
     straightenRBoxR->setMaximum(99999);
-    straightenRBoxR->setValue(10);
+    straightenRBoxR->setValue(0);
     straightenRLayout->addWidget(straightenRBoxR);
 
     bottomLayout->addLayout(straightenRLayout);
 
     QHBoxLayout* springLayout = new QHBoxLayout;
     QLabel* springLab = new QLabel;
-    springLab->setText("Leg Stiffness Gain:");
-    springLab->setToolTip("Gain for keeping the legs stiff (Left/Right)");
+    springLab->setText("Squat Velocity Gain:");
+    springLab->setToolTip("Gain for the speed of squatting up and down");
     springLayout->addWidget(springLab);
     springBoxL = new QDoubleSpinBox;
     springBoxL->setDecimals(4);
     springBoxL->setSingleStep(1);
     springBoxL->setMinimum(-99999);
     springBoxL->setMaximum(99999);
-    springBoxL->setValue(10);
+    springBoxL->setValue(0.2);
     springLayout->addWidget(springBoxL);
     springBoxR = new QDoubleSpinBox;
     springBoxR->setDecimals(4);
     springBoxR->setSingleStep(1);
     springBoxR->setMinimum(-99999);
     springBoxR->setMaximum(99999);
-    springBoxR->setValue(10);
+    springBoxR->setValue(0.2);
     springLayout->addWidget(springBoxR);
 
     bottomLayout->addLayout(springLayout);
 
     QHBoxLayout* dampLayout = new QHBoxLayout;
     QLabel* dampLab = new QLabel;
-    dampLab->setText("Leg Damping Gain:");
-    dampLab->setToolTip("Gain for damping leg movement (Left/Right)");
+    dampLab->setText("N/A:");
+    dampLab->setToolTip("N/A");
     dampLayout->addWidget(dampLab);
     dampBoxL = new QDoubleSpinBox;
     dampBoxL->setDecimals(4);
     dampBoxL->setSingleStep(1);
     dampBoxL->setMinimum(-99999);
     dampBoxL->setMaximum(99999);
-    dampBoxL->setValue(10);
+    dampBoxL->setValue(0);
     dampLayout->addWidget(dampBoxL);
     dampBoxR = new QDoubleSpinBox;
     dampBoxR->setDecimals(4);
     dampBoxR->setSingleStep(1);
     dampBoxR->setMinimum(-99999);
     dampBoxR->setMaximum(99999);
-    dampBoxR->setValue(10);
+    dampBoxR->setValue(0);
     dampLayout->addWidget(dampBoxR);
 
     bottomLayout->addLayout(dampLayout);
 
     QHBoxLayout* responseLayout = new QHBoxLayout;
     QLabel* responseLab = new QLabel;
-    responseLab->setText("Leg Response Gain:");
-    responseLab->setToolTip("Gain for how much legs should respond to force (Left/Right)");
+    responseLab->setText("N/A:");
+    responseLab->setToolTip("N/A");
     responseLayout->addWidget(responseLab);
     responseBoxL = new QDoubleSpinBox;
     responseBoxL->setDecimals(4);
     responseBoxL->setSingleStep(1);
     responseBoxL->setMinimum(-99999);
     responseBoxL->setMaximum(99999);
-    responseBoxL->setValue(10);
+    responseBoxL->setValue(0);
     responseLayout->addWidget(responseBoxL);
     responseBoxR = new QDoubleSpinBox;
     responseBoxR->setDecimals(4);
     responseBoxR->setSingleStep(1);
     responseBoxR->setMinimum(-99999);
     responseBoxR->setMaximum(99999);
-    responseBoxR->setValue(10);
+    responseBoxR->setValue(0);
     responseLayout->addWidget(responseBoxR);
 
     bottomLayout->addLayout(responseLayout);
