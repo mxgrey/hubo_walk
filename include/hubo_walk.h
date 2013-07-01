@@ -243,6 +243,7 @@ public:
       QDoubleSpinBox* shutdownTimeBox;
       QDoubleSpinBox* doubleSupportBox;
       QDoubleSpinBox* singleSupportBox;
+      QDoubleSpinBox* pauseTimeBox;
       
       QComboBox* walkTypeSelect;
       QComboBox* ikSenseSelect;
