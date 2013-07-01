@@ -129,10 +129,10 @@ void HuboWalkPanel::load(const rviz::Config &config)
             content->zmpProfiles[i].vals.min_double_support_time = temp.toDouble();
             p_config.mapGetValue("min_single_support_time"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.min_pause_time = temp.toDouble();
+            content->zmpProfiles[i].vals.min_single_support_time = temp.toDouble();
             p_config.mapGetValue("min_pause_time"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.min_single_support_time = temp.toDouble();
+            content->zmpProfiles[i].vals.min_pause_time = temp.toDouble();
             p_config.mapGetValue("zmp_jerk_penalty"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.zmp_R = temp.toDouble();
