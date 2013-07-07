@@ -239,6 +239,10 @@ void HuboWalkWidget::fillbalProfile(balance_gains_t &vals)
     vals.damping_gain[RIGHT] = dampBoxR->value() ;
     vals.fz_response[LEFT] = responseBoxL->value() ;
     vals.fz_response[RIGHT] = responseBoxR->value() ;
+    vals.single_support_hip_nudge_kp = singleSupportHipNudgeGainBoxP->value();
+    vals.single_support_hip_nudge_kd = singleSupportHipNudgeGainBoxD->value();
+    vals.double_support_hip_nudge_kp = doubleSupportHipNudgeGainBoxP->value();
+    vals.double_support_hip_nudge_kd = doubleSupportHipNudgeGainBoxD->value();
 }
 
 void HuboWalkWidget::handlebalProfileSave()
@@ -269,7 +273,10 @@ void HuboWalkWidget::handlebalProfileSelect(int index)
     dampBoxR->setValue( balProfiles[index].vals.damping_gain[RIGHT] );
     responseBoxL->setValue( balProfiles[index].vals.fz_response[LEFT] );
     responseBoxR->setValue( balProfiles[index].vals.fz_response[RIGHT] );
-
+    singleSupportHipNudgeGainBoxP->setValue( balProfiles[index].vals.single_support_hip_nudge_kp );
+    singleSupportHipNudgeGainBoxD->setValue( balProfiles[index].vals.single_support_hip_nudge_kd );
+    doubleSupportHipNudgeGainBoxP->setValue( balProfiles[index].vals.double_support_hip_nudge_kp );
+    doubleSupportHipNudgeGainBoxD->setValue( balProfiles[index].vals.double_support_hip_nudge_kd );
     balSaveAsEdit->clear();
 }
 

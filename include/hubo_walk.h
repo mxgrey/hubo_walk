@@ -291,6 +291,13 @@ public:
       QDoubleSpinBox* responseBoxL;
       QDoubleSpinBox* responseBoxR;
 
+      // Gains for nudging the hips using the F/T sensors.
+      // Different gains for single and double support.
+      QDoubleSpinBox* singleSupportHipNudgeGainBoxP;
+      QDoubleSpinBox* singleSupportHipNudgeGainBoxD;
+      QDoubleSpinBox* doubleSupportHipNudgeGainBoxP;
+      QDoubleSpinBox* doubleSupportHipNudgeGainBoxD;
+
       QPushButton* updateBalParams;
 
 

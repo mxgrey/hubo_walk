@@ -139,6 +139,9 @@ void HuboWalkPanel::load(const rviz::Config &config)
             p_config.mapGetValue("ik_sense"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.ik_sense = ik_error_sensitivity(temp.toInt());
+            p_config.mapGetValue("zmp_jerk_penalty"+QString::number(i),
+                                 &temp);
+            content->zmpProfiles[i].vals.zmp_R = temp.toDouble();
         }
         
         content->updateProfileBox();
@@ -215,6 +218,18 @@ void HuboWalkPanel::load(const rviz::Config &config)
             pb_config.mapGetValue("response_r"+QString::number(i),
                                  &temp);
             content->balProfiles[i].vals.fz_response[RIGHT] = temp.toDouble();
+            pb_config.mapGetValue("single_support_hip_nudge_kp"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.single_support_hip_nudge_kp = temp.toDouble();
+            pb_config.mapGetValue("single_support_hip_nudge_kd"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.single_support_hip_nudge_kd = temp.toDouble();
+            pb_config.mapGetValue("double_support_hip_nudge_kp"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.double_support_hip_nudge_kp = temp.toDouble();
+            pb_config.mapGetValue("double_support_hip_nudge_kd"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.double_support_hip_nudge_kd = temp.toDouble();
         }
 
         content->updatebalProfileBox();
@@ -340,6 +355,14 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->balProfiles[i].vals.fz_response[LEFT]));
         pb_config.mapSetValue("response_r"+QString::number(i),
                              QVariant(content->balProfiles[i].vals.fz_response[RIGHT]));
+        pb_config.mapSetValue("single_support_hip_nudge_kp"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.single_support_hip_nudge_kp));
+        pb_config.mapSetValue("single_support_hip_nudge_kd"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.single_support_hip_nudge_kd));
+        pb_config.mapSetValue("double_support_hip_nudge_kp"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.double_support_hip_nudge_kp));
+        pb_config.mapSetValue("double_support_hip_nudge_kd"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.double_support_hip_nudge_kd));
     }
     
 }
@@ -1332,8 +1355,8 @@ void HuboWalkWidget::initializeBalParamTab()
 
     QHBoxLayout* dampLayout = new QHBoxLayout;
     QLabel* dampLab = new QLabel;
-    dampLab->setText("N/A:");
-    dampLab->setToolTip("N/A");
+    dampLab->setText("Damping Gain:");
+    dampLab->setToolTip("Damping gain for complying the knees");
     dampLayout->addWidget(dampLab);
     dampBoxL = new QDoubleSpinBox;
     dampBoxL->setDecimals(4);
@@ -1354,8 +1377,8 @@ void HuboWalkWidget::initializeBalParamTab()
 
     QHBoxLayout* responseLayout = new QHBoxLayout;
     QLabel* responseLab = new QLabel;
-    responseLab->setText("N/A:");
-    responseLab->setToolTip("N/A");
+    responseLab->setText("Response Gain:");
+    responseLab->setToolTip("Knee response based on Fz in feet");
     responseLayout->addWidget(responseLab);
     responseBoxL = new QDoubleSpinBox;
     responseBoxL->setDecimals(4);
@@ -1373,6 +1396,52 @@ void HuboWalkWidget::initializeBalParamTab()
     responseLayout->addWidget(responseBoxR);
 
     bottomLayout->addLayout(responseLayout);
+
+    // Single-support hip nudge proportional and derivative gains based on ankle torque readings
+    QHBoxLayout* singleSupportHipNudgeGainLayout = new QHBoxLayout;
+    QLabel* singleSupportHipNudgeGainLab = new QLabel;
+    singleSupportHipNudgeGainLab->setText("Single-Support Hip Nudge (Kp, Kd):");
+    singleSupportHipNudgeGainLab->setToolTip("Gains for nudging the hips in single-support using feedback from the F/T sensors");
+    singleSupportHipNudgeGainLayout->addWidget(singleSupportHipNudgeGainLab);
+    singleSupportHipNudgeGainBoxP = new QDoubleSpinBox;
+    singleSupportHipNudgeGainBoxP->setDecimals(4);
+    singleSupportHipNudgeGainBoxP->setSingleStep(0.01);
+    singleSupportHipNudgeGainBoxP->setMinimum(0);
+    singleSupportHipNudgeGainBoxP->setMaximum(10);
+    singleSupportHipNudgeGainBoxP->setValue(0);
+    singleSupportHipNudgeGainLayout->addWidget(singleSupportHipNudgeGainBoxP);
+    singleSupportHipNudgeGainBoxD = new QDoubleSpinBox;
+    singleSupportHipNudgeGainBoxD->setDecimals(4);
+    singleSupportHipNudgeGainBoxD->setSingleStep(0.01);
+    singleSupportHipNudgeGainBoxD->setMinimum(0);
+    singleSupportHipNudgeGainBoxD->setMaximum(10);
+    singleSupportHipNudgeGainBoxD->setValue(0);
+    singleSupportHipNudgeGainLayout->addWidget(singleSupportHipNudgeGainBoxD);
+
+    bottomLayout->addLayout(singleSupportHipNudgeGainLayout);
+
+    // Double-support hip nudge proportional and derivative gains based on ankle torque readings.
+    QHBoxLayout* doubleSupportHipNudgeGainLayout = new QHBoxLayout;
+    QLabel* doubleSupportHipNudgeGainLab = new QLabel;
+    doubleSupportHipNudgeGainLab->setText("Double-Support Hip Nudge (Kp, Kd):");
+    doubleSupportHipNudgeGainLab->setToolTip("Gains for nudging the hips in double-support using feedback from the F/T sensors");
+    doubleSupportHipNudgeGainLayout->addWidget(doubleSupportHipNudgeGainLab);
+    doubleSupportHipNudgeGainBoxP = new QDoubleSpinBox;
+    doubleSupportHipNudgeGainBoxP->setDecimals(4);
+    doubleSupportHipNudgeGainBoxP->setSingleStep(0.01);
+    doubleSupportHipNudgeGainBoxP->setMinimum(0);
+    doubleSupportHipNudgeGainBoxP->setMaximum(10);
+    doubleSupportHipNudgeGainBoxP->setValue(0);
+    doubleSupportHipNudgeGainLayout->addWidget(doubleSupportHipNudgeGainBoxP);
+    doubleSupportHipNudgeGainBoxD = new QDoubleSpinBox;
+    doubleSupportHipNudgeGainBoxD->setDecimals(4);
+    doubleSupportHipNudgeGainBoxD->setSingleStep(0.01);
+    doubleSupportHipNudgeGainBoxD->setMinimum(0);
+    doubleSupportHipNudgeGainBoxD->setMaximum(10);
+    doubleSupportHipNudgeGainBoxD->setValue(0);
+    doubleSupportHipNudgeGainLayout->addWidget(doubleSupportHipNudgeGainBoxD);
+
+    bottomLayout->addLayout(doubleSupportHipNudgeGainLayout);
 
     updateBalParams = new QPushButton;
     updateBalParams->setText("Send");
