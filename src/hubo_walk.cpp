@@ -383,6 +383,8 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
                       "}";
 
     memset(&cmd, 0, sizeof(cmd));
+    memset(&balParams, 0, sizeof(balParams));
+    memset(&balCmd, 0, sizeof(balCmd));
 
     initializeCommandTab();
     std::cerr << "Command Tab loaded" << std::endl;
@@ -689,7 +691,7 @@ void HuboWalkWidget::initializeCommandTab()
     balLayout->addWidget(heightLabel);
     heightSlide = new QSlider(Qt::Vertical);
     // TODO: Put the following values in a header
-    heightSlide->setMaximum((2*0.3002+0.28947+0.0795)*heightScale);
+    heightSlide->setMaximum((0.33008 + 0.32995 + 0.28947 + 0.0795)*heightScale);
     // ^ Taken from hubo-motion-rt/src/balance-daemon.cpp
     heightSlide->setMinimum((0.25+0.28947+0.0795)*heightScale);
     // ^ Taken from hubo-motion-rt/src/balance-daemon.cpp

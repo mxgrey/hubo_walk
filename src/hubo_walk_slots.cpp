@@ -108,7 +108,6 @@ void HuboWalkWidget::sendCommand()
 void HuboWalkWidget::handleStaticButton()
 {
     sendBalParams();
-    balCmd.height = heightSlide->value()/heightScale;
     balCmd.cmd_request = BAL_LEGS_ONLY;
     sendBalCommand();
 }
@@ -122,6 +121,7 @@ void HuboWalkWidget::handleBalOffButton()
 void HuboWalkWidget::sendBalCommand()
 {
 
+    balCmd.height = heightSlide->value()/heightScale;
     ach_status_t r = ach_put( &balanceCmdChan, &balCmd, sizeof(balCmd) );
     if( r != ACH_OK )
         std::cout << "Balance Command Ach Error: " << ach_result_to_string(r) << std::endl;
