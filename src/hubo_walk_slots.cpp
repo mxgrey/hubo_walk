@@ -122,6 +122,7 @@ void HuboWalkWidget::sendBalCommand()
 {
 
     balCmd.height = heightSlide->value()/heightScale;
+    balCmd.com_x_offset = comXOffsetBox->value();
     ach_status_t r = ach_put( &balanceCmdChan, &balCmd, sizeof(balCmd) );
     if( r != ACH_OK )
         std::cout << "Balance Command Ach Error: " << ach_result_to_string(r) << std::endl;

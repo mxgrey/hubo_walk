@@ -685,19 +685,40 @@ void HuboWalkWidget::initializeCommandTab()
     balCtrlGroup->setStyleSheet(groupStyleSheet);
     QVBoxLayout* balLayout = new QVBoxLayout;
 
+    QHBoxLayout* staticCmdsLayout = new QHBoxLayout;
+
+    QVBoxLayout* heightLayout = new QVBoxLayout;
     heightScale = 1000;
     QLabel* heightLabel = new QLabel;
     heightLabel->setText("Height");
-    balLayout->addWidget(heightLabel);
+    heightLayout->addWidget(heightLabel);
     heightSlide = new QSlider(Qt::Vertical);
     // TODO: Put the following values in a header
-    heightSlide->setMaximum((0.33008 + 0.32995 + 0.28947 + 0.0795)*heightScale);
+    heightSlide->setMaximum((int)((0.33008 + 0.32995 + 0.28947 + 0.0795 - 0.02)*heightScale));
     // ^ Taken from hubo-motion-rt/src/balance-daemon.cpp
-    heightSlide->setMinimum((0.25+0.28947+0.0795)*heightScale);
+    heightSlide->setMinimum((int)((0.25+0.28947+0.0795)*heightScale));
     // ^ Taken from hubo-motion-rt/src/balance-daemon.cpp
     heightSlide->setValue(heightSlide->maximum());
-    balLayout->addWidget(heightSlide);
+    heightLayout->addWidget(heightSlide);
     connect( heightSlide, SIGNAL(valueChanged(int)), this, SLOT(handleStaticButton()) );
+
+    QVBoxLayout* comXOffsetLayout = new QVBoxLayout;
+    QLabel* comXOffsetLab = new QLabel;
+    comXOffsetLab->setText("COM-X Offset (m)");
+    comXOffsetLayout->addWidget(comXOffsetLab, 0, Qt::AlignCenter);
+    comXOffsetBox = new QDoubleSpinBox;
+    comXOffsetBox->setDecimals(4);
+    comXOffsetBox->setSingleStep(0.001);
+    comXOffsetBox->setMinimum(-0.05);
+    comXOffsetBox->setMaximum(0.05);
+    comXOffsetBox->setValue(0.0);
+    comXOffsetLayout->addWidget(comXOffsetBox, 0, Qt::AlignTop);
+
+    staticCmdsLayout->addLayout(heightLayout, 0);
+    staticCmdsLayout->addLayout(comXOffsetLayout, 1);
+    staticCmdsLayout->setAlignment(Qt::AlignTop);
+
+    balLayout->addLayout(staticCmdsLayout, 0);
 
     staticButton = new QPushButton;
     staticButton->setText("Balance");
@@ -1291,8 +1312,8 @@ void HuboWalkWidget::initializeBalParamTab()
 
     QHBoxLayout* straightenPLayout = new QHBoxLayout;
     QLabel* straightenPLab = new QLabel;
-    straightenPLab->setText("IMU Offset Gain:");
-    straightenPLab->setToolTip("Gain for keeping torso upright (Left/Right)");
+    straightenPLab->setText("IMU Offset Gain P:");
+    straightenPLab->setToolTip("Gain for keeping torso upright (Front/Back)");
     straightenPLayout->addWidget(straightenPLab);
     straightenPBoxL = new QDoubleSpinBox;
     straightenPBoxL->setDecimals(4);
@@ -1306,15 +1327,15 @@ void HuboWalkWidget::initializeBalParamTab()
     straightenPBoxR->setSingleStep(1);
     straightenPBoxR->setMinimum(-99999);
     straightenPBoxR->setMaximum(99999);
-    straightenPBoxR->setValue(0.04);
+    straightenPBoxR->setValue(0.012);
     straightenPLayout->addWidget(straightenPBoxR);
 
     bottomLayout->addLayout(straightenPLayout);
 
     QHBoxLayout* straightenRLayout = new QHBoxLayout;
     QLabel* straightenRLab = new QLabel;
-    straightenRLab->setText("N/A:");
-    straightenRLab->setToolTip("N/A");
+    straightenRLab->setText("IMU Offset Gain R:");
+    straightenRLab->setToolTip("Gain for keeping torso upright (Left/Right)");
     straightenRLayout->addWidget(straightenRLab);
     straightenRBoxL = new QDoubleSpinBox;
     straightenRBoxL->setDecimals(4);

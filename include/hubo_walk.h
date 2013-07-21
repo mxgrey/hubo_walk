@@ -219,6 +219,7 @@ public:
 
     double heightScale;
     QSlider* heightSlide;
+    QDoubleSpinBox* comXOffsetBox;
     QPushButton* staticButton;
     QPushButton* balOffButton;
   ///////////////
