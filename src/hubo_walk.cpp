@@ -94,9 +94,9 @@ void HuboWalkPanel::load(const rviz::Config &config)
             p_config.mapGetValue("step_length"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.step_length = temp.toDouble();
-            p_config.mapGetValue("halfStanceWidth"+QString::number(i),
+            p_config.mapGetValue("half_stance_width"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.halfStanceWidth = temp.toDouble();
+            content->zmpProfiles[i].vals.half_stance_width = temp.toDouble();
             p_config.mapGetValue("step_height"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.step_height = temp.toDouble();
@@ -275,8 +275,8 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(int(content->zmpProfiles[i].vals.max_step_count)));
         p_config.mapSetValue("step_length"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.step_length));
-        p_config.mapSetValue("halfStanceWidth"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.halfStanceWidth));
+        p_config.mapSetValue("half_stance_width"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.half_stance_width));
         p_config.mapSetValue("step_height"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.step_height));
         p_config.mapSetValue("sidestep_length"+QString::number(i),
@@ -667,12 +667,23 @@ void HuboWalkWidget::initializeCommandTab()
     wasdLayout->addWidget(rightButton, 1, 2, 1, 1, Qt::AlignCenter);
     connect(rightButton, SIGNAL(clicked()), this, SLOT(handleRight()));
     
-    
     backButton = new QPushButton;
     backButton->setText("Backward");
     backButton->setSizePolicy(pbsize);
     wasdLayout->addWidget(backButton, 2, 1, 1, 1, Qt::AlignCenter);
     connect(backButton, SIGNAL(clicked()), this, SLOT(handleBackward()));
+
+    quadrupedButton = new QPushButton;
+    quadrupedButton->setText("Go Quadruped");
+    quadrupedButton->setSizePolicy(pbsize);
+    wasdLayout->addWidget(quadrupedButton, 4, 0, 1, 1, Qt::AlignCenter);
+    connect(quadrupedButton, SIGNAL(clicked()), this, SLOT(handleGoQuadruped()));
+    
+    bipedButton = new QPushButton;
+    bipedButton->setText("Go Biped");
+    bipedButton->setSizePolicy(pbsize);
+    wasdLayout->addWidget(bipedButton, 4, 2, 1, 1, Qt::AlignCenter);
+    connect(bipedButton, SIGNAL(clicked()), this, SLOT(handleGoBiped()));
     
     zmpCtrlLayout->addLayout(wasdLayout);
 

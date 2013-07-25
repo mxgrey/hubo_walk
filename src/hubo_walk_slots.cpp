@@ -89,6 +89,18 @@ void HuboWalkWidget::handleStop()
     sendCommand();
 }
 
+void HuboWalkWidget::handleGoQuadruped()
+{
+    cmd.cmd_state = GOTO_QUADRUPED;
+    sendCommand();
+}
+
+void HuboWalkWidget::handleGoBiped()
+{
+    cmd.cmd_state = GOTO_BIPED;
+    sendCommand();
+}
+
 void HuboWalkWidget::sendCommand()
 {
     fillProfile(cmd);
@@ -142,7 +154,7 @@ void HuboWalkWidget::fillProfile(zmp_cmd_t &vals)
 {
     vals.max_step_count = maxStepBox->value();
     vals.step_length = stepDistanceBox->value() ;
-    vals.halfStanceWidth = lateralDistanceBox->value() ;
+    vals.half_stance_width = lateralDistanceBox->value() ;
     vals.step_height = liftoffHeightBox->value() ;
     vals.sidestep_length = sideStepDistanceBox->value() ;
     vals.com_height = comHeightBox->value() ;
@@ -172,7 +184,7 @@ void HuboWalkWidget::handleProfileSelect(int index)
 {
     maxStepBox->setValue(zmpProfiles[index].vals.max_step_count );
     stepDistanceBox->setValue(zmpProfiles[index].vals.step_length ) ;
-    lateralDistanceBox->setValue(zmpProfiles[index].vals.halfStanceWidth ) ;
+    lateralDistanceBox->setValue(zmpProfiles[index].vals.half_stance_width ) ;
     liftoffHeightBox->setValue(zmpProfiles[index].vals.step_height ) ;
     sideStepDistanceBox->setValue(zmpProfiles[index].vals.sidestep_length ) ;
     comHeightBox->setValue(zmpProfiles[index].vals.com_height ) ;

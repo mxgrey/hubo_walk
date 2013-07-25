@@ -76,6 +76,7 @@
 #include <hubo-jointparams.h>
 
 //#include <hubo_motion_ros/AchNetworkWidget.h>
+#include <hubo-zmp.h>
 #include <zmp-daemon.h>
 #include <balance-daemon.h>
 //#include <hubo_motion_ros/include/hubo_motion_ros/AchNetworkWidget.h>
@@ -216,6 +217,8 @@ public:
     QPushButton* stopButton;
     QPushButton* turnLeftButton;
     QPushButton* turnRightButton;
+    QPushButton* quadrupedButton;
+    QPushButton* bipedButton;
 
     double heightScale;
     QSlider* heightSlide;
@@ -339,6 +342,8 @@ protected Q_SLOTS:
   void handleTurnRight();
   void handleBackward();
   void handleStop();
+  void handleGoQuadruped();
+  void handleGoBiped();
 
   // Update all state information
   void refreshState();
