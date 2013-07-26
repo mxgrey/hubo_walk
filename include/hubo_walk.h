@@ -257,7 +257,9 @@ public:
       QDoubleSpinBox* sideStepDistanceBox;
       QDoubleSpinBox* lateralDistanceBox;
       
-      QDoubleSpinBox* comHeightBox;
+      QDoubleSpinBox* bipedComHeightBox;
+      QDoubleSpinBox* quadrupedComHeightBox;
+      QDoubleSpinBox* torsoPitchBox;
       QDoubleSpinBox* comIKAngleWeightBox;
     ///////////////
 

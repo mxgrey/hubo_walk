@@ -103,9 +103,12 @@ void HuboWalkPanel::load(const rviz::Config &config)
             p_config.mapGetValue("sidestep_length"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.sidestep_length = temp.toDouble();
-            p_config.mapGetValue("com_height"+QString::number(i),
+            p_config.mapGetValue("biped_com_height"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.com_height = temp.toDouble();
+            content->zmpProfiles[i].vals.biped_com_height = temp.toDouble();
+            p_config.mapGetValue("quadruped_com_height"+QString::number(i),
+                                 &temp);
+            content->zmpProfiles[i].vals.quadruped_com_height = temp.toDouble();
             p_config.mapGetValue("com_ik_angle_weight"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.com_ik_angle_weight = temp.toDouble();
@@ -281,8 +284,10 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpProfiles[i].vals.step_height));
         p_config.mapSetValue("sidestep_length"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.sidestep_length));
-        p_config.mapSetValue("com_height"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.com_height));
+        p_config.mapSetValue("biped_com_height"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.biped_com_height));
+        p_config.mapSetValue("quadruped_com_height"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.quadruped_com_height));
         p_config.mapSetValue("com_ik_angle_weight"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.com_ik_angle_weight));
         p_config.mapSetValue("zmpoff_y"+QString::number(i),
@@ -1122,29 +1127,73 @@ void HuboWalkWidget::initializeZmpParamTab()
     rightColumn->addWidget(swingSettingsBox);
     
     
-    
+    // CENTER OF MASS SETTINGS LAYOUT
     QVBoxLayout* comSettingsLayout = new QVBoxLayout;
     comSettingsLayout->setAlignment(Qt::AlignCenter);
-    
-    QHBoxLayout* comHeightLay = new QHBoxLayout;
-    QLabel* comHeightLab = new QLabel;
-    comHeightLab->setText("Center of Mass Height:");
-    comHeightLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-    comHeightLab->setToolTip("How heigh (m) should the center of mass be from the ground?");
-    comHeightLay->addWidget(comHeightLab);
 
-    comHeightBox = new QDoubleSpinBox;
-    comHeightBox->setSizePolicy(pbsize);
-    comHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
-    comHeightBox->setToolTip(comHeightLab->toolTip());
-    comHeightBox->setDecimals(3);
-    comHeightBox->setValue(0.5);
-    comHeightBox->setSingleStep(0.01);
-    comHeightBox->setMinimum(0);
-    comHeightBox->setMaximum(5);
-    comHeightLay->addWidget(comHeightBox);
+    // BIPED CENTER OF MASS HEIGHT    
+    QHBoxLayout* bipedComHeightLay = new QHBoxLayout;
+    QLabel* bipedComHeightLab = new QLabel;
+    bipedComHeightLab->setText("Biped COM Height:");
+    bipedComHeightLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    bipedComHeightLab->setToolTip("How heigh (m) should the center of mass be from the ground in biped stance?");
+    bipedComHeightLay->addWidget(bipedComHeightLab);
+
+    bipedComHeightBox = new QDoubleSpinBox;
+    bipedComHeightBox->setSizePolicy(pbsize);
+    bipedComHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    bipedComHeightBox->setToolTip(bipedComHeightLab->toolTip());
+    bipedComHeightBox->setDecimals(3);
+    bipedComHeightBox->setValue(0.5);
+    bipedComHeightBox->setSingleStep(0.01);
+    bipedComHeightBox->setMinimum(0);
+    bipedComHeightBox->setMaximum(5);
+    bipedComHeightLay->addWidget(bipedComHeightBox);
     
-    comSettingsLayout->addLayout(comHeightLay);
+    comSettingsLayout->addLayout(bipedComHeightLay);
+
+    // QUADRUPED CENTER OF MASS HEIGHT
+    QHBoxLayout* quadrupedComHeightLay = new QHBoxLayout;
+    QLabel* quadrupedComHeightLab = new QLabel;
+    quadrupedComHeightLab->setText("Quadruped COM Height:");
+    quadrupedComHeightLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    quadrupedComHeightLab->setToolTip("How heigh (m) should the center of mass be from the ground in quadruruped stance?");
+    quadrupedComHeightLay->addWidget(quadrupedComHeightLab);
+
+    quadrupedComHeightBox = new QDoubleSpinBox;
+    quadrupedComHeightBox->setSizePolicy(pbsize);
+    quadrupedComHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    quadrupedComHeightBox->setToolTip(quadrupedComHeightLab->toolTip());
+    quadrupedComHeightBox->setDecimals(3);
+    quadrupedComHeightBox->setValue(0.25);
+    quadrupedComHeightBox->setSingleStep(0.01);
+    quadrupedComHeightBox->setMinimum(0);
+    quadrupedComHeightBox->setMaximum(5);
+    quadrupedComHeightLay->addWidget(quadrupedComHeightBox);
+    
+    comSettingsLayout->addLayout(quadrupedComHeightLay);
+
+    // TORSO PITCH
+    QHBoxLayout* torsoPitchLay = new QHBoxLayout;
+    QLabel* torsoPitchLab = new QLabel;
+    torsoPitchLab->setText("Torso Pitch:");
+    torsoPitchLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    torsoPitchLab->setToolTip("How much the torso should be pitched in radians. Positive is forward?");
+    torsoPitchLay->addWidget(torsoPitchLab);
+
+    torsoPitchBox = new QDoubleSpinBox;
+    torsoPitchBox->setSizePolicy(pbsize);
+    torsoPitchBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    torsoPitchBox->setToolTip(torsoPitchLab->toolTip());
+    torsoPitchBox->setDecimals(3);
+    torsoPitchBox->setValue(-1.22);
+    torsoPitchBox->setSingleStep(0.01);
+    torsoPitchBox->setMinimum(-3);
+    torsoPitchBox->setMaximum(3);
+    torsoPitchLay->addWidget(torsoPitchBox);
+    
+    comSettingsLayout->addLayout(torsoPitchLay);
+
     
     QHBoxLayout* comIKAngleWeightLay = new QHBoxLayout;
     QLabel* comIKAngleWeightLab = new QLabel;

@@ -157,7 +157,9 @@ void HuboWalkWidget::fillProfile(zmp_cmd_t &vals)
     vals.half_stance_width = lateralDistanceBox->value() ;
     vals.step_height = liftoffHeightBox->value() ;
     vals.sidestep_length = sideStepDistanceBox->value() ;
-    vals.com_height = comHeightBox->value() ;
+    vals.biped_com_height = bipedComHeightBox->value() ;
+    vals.quadruped_com_height = quadrupedComHeightBox->value() ;
+    vals.torso_pitch = torsoPitchBox->value() ;
     vals.com_ik_angle_weight = comIKAngleWeightBox->value() ;
     vals.zmpoff_y = yOffsetBox->value() ;
     vals.zmpoff_x = xOffsetBox->value() ;
@@ -187,7 +189,9 @@ void HuboWalkWidget::handleProfileSelect(int index)
     lateralDistanceBox->setValue(zmpProfiles[index].vals.half_stance_width ) ;
     liftoffHeightBox->setValue(zmpProfiles[index].vals.step_height ) ;
     sideStepDistanceBox->setValue(zmpProfiles[index].vals.sidestep_length ) ;
-    comHeightBox->setValue(zmpProfiles[index].vals.com_height ) ;
+    bipedComHeightBox->setValue(zmpProfiles[index].vals.biped_com_height ) ;
+    quadrupedComHeightBox->setValue(zmpProfiles[index].vals.quadruped_com_height ) ;
+    torsoPitchBox->setValue(zmpProfiles[index].vals.torso_pitch ) ;
     comIKAngleWeightBox->setValue(zmpProfiles[index].vals.com_ik_angle_weight ) ;
     yOffsetBox->setValue(zmpProfiles[index].vals.zmpoff_y ) ;
     xOffsetBox->setValue(zmpProfiles[index].vals.zmpoff_x ) ;
