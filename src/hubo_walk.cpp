@@ -109,6 +109,9 @@ void HuboWalkPanel::load(const rviz::Config &config)
             p_config.mapGetValue("quadruped_com_height"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.quadruped_com_height = temp.toDouble();
+            p_config.mapGetValue("torso_pitch"+QString::number(i),
+                                 &temp);
+            content->zmpProfiles[i].vals.torso_pitch = temp.toDouble();
             p_config.mapGetValue("com_ik_angle_weight"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.com_ik_angle_weight = temp.toDouble();
@@ -288,6 +291,8 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpProfiles[i].vals.biped_com_height));
         p_config.mapSetValue("quadruped_com_height"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.quadruped_com_height));
+        p_config.mapSetValue("torso_pitch"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.torso_pitch));
         p_config.mapSetValue("com_ik_angle_weight"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.com_ik_angle_weight));
         p_config.mapSetValue("zmpoff_y"+QString::number(i),
