@@ -39,7 +39,7 @@
 namespace hubo_walk_space
 {
 
-
+#ifdef HAVE_HUBOMZ
 void HuboWalkWidget::handleForward()
 {
     cmd.walk_type = walk_line;
@@ -88,9 +88,55 @@ void HuboWalkWidget::handleStop()
     cmd.cmd_state = STOP;
     sendCommand();
 }
+#else
+void HuboWalkWidget::handleForward()
+{
+    printNotWalkingMessage();
+}
+
+void HuboWalkWidget::handleBackward()
+{
+    printNotWalkingMessage();
+}
+
+void HuboWalkWidget::handleLeft()
+{
+    printNotWalkingMessage();
+}
+
+void HuboWalkWidget::handleRight()
+{
+    printNotWalkingMessage();
+}
+
+void HuboWalkWidget::handleTurnLeft()
+{
+    printNotWalkingMessage();
+}
+
+void HuboWalkWidget::handleTurnRight()
+{
+    printNotWalkingMessage();
+}
+
+void HuboWalkWidget::handleStop()
+{
+    printNotWalkingMessage();
+}
+
+void HuboWalkWidget::printNotWalkingMessage()
+{
+    std::cout << "\nI Aint's walking for you! "
+              << "There's no zmp-daemon to send commands to"
+              << std::endl;
+}
+
+
+#endif // HAVE_HUBOMZ
 
 void HuboWalkWidget::sendCommand()
 {
+#ifdef HAVE_HUBOMZ
     fillProfile(cmd);
     cmd.walk_dist = walkDistanceBox->value();
     cmd.sidewalk_dist = walkDistanceBox->value();
@@ -100,6 +146,8 @@ void HuboWalkWidget::sendCommand()
     ach_status_t r = ach_put(&zmpCmdChan, &cmd, sizeof(cmd));
     if( r != ACH_OK )
         std::cout << "ZMP Command Ach Error: " << ach_result_to_string(r) << std::endl;
+#endif // HAVE_HUBOMZ
+
     balCmd.cmd_request = BAL_ZMP_WALKING;
     sendBalCommand();
     sendBalParams();
@@ -137,7 +185,7 @@ void HuboWalkWidget::sendBalParams()
         std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
 }
 
-
+#ifdef HAVE_HUBOMZ
 void HuboWalkWidget::fillProfile(zmp_cmd_t &vals)
 {
     vals.max_step_count = maxStepBox->value();
@@ -158,7 +206,9 @@ void HuboWalkWidget::fillProfile(zmp_cmd_t &vals)
     vals.zmp_R = jerkPenalBox->value()*penalFactor ;
     vals.ik_sense = int2ikSense(ikSenseSelect->currentIndex()) ;
 }
+#endif // HAVE_HUBOMZ
 
+#ifdef HAVE_HUBOMZ
 void HuboWalkWidget::handleProfileSave()
 {
     int index = profileSelect->currentIndex();
@@ -216,7 +266,7 @@ void HuboWalkWidget::updateProfileBox()
     for(int i=0; i < zmpProfiles.size(); i++)
         profileSelect->addItem(zmpProfiles[i].name);
 }
-
+#endif // HAVE_HUBOMZ
 
 ///////////// BALANCE
 
@@ -318,6 +368,7 @@ void HuboWalkWidget::handleJoyLaunch()
     
 }
 
+#ifdef HAVE_HUBOMZ
 ik_error_sensitivity HuboWalkWidget::int2ikSense(int index)
 {
     switch(index)
@@ -343,7 +394,7 @@ int HuboWalkWidget::ikSense2int(ik_error_sensitivity ik_sense)
         return 2; break;
     }
 }
-
+#endif // HAVE_HUBOMZ
 
 void HuboWalkWidget::setIPAddress(int a, int b, int c, int d)
 {
@@ -384,12 +435,15 @@ void HuboWalkWidget::ipEditHandle(const QString &text)
 
 void HuboWalkWidget::initializeAchConnections()
 {
+    ach_status_t r;
+#ifdef HAVE_HUBOMZ
     achChannelZmp.start("ach mk " + QString::fromLocal8Bit(CHAN_ZMP_CMD_NAME)
                         + " -1 -m 10 -n 8000 -o 666", QIODevice::ReadWrite);
     achChannelZmp.waitForFinished();
-    ach_status_t r = ach_open(&zmpCmdChan, CHAN_ZMP_CMD_NAME, NULL);
+    r = ach_open(&zmpCmdChan, CHAN_ZMP_CMD_NAME, NULL);
     if( r != ACH_OK )
         std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
+#endif // HAVE_HUBOMZ
 
     achChannelBal.start("ach mk " + QString::fromLocal8Bit(BALANCE_PARAM_CHAN)
                         + " -1 -m 10 -n 8000 -o 666", QIODevice::ReadWrite);
@@ -408,6 +462,7 @@ void HuboWalkWidget::initializeAchConnections()
 
 void HuboWalkWidget::achdConnectSlot()
 {
+#ifdef HAVE_HUBOMZ
     achdZmp.start("achd push " + QString::number(ipAddrA)
                                  + "." + QString::number(ipAddrB)
                                  + "." + QString::number(ipAddrC)
@@ -415,6 +470,8 @@ void HuboWalkWidget::achdConnectSlot()
                     + " " + QString::fromLocal8Bit(CHAN_ZMP_CMD_NAME));
     connect(&achdZmp, SIGNAL(finished(int)), this, SLOT(achdExitFinished(int)));
     connect(&achdZmp, SIGNAL(error(QProcess::ProcessError)), this, SLOT(achdExitError(QProcess::ProcessError)));
+#endif // HAVE_HUBOMZ
+
     achdBal.start("achd push " + QString::number(ipAddrA)
                                  + "." + QString::number(ipAddrB)
                                  + "." + QString::number(ipAddrC)

@@ -76,7 +76,9 @@
 #include <hubo-jointparams.h>
 
 //#include <hubo_motion_ros/AchNetworkWidget.h>
+#ifdef HAVE_HUBOMZ
 #include <zmp-daemon.h>
+#endif
 #include <balance-daemon.h>
 //#include <hubo_motion_ros/include/hubo_motion_ros/AchNetworkWidget.h>
 
@@ -106,12 +108,14 @@ signals:
 
 };
 
+#ifdef HAVE_HUBOMZ
 class ZmpProfile
 {
 public:
     QString name;
     zmp_cmd_t vals;
 };
+#endif // HAVE_HUBOMZ
 
 class BalProfile
 {
@@ -171,15 +175,19 @@ public:
 
   // Structs for storing data to transmit
   // TODO: Make the correct structs
+#ifdef HAVE_HUBOMZ
   struct zmp_cmd cmd;
+#endif // HAVE_HUBOMZ
   struct balance_gains balParams;
   struct balance_cmd balCmd;
   
   
   // Handling profiles TODO
   //std::vector<zmp_params> profiles;
+#ifdef HAVE_HUBOMZ
   QVector<ZmpProfile> zmpProfiles;
   void fillProfile(zmp_cmd_t &vals);
+#endif // HAVE_HUBOMZ
   void updateProfileBox();
   QVector<BalProfile> balProfiles;
   void fillbalProfile(balance_gains_t &vals);
@@ -258,10 +266,10 @@ public:
       QDoubleSpinBox* comIKAngleWeightBox;
     ///////////////
 
-      
+#ifdef HAVE_HUBOMZ
       ik_error_sensitivity int2ikSense(int index);
       int ikSense2int(ik_error_sensitivity ik_sense);
-
+#endif // HAVE_HUBOMZ
 
     QWidget* balParamTab;
 
@@ -339,6 +347,7 @@ protected Q_SLOTS:
   void handleTurnRight();
   void handleBackward();
   void handleStop();
+  void printNotWalkingMessage();
 
   // Update all state information
   void refreshState();

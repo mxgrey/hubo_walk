@@ -72,7 +72,7 @@ void HuboWalkPanel::load(const rviz::Config &config)
     else
         content->setIPAddress(a.toInt(), b.toInt(), c.toInt(), d.toInt());
 
-    
+#ifdef HAVE_HUBOMZ
     rviz::Config p_config = config.mapGetChild("ZmpProfiles");
     QVariant pNum;
     
@@ -149,7 +149,7 @@ void HuboWalkPanel::load(const rviz::Config &config)
     }
     else
         ROS_INFO("No zmp profiles found");
-
+#endif // HAVE_HUBOMZ
 
     rviz::Config pb_config = config.mapGetChild("BalProfiles");
     QVariant pbNum;
@@ -262,7 +262,8 @@ void HuboWalkPanel::save(rviz::Config config) const
     config.mapSetValue("SelectedZmpProfile", selectedProfile);
     
     rviz::Config p_config = config.mapMakeChild("ZmpProfiles");
-    
+
+#ifdef HAVE_HUBOMZ    
     QVariant pNum = QVariant(int(content->zmpProfiles.size()));
     p_config.mapSetValue("ZmpProfileNum", pNum);
     
@@ -306,7 +307,7 @@ void HuboWalkPanel::save(rviz::Config config) const
         p_config.mapSetValue("ik_sense"+QString::number(i),
                              QVariant(int(content->zmpProfiles[i].vals.ik_sense)));
     }
-
+#endif // HAVE_HUBOMZ
 
     QVariant selectedbalProfile = QVariant(content->balProfileSelect->currentIndex());
     config.mapSetValue("SelectedBalProfile", selectedbalProfile);
@@ -382,21 +383,27 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
                       "padding: 0 3px 0 3px;"
                       "}";
 
+
+#ifdef HAVE_HUBOMZ
     memset(&cmd, 0, sizeof(cmd));
+#endif // HAVE_HUBOMZ
     memset(&balParams, 0, sizeof(balParams));
     memset(&balCmd, 0, sizeof(balCmd));
 
     initializeCommandTab();
     std::cerr << "Command Tab loaded" << std::endl;
-    
+    addTab(commandTab, "Command");
+
+#ifdef HAVE_HUBOMZ
     initializeZmpParamTab();
     std::cerr << "ZMP Parameters Tab loaded" << std::endl;
+    addTab(zmpParamTab, "ZMP Parameters");
+#else
+    std::cerr << "ZMP Parameters Tab will NOT be loaded because hubomz is not installed" << std::endl;
+#endif // HAVE_HUBOMZ
 
     initializeBalParamTab();
     std::cerr << "Balance Parameters Tab loaded" << std::endl;
-    
-    addTab(commandTab, "Command");
-    addTab(zmpParamTab, "ZMP Parameters");
     addTab(balParamTab, "Balance Parameters");
 
     initializeAchConnections();
@@ -569,7 +576,7 @@ void HuboWalkWidget::initializeCommandTab()
     
     
     QHBoxLayout* controlLayout = new QHBoxLayout;
-    
+
     QGroupBox* zmpCtrlGroup = new QGroupBox;
     zmpCtrlGroup->setTitle("ZMP Commands");
     zmpCtrlGroup->setStyleSheet(groupStyleSheet);
@@ -679,7 +686,6 @@ void HuboWalkWidget::initializeCommandTab()
     zmpCtrlGroup->setLayout(zmpCtrlLayout);
     controlLayout->addWidget(zmpCtrlGroup, 0, Qt::AlignLeft);
 
-
     QGroupBox* balCtrlGroup = new QGroupBox;
     balCtrlGroup->setTitle("Static Commands");
     balCtrlGroup->setStyleSheet(groupStyleSheet);
@@ -744,6 +750,7 @@ void HuboWalkWidget::initializeCommandTab()
     commandTab->setLayout(masterCTLayout);
 }
 
+#ifdef HAVE_HUBOMZ
 void HuboWalkWidget::initializeZmpParamTab()
 {
     QSizePolicy pbsize(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -1181,7 +1188,7 @@ void HuboWalkWidget::initializeZmpParamTab()
     
     profileSelect->setCurrentIndex(0);
 }
-
+#endif // HAVE_HUBOMZ
 
 void HuboWalkWidget::initializeBalParamTab()
 {
