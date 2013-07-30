@@ -126,7 +126,7 @@ void HuboWalkWidget::handleStop()
 
 void HuboWalkWidget::printNotWalkingMessage()
 {
-    std::cout << "\nI Aint's walking for you! "
+    std::cout << "\n滚开！この野郎! 당신은나쁜놈! Get lost."
               << "There's no zmp-daemon to send commands to"
               << std::endl;
 }

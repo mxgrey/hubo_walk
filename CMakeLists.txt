@@ -21,7 +21,7 @@ catkin_package(
 ## Find if hubomz is installed. If not, do not use zmp command stuff
 find_path(HUBOMZ_INCLUDE "zmp-daemon.h" PATHS ${CMAKE_INCLUDE_PATH})
 
-if (${HUBOMZ_INCLUDE} STREQUAL HUBOMZ_INCLUDE-NOTFOUND)
+if(${HUBOMZ_INCLUDE} STREQUAL HUBOMZ_INCLUDE-NOTFOUND)
   message("\n-- INFO: could not find hubomz includes. will not load zmp tab\n")
   set(HAVE_HUBOMZ 0)
 else()
