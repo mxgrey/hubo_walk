@@ -157,7 +157,7 @@ public:
   bool zmpConnected;
   bool zmpStateConnected;
   bool balConnected;
-  
+
   // Update timer
   HuboRefreshManager* refreshManager;
   int getRefreshTime();
@@ -264,7 +264,8 @@ public:
       QDoubleSpinBox* doubleSupportBox;
       QDoubleSpinBox* singleSupportBox;
       QDoubleSpinBox* pauseTimeBox;
-      
+      QDoubleSpinBox* transitionToQuadTimeBox;
+
       QComboBox* walkTypeSelect;
       QComboBox* ikSenseSelect;
       
@@ -276,6 +277,8 @@ public:
       QDoubleSpinBox* comHeightBox;
 	  QDoubleSpinBox* torsoPitchBox;
       QDoubleSpinBox* comIKAngleWeightBox;
+      QCheckBox* constantBodyZBox;
+
     ///////////////
 
     //----------------------
@@ -300,7 +303,8 @@ public:
       QDoubleSpinBox* doubleSupportBoxQuad;
       QDoubleSpinBox* singleSupportBoxQuad;
       QDoubleSpinBox* pauseTimeBoxQuad;
-      
+      QDoubleSpinBox* transitionToBipedTimeBoxQuad;
+
       QComboBox* walkTypeSelectQuad;
       QComboBox* ikSenseSelectQuad;
       
@@ -308,10 +312,14 @@ public:
       QDoubleSpinBox* stepDistanceBoxQuad;
       QDoubleSpinBox* sideStepDistanceBoxQuad;
       QDoubleSpinBox* lateralDistanceBoxQuad;
-      
+      QDoubleSpinBox* quadStanceLengthBoxQuad;
+      QDoubleSpinBox* quadStabilityMarginBoxQuad;
+      QDoubleSpinBox* halfPegWidthBoxQuad;
+
       QDoubleSpinBox* comHeightBoxQuad;
 	  QDoubleSpinBox* torsoPitchBoxQuad;
       QDoubleSpinBox* comIKAngleWeightBoxQuad;
+      QCheckBox* constantBodyZBoxQuad;
     //////////
 
 #ifdef HAVE_HUBOMZ

@@ -41,10 +41,11 @@ namespace hubo_walk_space
 
 void HuboWalkWidget::refreshState()
 {
-    size_t fs;
+/*    size_t fs;
 #ifdef HAVE_HUBOMZ
     ach_get( &zmpStateChan, &zmpState, sizeof(zmpState), &fs, NULL, ACH_O_LAST );
 #endif
+*/
 }
 
 #ifdef HAVE_HUBOMZ
@@ -234,6 +235,7 @@ bool HuboWalkWidget::fillProfile(zmp_cmd_t &vals, const walkMode_t walkMode)
         vals.params.com_height = comHeightBox->value() ;
         vals.params.torso_pitch = torsoPitchBox->value() ;
         vals.params.com_ik_angle_weight = comIKAngleWeightBox->value() ;
+        vals.params.constant_body_z = constantBodyZBox->isChecked() ;
         vals.params.zmpoff_y = yOffsetBox->value() ;
         vals.params.zmpoff_x = xOffsetBox->value() ;
         vals.params.lookahead_time = lookAheadBox->value() ;
@@ -242,6 +244,7 @@ bool HuboWalkWidget::fillProfile(zmp_cmd_t &vals, const walkMode_t walkMode)
         vals.params.min_double_support_time = doubleSupportBox->value() ;
         vals.params.min_single_support_time = singleSupportBox->value() ;
         vals.params.min_pause_time = pauseTimeBox->value() ;
+        vals.params.quad_transition_time = transitionToQuadTimeBox->value() ;
         vals.params.zmp_R = jerkPenalBox->value()*penalFactor ;
         vals.params.ik_sense = int2ikSense(ikSenseSelect->currentIndex()) ;
         return true;
@@ -256,6 +259,7 @@ bool HuboWalkWidget::fillProfile(zmp_cmd_t &vals, const walkMode_t walkMode)
         vals.params.com_height = comHeightBoxQuad->value() ;
         vals.params.torso_pitch = torsoPitchBoxQuad->value() ;
         vals.params.com_ik_angle_weight = comIKAngleWeightBoxQuad->value() ;
+        vals.params.constant_body_z = constantBodyZBoxQuad->isChecked() ;
         vals.params.zmpoff_y = yOffsetBoxQuad->value() ;
         vals.params.zmpoff_x = xOffsetBoxQuad->value() ;
         vals.params.lookahead_time = lookAheadBoxQuad->value() ;
@@ -264,6 +268,7 @@ bool HuboWalkWidget::fillProfile(zmp_cmd_t &vals, const walkMode_t walkMode)
         vals.params.min_double_support_time = doubleSupportBoxQuad->value() ;
         vals.params.min_single_support_time = singleSupportBoxQuad->value() ;
         vals.params.min_pause_time = pauseTimeBoxQuad->value() ;
+        vals.params.quad_transition_time = transitionToBipedTimeBoxQuad->value() ;
         vals.params.zmp_R = jerkPenalBoxQuad->value()*penalFactor ;
         vals.params.ik_sense = int2ikSense(ikSenseSelectQuad->currentIndex()) ;
         return true;
@@ -305,6 +310,7 @@ void HuboWalkWidget::handleProfileSelect(int index)
     comHeightBox->setValue(zmpProfiles[index].vals.params.com_height ) ;
     torsoPitchBox->setValue(zmpProfiles[index].vals.params.torso_pitch ) ;
     comIKAngleWeightBox->setValue(zmpProfiles[index].vals.params.com_ik_angle_weight ) ;
+    constantBodyZBox->setChecked(zmpProfiles[index].vals.params.constant_body_z ) ;
     yOffsetBox->setValue(zmpProfiles[index].vals.params.zmpoff_y ) ;
     xOffsetBox->setValue(zmpProfiles[index].vals.params.zmpoff_x ) ;
     lookAheadBox->setValue(zmpProfiles[index].vals.params.lookahead_time ) ;
@@ -313,6 +319,7 @@ void HuboWalkWidget::handleProfileSelect(int index)
     doubleSupportBox->setValue(zmpProfiles[index].vals.params.min_double_support_time ) ;
     singleSupportBox->setValue(zmpProfiles[index].vals.params.min_single_support_time ) ;
     pauseTimeBox->setValue(zmpProfiles[index].vals.params.min_pause_time ) ;
+    transitionToQuadTimeBox->setValue(zmpProfiles[index].vals.params.quad_transition_time ) ;
     jerkPenalBox->setValue(zmpProfiles[index].vals.params.zmp_R/penalFactor ) ;
     ikSenseSelect->setCurrentIndex(ikSense2int(zmpProfiles[index].vals.params.ik_sense));
     
@@ -329,6 +336,7 @@ void HuboWalkWidget::handleQuadrupedProfileSelect(int index)
     comHeightBoxQuad->setValue(zmpQuadProfiles[index].vals.params.com_height ) ;
     torsoPitchBoxQuad->setValue(zmpQuadProfiles[index].vals.params.torso_pitch ) ;
     comIKAngleWeightBoxQuad->setValue(zmpQuadProfiles[index].vals.params.com_ik_angle_weight ) ;
+    constantBodyZBoxQuad->setChecked(zmpQuadProfiles[index].vals.params.constant_body_z ) ;
     yOffsetBoxQuad->setValue(zmpQuadProfiles[index].vals.params.zmpoff_y ) ;
     xOffsetBoxQuad->setValue(zmpQuadProfiles[index].vals.params.zmpoff_x ) ;
     lookAheadBoxQuad->setValue(zmpQuadProfiles[index].vals.params.lookahead_time ) ;
@@ -337,10 +345,11 @@ void HuboWalkWidget::handleQuadrupedProfileSelect(int index)
     doubleSupportBoxQuad->setValue(zmpQuadProfiles[index].vals.params.min_double_support_time ) ;
     singleSupportBoxQuad->setValue(zmpQuadProfiles[index].vals.params.min_single_support_time ) ;
     pauseTimeBoxQuad->setValue(zmpQuadProfiles[index].vals.params.min_pause_time ) ;
+    transitionToBipedTimeBoxQuad->setValue(zmpQuadProfiles[index].vals.params.quad_transition_time ) ;
     jerkPenalBoxQuad->setValue(zmpQuadProfiles[index].vals.params.zmp_R/penalFactor ) ;
     ikSenseSelectQuad->setCurrentIndex(ikSense2int(zmpQuadProfiles[index].vals.params.ik_sense));
     
-    saveAsEdit->clear();
+    saveAsEditQuad->clear();
 }
 
 void HuboWalkWidget::handleProfileDelete()

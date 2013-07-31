@@ -53,9 +53,13 @@ HuboWalkPanel::HuboWalkPanel(QWidget *parent)
 
 HuboWalkWidget::~HuboWalkWidget()
 {
-    // TODO: Turn these back on
-//    refreshManager->alive = false;
-//    refreshManager->exit();
+    std::cerr << "Disconnecting Ach daemons\n";
+    achdDisconnectSlot();
+    std::cerr << "Exiting refresh manager\n";
+    refreshManager->alive = false;
+    refreshManager->quit();
+    refreshManager->wait();
+    std::cerr << "Done exiting\n";
 }
 
 void HuboWalkPanel::load(const rviz::Config &config)
@@ -98,6 +102,9 @@ void HuboWalkPanel::load(const rviz::Config &config)
             p_config.mapGetValue("half_stance_width"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.half_stance_width = temp.toDouble();
+            p_config.mapGetValue("half_peg_width"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.half_peg_width = temp.toDouble();
             p_config.mapGetValue("step_height"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.step_height = temp.toDouble();
@@ -137,6 +144,9 @@ void HuboWalkPanel::load(const rviz::Config &config)
             p_config.mapGetValue("min_pause_time"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.min_pause_time = temp.toDouble();
+            p_config.mapGetValue("quad_transition_time"+QString::number(i),
+                                 &temp);
+            content->zmpProfiles[i].vals.params.quad_transition_time = temp.toDouble();
             p_config.mapGetValue("zmp_jerk_penalty"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.zmp_R = temp.toDouble();
@@ -158,7 +168,7 @@ void HuboWalkPanel::load(const rviz::Config &config)
     rviz::Config pQuad_config = config.mapGetChild("zmpQuadProfiles");
     QVariant pNumQuad;
     
-    if( p_config.mapGetValue("ZmpProfileNum", &pNumQuad) )
+    if( pQuad_config.mapGetValue("ZmpProfileNum", &pNumQuad) )
     {
         QVariant selectedProfileQuad;
         config.mapGetValue("SelectedZmpQuadProfile", &selectedProfileQuad);
@@ -179,6 +189,9 @@ void HuboWalkPanel::load(const rviz::Config &config)
             pQuad_config.mapGetValue("half_stance_width"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.half_stance_width = temp.toDouble();
+            pQuad_config.mapGetValue("half_peg_width"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.half_peg_width = temp.toDouble();
             pQuad_config.mapGetValue("step_height"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.step_height = temp.toDouble();
@@ -218,6 +231,9 @@ void HuboWalkPanel::load(const rviz::Config &config)
             pQuad_config.mapGetValue("min_pause_time"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.min_pause_time = temp.toDouble();
+            pQuad_config.mapGetValue("biped_transition_time"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.quad_transition_time = temp.toDouble();
             pQuad_config.mapGetValue("zmp_jerk_penalty"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.zmp_R = temp.toDouble();
@@ -229,11 +245,11 @@ void HuboWalkPanel::load(const rviz::Config &config)
             content->zmpQuadProfiles[i].vals.params.zmp_R = temp.toDouble();
         }
         
-        content->updateProfileBox();
+        content->updateQuadrupedProfileBox();
         content->profileSelectQuad->setCurrentIndex(selectedProfileQuad.toInt());
     }
     else
-        ROS_INFO("No zmp profiles found");
+        ROS_INFO("No quad zmp profiles found");
 
 #endif // HAVE_HUBOMZ
 
@@ -369,6 +385,8 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpProfiles[i].vals.params.step_length));
         p_config.mapSetValue("half_stance_width"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.half_stance_width));
+        p_config.mapSetValue("half_peg_width"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.half_peg_width));
         p_config.mapSetValue("step_height"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.step_height));
         p_config.mapSetValue("sidestep_length"+QString::number(i),
@@ -395,6 +413,8 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpProfiles[i].vals.params.min_single_support_time));
         p_config.mapSetValue("min_pause_time"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.min_pause_time));
+        p_config.mapSetValue("quad_transition_time"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.params.quad_transition_time));
         p_config.mapSetValue("zmp_jerk_penalty"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.zmp_R));
         p_config.mapSetValue("ik_sense"+QString::number(i),
@@ -416,6 +436,8 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpQuadProfiles[i].vals.params.step_length));
         pQuad_config.mapSetValue("half_stance_width"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.half_stance_width));
+        pQuad_config.mapSetValue("half_peg_width"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.half_peg_width));
         pQuad_config.mapSetValue("step_height"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.step_height));
         pQuad_config.mapSetValue("sidestep_length"+QString::number(i),
@@ -442,6 +464,8 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpQuadProfiles[i].vals.params.min_single_support_time));
         pQuad_config.mapSetValue("min_pause_time"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.min_pause_time));
+        pQuad_config.mapSetValue("biped_transition_time"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.quad_transition_time));
         pQuad_config.mapSetValue("zmp_jerk_penalty"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.zmp_R));
         p_config.mapSetValue("ik_sense"+QString::number(i),
@@ -529,6 +553,7 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
 #ifdef HAVE_HUBOMZ
     memset(&cmd, 0, sizeof(cmd));
     memset(&zmpState, 0, sizeof(zmpState));
+    walkMode = BIPED_MODE;
 #endif // HAVE_HUBOMZ
     memset(&balParams, 0, sizeof(balParams));
     memset(&balCmd, 0, sizeof(balCmd));
@@ -555,10 +580,11 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
 
     initializeAchConnections();
 
-//    refreshManager = new HuboRefreshManager;
-//    refreshManager->parentWidget = this;
-//    connect(this, SIGNAL(sendWaitTime(int)), refreshManager, SLOT(getWaitTime(int)));
-//    refreshManager->start();
+    refreshManager = new HuboRefreshManager;
+    refreshManager->parentWidget = this;
+    connect(this, SIGNAL(sendWaitTime(int)), refreshManager, SLOT(getWaitTime(int)));
+    refreshManager->start();
+
 }
 
 void HuboRefreshManager::run()
@@ -576,7 +602,7 @@ void HuboRefreshManager::run()
 
 void HuboRefreshManager::getWaitTime(int t)
 {
-    waitTime = t;
+//    waitTime = t;
 }
 
 
@@ -741,11 +767,10 @@ void HuboWalkWidget::initializeCommandTab()
     paramLayout->addWidget(walkDistanceBox, 0, Qt::AlignLeft);
     
     continuousBox = new QCheckBox;
-    continuousBox->setChecked(false);
     continuousBox->setText("Continuous");
     continuousBox->setToolTip("Ignore the walk distance, and walk until Stop is selected");
     continuousBox->setChecked(true);
-    continuousBox->setDisabled(true);
+    continuousBox->setDisabled(false);
     paramLayout->addWidget(continuousBox, 0, Qt::AlignLeft);
 
     QLabel* rotateAngleLab = new QLabel;
@@ -828,13 +853,13 @@ void HuboWalkWidget::initializeCommandTab()
     connect(backButton, SIGNAL(clicked()), this, SLOT(handleBackward()));
 
     quadrupedButton = new QPushButton;
-    quadrupedButton->setText("Go Quadruped");
+    quadrupedButton->setText("Go Quadped");
     quadrupedButton->setSizePolicy(pbsize);
     wasdLayout->addWidget(quadrupedButton, 4, 0, 1, 1, Qt::AlignCenter);
     connect(quadrupedButton, SIGNAL(clicked()), this, SLOT(handleGoQuadruped()));
     
     bipedButton = new QPushButton;
-    bipedButton->setText("Go Biped");
+    bipedButton->setText(" Go Biped ");
     bipedButton->setSizePolicy(pbsize);
     wasdLayout->addWidget(bipedButton, 4, 2, 1, 1, Qt::AlignCenter);
     connect(bipedButton, SIGNAL(clicked()), this, SLOT(handleGoBiped()));
@@ -1153,14 +1178,35 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     pauseTimeBox->setSizePolicy(pbsize);
     pauseTimeBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     pauseTimeBox->setToolTip(pauseTimeLab->toolTip());
-    pauseTimeBox->setDecimals(3);
+    pauseTimeBox->setDecimals(2);
     pauseTimeBox->setValue(0.00);
-    pauseTimeBox->setSingleStep(0.01);
+    pauseTimeBox->setSingleStep(0.1);
     pauseTimeBox->setMinimum(0);
-    pauseTimeBox->setMaximum(1000);
+    pauseTimeBox->setMaximum(50);
     pauseTimeLay->addWidget(pauseTimeBox);
     
     timeSettingsLayout->addLayout(pauseTimeLay);
+
+    // Transition to quadruped time
+    QHBoxLayout* transitionToQuadTimeLay = new QHBoxLayout;
+    QLabel* transitionToQuadTimeLab = new QLabel;
+    transitionToQuadTimeLab->setText("Quadruped Transition Time:");
+    transitionToQuadTimeLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    transitionToQuadTimeLab->setToolTip("How much time (s) should be spent stationary in double support?");
+    transitionToQuadTimeLay->addWidget(transitionToQuadTimeLab);
+
+    transitionToQuadTimeBox = new QDoubleSpinBox;
+    transitionToQuadTimeBox->setSizePolicy(pbsize);
+    transitionToQuadTimeBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    transitionToQuadTimeBox->setToolTip(transitionToQuadTimeLab->toolTip());
+    transitionToQuadTimeBox->setDecimals(2);
+    transitionToQuadTimeBox->setValue(4.00);
+    transitionToQuadTimeBox->setSingleStep(0.5);
+    transitionToQuadTimeBox->setMinimum(0);
+    transitionToQuadTimeBox->setMaximum(50);
+    transitionToQuadTimeLay->addWidget(transitionToQuadTimeBox);
+
+    timeSettingsLayout->addLayout(transitionToQuadTimeLay);
 
     QGroupBox* timeSettingsBox = new QGroupBox;
     timeSettingsBox->setTitle("Time Settings");
@@ -1212,7 +1258,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     
     QHBoxLayout* stepDistanceLay = new QHBoxLayout;
     QLabel* stepDistanceLab = new QLabel;
-    stepDistanceLab->setText("Step Distance:");
+    stepDistanceLab->setText("Step Length:");
     stepDistanceLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
     stepDistanceLab->setToolTip("How far forward (m) should the swing foot step?");
     stepDistanceLay->addWidget(stepDistanceLab);
@@ -1253,7 +1299,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     
     QHBoxLayout* lateralDistanceLay = new QHBoxLayout;
     QLabel* lateralDistanceLab = new QLabel;
-    lateralDistanceLab->setText("Lateral Distance:");
+    lateralDistanceLab->setText("Half Stance Width:");
     lateralDistanceLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
     lateralDistanceLab->setToolTip("How far from the center (m) should the swing foot be placed?");
     lateralDistanceLay->addWidget(lateralDistanceLab);
@@ -1316,7 +1362,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     torsoPitchBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     torsoPitchBox->setToolTip(torsoPitchLab->toolTip());
     torsoPitchBox->setDecimals(3);
-    torsoPitchBox->setValue(-1.22);
+    torsoPitchBox->setValue(0);
     torsoPitchBox->setSingleStep(0.01);
     torsoPitchBox->setMinimum(-3);
     torsoPitchBox->setMaximum(3);
@@ -1345,6 +1391,16 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     
     comSettingsLayout->addLayout(comIKAngleWeightLay);
     
+    // Constant Body Z
+    constantBodyZBox = new QCheckBox;
+    constantBodyZBox->setText("Constant Body Z");
+    constantBodyZBox->setToolTip("Ignore the walk distance, and walk until Stop is selected");
+    constantBodyZBox->setChecked(true);
+    constantBodyZBox->setDisabled(false);
+    comSettingsLayout->addWidget(constantBodyZBox, 0, Qt::AlignRight);
+
+    comSettingsLayout->addWidget(constantBodyZBox);
+
     QGroupBox* comSettingsBox = new QGroupBox;
     comSettingsBox->setTitle("Center of Mass Settings");
     comSettingsBox->setStyleSheet(groupStyleSheet);
@@ -1531,7 +1587,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     startupTimeBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     startupTimeBoxQuad->setToolTip(startupTimeLab->toolTip());
     startupTimeBoxQuad->setDecimals(3);
-    startupTimeBoxQuad->setValue(0.5);
+    startupTimeBoxQuad->setValue(1.0);
     startupTimeBoxQuad->setSingleStep(0.01);
     startupTimeBoxQuad->setMinimum(0);
     startupTimeBoxQuad->setMaximum(1000);
@@ -1552,7 +1608,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     shutdownTimeBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     shutdownTimeBoxQuad->setToolTip(shutdownTimeLab->toolTip());
     shutdownTimeBoxQuad->setDecimals(3);
-    shutdownTimeBoxQuad->setValue(0.5);
+    shutdownTimeBoxQuad->setValue(1.0);
     shutdownTimeBoxQuad->setSingleStep(0.01);
     shutdownTimeBoxQuad->setMinimum(0);
     shutdownTimeBoxQuad->setMaximum(1000);
@@ -1573,11 +1629,11 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     doubleSupportBoxQuad->setSizePolicy(pbsize);
     doubleSupportBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     doubleSupportBoxQuad->setToolTip(doubleSupTimeLab->toolTip());
-    doubleSupportBoxQuad->setDecimals(3);
-    doubleSupportBoxQuad->setValue(0.01);
-    doubleSupportBoxQuad->setSingleStep(0.01);
+    doubleSupportBoxQuad->setDecimals(2);
+    doubleSupportBoxQuad->setValue(1.0);
+    doubleSupportBoxQuad->setSingleStep(0.1);
     doubleSupportBoxQuad->setMinimum(0);
-    doubleSupportBoxQuad->setMaximum(1000);
+    doubleSupportBoxQuad->setMaximum(50);
     doubleSupTimeLay->addWidget(doubleSupportBoxQuad);
     
     timeSettingsLayout->addLayout(doubleSupTimeLay);
@@ -1595,11 +1651,11 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     singleSupportBoxQuad->setSizePolicy(pbsize);
     singleSupportBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     singleSupportBoxQuad->setToolTip(singleSupTimeLab->toolTip());
-    singleSupportBoxQuad->setDecimals(3);
-    singleSupportBoxQuad->setValue(0.50);
-    singleSupportBoxQuad->setSingleStep(0.01);
+    singleSupportBoxQuad->setDecimals(2);
+    singleSupportBoxQuad->setValue(1.00);
+    singleSupportBoxQuad->setSingleStep(0.1);
     singleSupportBoxQuad->setMinimum(0);
-    singleSupportBoxQuad->setMaximum(1000);
+    singleSupportBoxQuad->setMaximum(50);
     singleSupTimeLay->addWidget(singleSupportBoxQuad);
     
     timeSettingsLayout->addLayout(singleSupTimeLay);
@@ -1616,14 +1672,35 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     pauseTimeBoxQuad->setSizePolicy(pbsize);
     pauseTimeBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     pauseTimeBoxQuad->setToolTip(pauseTimeLab->toolTip());
-    pauseTimeBoxQuad->setDecimals(3);
-    pauseTimeBoxQuad->setValue(0.00);
+    pauseTimeBoxQuad->setDecimals(2);
+    pauseTimeBoxQuad->setValue(0.25);
     pauseTimeBoxQuad->setSingleStep(0.01);
     pauseTimeBoxQuad->setMinimum(0);
-    pauseTimeBoxQuad->setMaximum(1000);
+    pauseTimeBoxQuad->setMaximum(5);
     pauseTimeLay->addWidget(pauseTimeBoxQuad);
     
     timeSettingsLayout->addLayout(pauseTimeLay);
+
+    // Transition to biped time
+    QHBoxLayout* transitionToBipedTimeLay = new QHBoxLayout;
+    QLabel* transitionToBipedTimeLab = new QLabel;
+    transitionToBipedTimeLab->setText("Biped Transition Time:");
+    transitionToBipedTimeLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    transitionToBipedTimeLab->setToolTip("How much time (s) should be spent stationary in double support?");
+    transitionToBipedTimeLay->addWidget(transitionToBipedTimeLab);
+
+    transitionToBipedTimeBoxQuad = new QDoubleSpinBox;
+    transitionToBipedTimeBoxQuad->setSizePolicy(pbsize);
+    transitionToBipedTimeBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    transitionToBipedTimeBoxQuad->setToolTip(transitionToBipedTimeLab->toolTip());
+    transitionToBipedTimeBoxQuad->setDecimals(2);
+    transitionToBipedTimeBoxQuad->setValue(4.00);
+    transitionToBipedTimeBoxQuad->setSingleStep(0.1);
+    transitionToBipedTimeBoxQuad->setMinimum(0);
+    transitionToBipedTimeBoxQuad->setMaximum(50);
+    transitionToBipedTimeLay->addWidget(transitionToBipedTimeBoxQuad);
+
+    timeSettingsLayout->addLayout(transitionToBipedTimeLay);
 
     QGroupBox* timeSettingsBoxQuad = new QGroupBox;
     timeSettingsBoxQuad->setTitle("Time Settings");
@@ -1675,7 +1752,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     
     QHBoxLayout* stepDistanceLay = new QHBoxLayout;
     QLabel* stepDistanceLab = new QLabel;
-    stepDistanceLab->setText("Step Distance:");
+    stepDistanceLab->setText("Step Length:");
     stepDistanceLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
     stepDistanceLab->setToolTip("How far forward (m) should the swing foot step?");
     stepDistanceLay->addWidget(stepDistanceLab);
@@ -1685,7 +1762,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     stepDistanceBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     stepDistanceBoxQuad->setToolTip(stepDistanceLab->toolTip());
     stepDistanceBoxQuad->setDecimals(4);
-    stepDistanceBoxQuad->setValue(0.1);
+    stepDistanceBoxQuad->setValue(0.2);
     stepDistanceBoxQuad->setSingleStep(0.01);
     stepDistanceBoxQuad->setMinimum(0);
     stepDistanceBoxQuad->setMaximum(5);
@@ -1695,7 +1772,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
 
     QHBoxLayout* sideStepDistanceLay = new QHBoxLayout;
     QLabel* sideStepDistanceLab = new QLabel;
-    sideStepDistanceLab->setText("Side Step Distance:");
+    sideStepDistanceLab->setText("Side Step Length:");
     sideStepDistanceLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
     sideStepDistanceLab->setToolTip("How far sideways (m) should the swing foot step?");
     sideStepDistanceLay->addWidget(sideStepDistanceLab);
@@ -1704,8 +1781,8 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     sideStepDistanceBoxQuad->setSizePolicy(pbsize);
     sideStepDistanceBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     sideStepDistanceBoxQuad->setToolTip(sideStepDistanceLab->toolTip());
-    sideStepDistanceBoxQuad->setDecimals(4);
-    sideStepDistanceBoxQuad->setValue(0.04);
+    sideStepDistanceBoxQuad->setDecimals(3);
+    sideStepDistanceBoxQuad->setValue(0.1);
     sideStepDistanceBoxQuad->setSingleStep(0.01);
     sideStepDistanceBoxQuad->setMinimum(0);
     sideStepDistanceBoxQuad->setMaximum(5);
@@ -1716,7 +1793,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     
     QHBoxLayout* lateralDistanceLay = new QHBoxLayout;
     QLabel* lateralDistanceLab = new QLabel;
-    lateralDistanceLab->setText("Lateral Distance:");
+    lateralDistanceLab->setText("Half Stance Width:");
     lateralDistanceLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
     lateralDistanceLab->setToolTip("How far from the center (m) should the swing foot be placed?");
     lateralDistanceLay->addWidget(lateralDistanceLab);
@@ -1733,7 +1810,70 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     lateralDistanceLay->addWidget(lateralDistanceBoxQuad);
     
     swingSettingsLayout->addLayout(lateralDistanceLay);
+
+    // Quad stance length
+    QHBoxLayout* quadStanceLengthLay = new QHBoxLayout;
+    QLabel* quadStanceLengthLab = new QLabel;
+    quadStanceLengthLab->setText("Quad Stance Length:");
+    quadStanceLengthLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    quadStanceLengthLab->setToolTip("How far from the center (m) should the swing foot be placed?");
+    quadStanceLengthLay->addWidget(quadStanceLengthLab);
+
+    quadStanceLengthBoxQuad = new QDoubleSpinBox;
+    quadStanceLengthBoxQuad->setSizePolicy(pbsize);
+    quadStanceLengthBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    quadStanceLengthBoxQuad->setToolTip(quadStanceLengthLab->toolTip());
+    quadStanceLengthBoxQuad->setDecimals(4);
+    quadStanceLengthBoxQuad->setValue(0.25);
+    quadStanceLengthBoxQuad->setSingleStep(0.01);
+    quadStanceLengthBoxQuad->setMinimum(0);
+    quadStanceLengthBoxQuad->setMaximum(5);
+    quadStanceLengthLay->addWidget(quadStanceLengthBoxQuad);
+
+    swingSettingsLayout->addLayout(quadStanceLengthLay);
     
+    // Quad stability margin
+    QHBoxLayout* quadStabilityMarginLay = new QHBoxLayout;
+    QLabel* quadStabilityMarginLab = new QLabel;
+    quadStabilityMarginLab->setText("Quad Stability Margin:");
+    quadStabilityMarginLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    quadStabilityMarginLab->setToolTip("How far from the center (m) should the swing foot be placed?");
+    quadStabilityMarginLay->addWidget(quadStabilityMarginLab);
+
+    quadStabilityMarginBoxQuad = new QDoubleSpinBox;
+    quadStabilityMarginBoxQuad->setSizePolicy(pbsize);
+    quadStabilityMarginBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    quadStabilityMarginBoxQuad->setToolTip(quadStabilityMarginLab->toolTip());
+    quadStabilityMarginBoxQuad->setDecimals(4);
+    quadStabilityMarginBoxQuad->setValue(0.035);
+    quadStabilityMarginBoxQuad->setSingleStep(0.01);
+    quadStabilityMarginBoxQuad->setMinimum(0);
+    quadStabilityMarginBoxQuad->setMaximum(5);
+    quadStabilityMarginLay->addWidget(quadStabilityMarginBoxQuad);
+
+    swingSettingsLayout->addLayout(quadStabilityMarginLay);
+
+    // Half Peg Width
+    QHBoxLayout* halfPegWidthLay = new QHBoxLayout;
+    QLabel* halfPegWidthLab = new QLabel;
+    halfPegWidthLab->setText("Half Peg Width:");
+    halfPegWidthLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    halfPegWidthLab->setToolTip("Half the distance between the pegs in the y-direction (m)");
+    halfPegWidthLay->addWidget(halfPegWidthLab);
+
+    halfPegWidthBoxQuad = new QDoubleSpinBox;
+    halfPegWidthBoxQuad->setSizePolicy(pbsize);
+    halfPegWidthBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    halfPegWidthBoxQuad->setToolTip(halfPegWidthLab->toolTip());
+    halfPegWidthBoxQuad->setDecimals(4);
+    halfPegWidthBoxQuad->setValue(0.3);
+    halfPegWidthBoxQuad->setSingleStep(0.01);
+    halfPegWidthBoxQuad->setMinimum(0);
+    halfPegWidthBoxQuad->setMaximum(5);
+    halfPegWidthLay->addWidget(halfPegWidthBoxQuad);
+
+    swingSettingsLayout->addLayout(halfPegWidthLay);
+
     QGroupBox* swingSettingsBoxQuad = new QGroupBox;
     swingSettingsBoxQuad->setTitle("Swing Foot Settings");
     swingSettingsBoxQuad->setStyleSheet(groupStyleSheet);
@@ -1779,10 +1919,10 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     torsoPitchBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     torsoPitchBoxQuad->setToolTip(torsoPitchLab->toolTip());
     torsoPitchBoxQuad->setDecimals(3);
-    torsoPitchBoxQuad->setValue(-1.22);
-    torsoPitchBoxQuad->setSingleStep(0.01);
     torsoPitchBoxQuad->setMinimum(-3);
     torsoPitchBoxQuad->setMaximum(3);
+    torsoPitchBoxQuad->setValue(-1.22);
+    torsoPitchBoxQuad->setSingleStep(0.01);
     torsoPitchLay->addWidget(torsoPitchBoxQuad);
     
     comSettingsLayout->addLayout(torsoPitchLay);
@@ -1807,6 +1947,14 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     comIKAngleWeightLay->addWidget(comIKAngleWeightBoxQuad);
     
     comSettingsLayout->addLayout(comIKAngleWeightLay);
+
+    // Constant Body Z
+    constantBodyZBoxQuad = new QCheckBox;
+    constantBodyZBoxQuad->setText("Constant Body Z");
+    constantBodyZBoxQuad->setToolTip("Ignore the walk distance, and walk until Stop is selected");
+    constantBodyZBoxQuad->setChecked(true);
+    constantBodyZBoxQuad->setDisabled(false);
+    comSettingsLayout->addWidget(constantBodyZBoxQuad, 0, Qt::AlignRight);
     
     QGroupBox* comSettingsBoxQuad = new QGroupBox;
     comSettingsBoxQuad->setTitle("Center of Mass Settings");
