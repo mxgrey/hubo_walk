@@ -39,7 +39,15 @@
 namespace hubo_walk_space
 {
 
+void HuboWalkWidget::refreshState()
+{
+    size_t fs;
+#ifdef HAVE_HUBOMZ
+    ach_get( &zmpStateChan, &zmpState, sizeof(zmpState), &fs, NULL, ACH_O_LAST );
+#endif
+}
 
+#ifdef HAVE_HUBOMZ
 void HuboWalkWidget::handleForward()
 {
     cmd.walk_type = walk_line;
@@ -101,17 +109,81 @@ void HuboWalkWidget::handleGoBiped()
     sendCommand();
 }
 
+#else
+void HuboWalkWidget::handleForward()
+{
+    printNotWalkingMessage();
+}
+
+void HuboWalkWidget::handleBackward()
+{
+    printNotWalkingMessage();
+}
+
+void HuboWalkWidget::handleLeft()
+{
+    printNotWalkingMessage();
+}
+
+void HuboWalkWidget::handleRight()
+{
+    printNotWalkingMessage();
+}
+
+void HuboWalkWidget::handleTurnLeft()
+{
+    printNotWalkingMessage();
+}
+
+void HuboWalkWidget::handleTurnRight()
+{
+    printNotWalkingMessage();
+}
+
+void HuboWalkWidget::handleStop()
+{
+    printNotWalkingMessage();
+}
+
+void HuboWalkWidget::handleGoQuadruped()
+{
+    printNotWalkingMessage();
+}
+
+void HuboWalkWidget::handleGoBiped()
+{
+    printNotWalkingMessage();
+}
+void HuboWalkWidget::printNotWalkingMessage()
+{
+    std::cout << "\n滚开！この野郎! 당신은나쁜놈! Get lost."
+              << "There's no zmp-daemon to send commands to"
+              << std::endl;
+}
+
+
+#endif // HAVE_HUBOMZ
+
 void HuboWalkWidget::sendCommand()
 {
-    fillProfile(cmd);
-    cmd.walk_dist = walkDistanceBox->value();
-    cmd.sidewalk_dist = walkDistanceBox->value();
-    cmd.turnInPlace_angle = rotateAngleBox->value();
-    cmd.walk_circle_radius = radiusBox->value();
-    cmd.walk_continuous = continuousBox->isChecked();
-    ach_status_t r = ach_put(&zmpCmdChan, &cmd, sizeof(cmd));
-    if( r != ACH_OK )
-        std::cout << "ZMP Command Ach Error: " << ach_result_to_string(r) << std::endl;
+#ifdef HAVE_HUBOMZ
+    bool fillSuccess = false;
+    fillSuccess = fillProfile(cmd, walkMode);
+    if(fillSuccess)
+    {
+        cmd.params.walk_dist = walkDistanceBox->value();
+        cmd.params.sidewalk_dist = walkDistanceBox->value();
+        cmd.params.turn_in_place_angle = rotateAngleBox->value();
+        cmd.params.walk_circle_radius = radiusBox->value();
+        cmd.walk_continuous = continuousBox->isChecked();
+        ach_status_t r = ach_put(&zmpCmdChan, &cmd, sizeof(cmd));
+        if( r != ACH_OK )
+            std::cout << "ZMP Command Ach Error: " << ach_result_to_string(r) << std::endl;
+    }
+    else
+        std::cout << "Invalid walk mode requested. Check headers. Command not sent" << std::endl;
+#endif // HAVE_HUBOMZ
+
     balCmd.cmd_request = BAL_ZMP_WALKING;
     sendBalCommand();
     sendBalParams();
@@ -149,60 +221,124 @@ void HuboWalkWidget::sendBalParams()
         std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
 }
 
-
-void HuboWalkWidget::fillProfile(zmp_cmd_t &vals)
+#ifdef HAVE_HUBOMZ
+bool HuboWalkWidget::fillProfile(zmp_cmd_t &vals, const walkMode_t walkMode)
 {
-    vals.max_step_count = maxStepBox->value();
-    vals.step_length = stepDistanceBox->value() ;
-    vals.half_stance_width = lateralDistanceBox->value() ;
-    vals.step_height = liftoffHeightBox->value() ;
-    vals.sidestep_length = sideStepDistanceBox->value() ;
-    vals.biped_com_height = bipedComHeightBox->value() ;
-    vals.quadruped_com_height = quadrupedComHeightBox->value() ;
-    vals.torso_pitch = torsoPitchBox->value() ;
-    vals.com_ik_angle_weight = comIKAngleWeightBox->value() ;
-    vals.zmpoff_y = yOffsetBox->value() ;
-    vals.zmpoff_x = xOffsetBox->value() ;
-    vals.lookahead_time = lookAheadBox->value() ;
-    vals.walk_startup_time = startupTimeBox->value() ;
-    vals.walk_shutdown_time = shutdownTimeBox->value() ;
-    vals.min_double_support_time = doubleSupportBox->value() ;
-    vals.min_single_support_time = singleSupportBox->value() ;
-    vals.min_pause_time = pauseTimeBox->value() ;
-    vals.zmp_R = jerkPenalBox->value()*penalFactor ;
-    vals.ik_sense = int2ikSense(ikSenseSelect->currentIndex()) ;
+    if(BIPED_MODE == walkMode)
+    {
+        vals.params.max_step_count = maxStepBox->value();
+        vals.params.step_length = stepDistanceBox->value() ;
+        vals.params.half_stance_width = lateralDistanceBox->value() ;
+        vals.params.step_height = liftoffHeightBox->value() ;
+        vals.params.sidestep_length = sideStepDistanceBox->value() ;
+        vals.params.com_height = comHeightBox->value() ;
+        vals.params.torso_pitch = torsoPitchBox->value() ;
+        vals.params.com_ik_angle_weight = comIKAngleWeightBox->value() ;
+        vals.params.zmpoff_y = yOffsetBox->value() ;
+        vals.params.zmpoff_x = xOffsetBox->value() ;
+        vals.params.lookahead_time = lookAheadBox->value() ;
+        vals.params.walk_startup_time = startupTimeBox->value() ;
+        vals.params.walk_shutdown_time = shutdownTimeBox->value() ;
+        vals.params.min_double_support_time = doubleSupportBox->value() ;
+        vals.params.min_single_support_time = singleSupportBox->value() ;
+        vals.params.min_pause_time = pauseTimeBox->value() ;
+        vals.params.zmp_R = jerkPenalBox->value()*penalFactor ;
+        vals.params.ik_sense = int2ikSense(ikSenseSelect->currentIndex()) ;
+        return true;
+    }
+    else if(QUADRUPED_MODE == walkMode)
+    {
+        vals.params.max_step_count = maxStepBox->value();
+        vals.params.step_length = stepDistanceBoxQuad->value() ;
+        vals.params.half_stance_width = lateralDistanceBoxQuad->value() ;
+        vals.params.step_height = liftoffHeightBoxQuad->value() ;
+        vals.params.sidestep_length = sideStepDistanceBoxQuad->value() ;
+        vals.params.com_height = comHeightBoxQuad->value() ;
+        vals.params.torso_pitch = torsoPitchBoxQuad->value() ;
+        vals.params.com_ik_angle_weight = comIKAngleWeightBoxQuad->value() ;
+        vals.params.zmpoff_y = yOffsetBoxQuad->value() ;
+        vals.params.zmpoff_x = xOffsetBoxQuad->value() ;
+        vals.params.lookahead_time = lookAheadBoxQuad->value() ;
+        vals.params.walk_startup_time = startupTimeBoxQuad->value() ;
+        vals.params.walk_shutdown_time = shutdownTimeBoxQuad->value() ;
+        vals.params.min_double_support_time = doubleSupportBoxQuad->value() ;
+        vals.params.min_single_support_time = singleSupportBoxQuad->value() ;
+        vals.params.min_pause_time = pauseTimeBoxQuad->value() ;
+        vals.params.zmp_R = jerkPenalBoxQuad->value()*penalFactor ;
+        vals.params.ik_sense = int2ikSense(ikSenseSelectQuad->currentIndex()) ;
+        return true;
+    }
+    else
+    {
+        std::cout << "Invalid walk mode in \"fillProfile\" function" << std::endl;
+        return false;
+    }
 }
+#endif // HAVE_HUBOMZ
 
+#ifdef HAVE_HUBOMZ
 void HuboWalkWidget::handleProfileSave()
 {
     int index = profileSelect->currentIndex();
-    fillProfile(zmpProfiles[index].vals);
+    fillProfile(zmpProfiles[index].vals, BIPED_MODE);
     
     saveAsEdit->clear();
     saveAsEdit->setPlaceholderText("Remember to save your RViz session! (Ctrl-S)");
 }
 
+void HuboWalkWidget::handleQuadrupedProfileSave()
+{
+    int index = profileSelectQuad->currentIndex();
+    fillProfile(zmpQuadProfiles[index].vals, QUADRUPED_MODE);
+    
+    saveAsEditQuad->clear();
+    saveAsEditQuad->setPlaceholderText("Remember to save your RViz session! (Ctrl-S)");
+}
+
 void HuboWalkWidget::handleProfileSelect(int index)
 {
-    maxStepBox->setValue(zmpProfiles[index].vals.max_step_count );
-    stepDistanceBox->setValue(zmpProfiles[index].vals.step_length ) ;
-    lateralDistanceBox->setValue(zmpProfiles[index].vals.half_stance_width ) ;
-    liftoffHeightBox->setValue(zmpProfiles[index].vals.step_height ) ;
-    sideStepDistanceBox->setValue(zmpProfiles[index].vals.sidestep_length ) ;
-    bipedComHeightBox->setValue(zmpProfiles[index].vals.biped_com_height ) ;
-    quadrupedComHeightBox->setValue(zmpProfiles[index].vals.quadruped_com_height ) ;
-    torsoPitchBox->setValue(zmpProfiles[index].vals.torso_pitch ) ;
-    comIKAngleWeightBox->setValue(zmpProfiles[index].vals.com_ik_angle_weight ) ;
-    yOffsetBox->setValue(zmpProfiles[index].vals.zmpoff_y ) ;
-    xOffsetBox->setValue(zmpProfiles[index].vals.zmpoff_x ) ;
-    lookAheadBox->setValue(zmpProfiles[index].vals.lookahead_time ) ;
-    startupTimeBox->setValue(zmpProfiles[index].vals.walk_startup_time ) ;
-    shutdownTimeBox->setValue(zmpProfiles[index].vals.walk_shutdown_time ) ;
-    doubleSupportBox->setValue(zmpProfiles[index].vals.min_double_support_time ) ;
-    singleSupportBox->setValue(zmpProfiles[index].vals.min_single_support_time ) ;
-    pauseTimeBox->setValue(zmpProfiles[index].vals.min_pause_time ) ;
-    jerkPenalBox->setValue(zmpProfiles[index].vals.zmp_R/penalFactor ) ;
-    ikSenseSelect->setCurrentIndex(ikSense2int(zmpProfiles[index].vals.ik_sense));
+    maxStepBox->setValue(zmpProfiles[index].vals.params.max_step_count );
+    stepDistanceBox->setValue(zmpProfiles[index].vals.params.step_length ) ;
+    lateralDistanceBox->setValue(zmpProfiles[index].vals.params.half_stance_width ) ;
+    liftoffHeightBox->setValue(zmpProfiles[index].vals.params.step_height ) ;
+    sideStepDistanceBox->setValue(zmpProfiles[index].vals.params.sidestep_length ) ;
+    comHeightBox->setValue(zmpProfiles[index].vals.params.com_height ) ;
+    torsoPitchBox->setValue(zmpProfiles[index].vals.params.torso_pitch ) ;
+    comIKAngleWeightBox->setValue(zmpProfiles[index].vals.params.com_ik_angle_weight ) ;
+    yOffsetBox->setValue(zmpProfiles[index].vals.params.zmpoff_y ) ;
+    xOffsetBox->setValue(zmpProfiles[index].vals.params.zmpoff_x ) ;
+    lookAheadBox->setValue(zmpProfiles[index].vals.params.lookahead_time ) ;
+    startupTimeBox->setValue(zmpProfiles[index].vals.params.walk_startup_time ) ;
+    shutdownTimeBox->setValue(zmpProfiles[index].vals.params.walk_shutdown_time ) ;
+    doubleSupportBox->setValue(zmpProfiles[index].vals.params.min_double_support_time ) ;
+    singleSupportBox->setValue(zmpProfiles[index].vals.params.min_single_support_time ) ;
+    pauseTimeBox->setValue(zmpProfiles[index].vals.params.min_pause_time ) ;
+    jerkPenalBox->setValue(zmpProfiles[index].vals.params.zmp_R/penalFactor ) ;
+    ikSenseSelect->setCurrentIndex(ikSense2int(zmpProfiles[index].vals.params.ik_sense));
+    
+    saveAsEdit->clear();
+}
+
+void HuboWalkWidget::handleQuadrupedProfileSelect(int index)
+{
+    maxStepBox->setValue(zmpProfiles[index].vals.params.max_step_count );
+    stepDistanceBoxQuad->setValue(zmpQuadProfiles[index].vals.params.step_length ) ;
+    lateralDistanceBoxQuad->setValue(zmpQuadProfiles[index].vals.params.half_stance_width ) ;
+    liftoffHeightBoxQuad->setValue(zmpQuadProfiles[index].vals.params.step_height ) ;
+    sideStepDistanceBoxQuad->setValue(zmpQuadProfiles[index].vals.params.sidestep_length ) ;
+    comHeightBoxQuad->setValue(zmpQuadProfiles[index].vals.params.com_height ) ;
+    torsoPitchBoxQuad->setValue(zmpQuadProfiles[index].vals.params.torso_pitch ) ;
+    comIKAngleWeightBoxQuad->setValue(zmpQuadProfiles[index].vals.params.com_ik_angle_weight ) ;
+    yOffsetBoxQuad->setValue(zmpQuadProfiles[index].vals.params.zmpoff_y ) ;
+    xOffsetBoxQuad->setValue(zmpQuadProfiles[index].vals.params.zmpoff_x ) ;
+    lookAheadBoxQuad->setValue(zmpQuadProfiles[index].vals.params.lookahead_time ) ;
+    startupTimeBoxQuad->setValue(zmpQuadProfiles[index].vals.params.walk_startup_time ) ;
+    shutdownTimeBoxQuad->setValue(zmpQuadProfiles[index].vals.params.walk_shutdown_time ) ;
+    doubleSupportBoxQuad->setValue(zmpQuadProfiles[index].vals.params.min_double_support_time ) ;
+    singleSupportBoxQuad->setValue(zmpQuadProfiles[index].vals.params.min_single_support_time ) ;
+    pauseTimeBoxQuad->setValue(zmpQuadProfiles[index].vals.params.min_pause_time ) ;
+    jerkPenalBoxQuad->setValue(zmpQuadProfiles[index].vals.params.zmp_R/penalFactor ) ;
+    ikSenseSelectQuad->setCurrentIndex(ikSense2int(zmpQuadProfiles[index].vals.params.ik_sense));
     
     saveAsEdit->clear();
 }
@@ -213,17 +349,36 @@ void HuboWalkWidget::handleProfileDelete()
     updateProfileBox();
 }
 
+void HuboWalkWidget::handleQuadrupedProfileDelete()
+{
+    zmpQuadProfiles.remove(profileSelectQuad->currentIndex());
+    updateQuadrupedProfileBox();
+}
+
 void HuboWalkWidget::handleProfileSaveAs()
 {
     ZmpProfile tempProf;
     tempProf.name = saveAsEdit->text();
-    fillProfile(tempProf.vals);
+    fillProfile(tempProf.vals, BIPED_MODE);
     zmpProfiles.append(tempProf);
     updateProfileBox();
     profileSelect->setCurrentIndex(profileSelect->findText(tempProf.name));
 
     saveAsEdit->clear();
     saveAsEdit->setPlaceholderText("Remember to save your RViz session! (Ctrl-S)");
+}
+
+void HuboWalkWidget::handleQuadrupedProfileSaveAs()
+{
+    ZmpProfile tempProf;
+    tempProf.name = saveAsEditQuad->text();
+    fillProfile(tempProf.vals, QUADRUPED_MODE);
+    zmpQuadProfiles.append(tempProf);
+    updateQuadrupedProfileBox();
+    profileSelectQuad->setCurrentIndex(profileSelectQuad->findText(tempProf.name));
+
+    saveAsEditQuad->clear();
+    saveAsEditQuad->setPlaceholderText("Remember to save your RViz session! (Ctrl-S)");
 }
 
 void HuboWalkWidget::updateProfileBox()
@@ -233,6 +388,13 @@ void HuboWalkWidget::updateProfileBox()
         profileSelect->addItem(zmpProfiles[i].name);
 }
 
+void HuboWalkWidget::updateQuadrupedProfileBox()
+{
+    profileSelectQuad->clear();
+    for(int i=0; i < zmpQuadProfiles.size(); i++)
+        profileSelectQuad->addItem(zmpQuadProfiles[i].name);
+}
+#endif // HAVE_HUBOMZ
 
 ///////////// BALANCE
 
@@ -334,6 +496,7 @@ void HuboWalkWidget::handleJoyLaunch()
     
 }
 
+#ifdef HAVE_HUBOMZ
 ik_error_sensitivity HuboWalkWidget::int2ikSense(int index)
 {
     switch(index)
@@ -359,7 +522,7 @@ int HuboWalkWidget::ikSense2int(ik_error_sensitivity ik_sense)
         return 2; break;
     }
 }
-
+#endif // HAVE_HUBOMZ
 
 void HuboWalkWidget::setIPAddress(int a, int b, int c, int d)
 {
@@ -400,12 +563,25 @@ void HuboWalkWidget::ipEditHandle(const QString &text)
 
 void HuboWalkWidget::initializeAchConnections()
 {
+    ach_status_t r;
+#ifdef HAVE_HUBOMZ
     achChannelZmp.start("ach mk " + QString::fromLocal8Bit(CHAN_ZMP_CMD_NAME)
                         + " -1 -m 10 -n 8000 -o 666", QIODevice::ReadWrite);
     achChannelZmp.waitForFinished();
-    ach_status_t r = ach_open(&zmpCmdChan, CHAN_ZMP_CMD_NAME, NULL);
+    r = ach_open(&zmpCmdChan, CHAN_ZMP_CMD_NAME, NULL);
     if( r != ACH_OK )
-        std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
+        std::cout << "Ach Error: " << ach_result_to_string(r) << "for channel "
+                  << CHAN_ZMP_CMD_NAME << std::endl;
+
+    achChannelZmpState.start("ach mk " + QString::fromLocal8Bit(HUBO_CHAN_ZMP_STATE_NAME)
+                        + " -1 -m 10 -n 8000 -o 666", QIODevice::ReadWrite);
+    achChannelZmpState.waitForFinished();
+    r = ach_open(&zmpStateChan, HUBO_CHAN_ZMP_STATE_NAME, NULL);
+    if( r != ACH_OK )
+        std::cout << "Ach Error: " << ach_result_to_string(r) << "for channel " 
+                  << HUBO_CHAN_ZMP_STATE_NAME << std::endl;
+
+#endif // HAVE_HUBOMZ
 
     achChannelBal.start("ach mk " + QString::fromLocal8Bit(BALANCE_PARAM_CHAN)
                         + " -1 -m 10 -n 8000 -o 666", QIODevice::ReadWrite);
@@ -424,6 +600,8 @@ void HuboWalkWidget::initializeAchConnections()
 
 void HuboWalkWidget::achdConnectSlot()
 {
+#ifdef HAVE_HUBOMZ
+    // For sending zmp commands to hubo
     achdZmp.start("achd push " + QString::number(ipAddrA)
                                  + "." + QString::number(ipAddrB)
                                  + "." + QString::number(ipAddrC)
@@ -431,6 +609,17 @@ void HuboWalkWidget::achdConnectSlot()
                     + " " + QString::fromLocal8Bit(CHAN_ZMP_CMD_NAME));
     connect(&achdZmp, SIGNAL(finished(int)), this, SLOT(achdExitFinished(int)));
     connect(&achdZmp, SIGNAL(error(QProcess::ProcessError)), this, SLOT(achdExitError(QProcess::ProcessError)));
+
+    // For receiving zmp state info from hubo
+    achdZmpState.start("achd pull " + QString::number(ipAddrA)
+                                 + "." + QString::number(ipAddrB)
+                                 + "." + QString::number(ipAddrC)
+                                 + "." + QString::number(ipAddrD)
+                    + " " + QString::fromLocal8Bit(HUBO_CHAN_ZMP_STATE_NAME));
+    connect(&achdZmpState, SIGNAL(finished(int)), this, SLOT(achdExitFinished(int)));
+    connect(&achdZmpState, SIGNAL(error(QProcess::ProcessError)), this, SLOT(achdExitError(QProcess::ProcessError)));
+#endif // HAVE_HUBOMZ
+    // For sending balance parameters to hubo
     achdBal.start("achd push " + QString::number(ipAddrA)
                                  + "." + QString::number(ipAddrB)
                                  + "." + QString::number(ipAddrC)
@@ -439,7 +628,7 @@ void HuboWalkWidget::achdConnectSlot()
     connect(&achdBal, SIGNAL(finished(int)), this, SLOT(achdExitFinished(int)));
     connect(&achdBal, SIGNAL(error(QProcess::ProcessError)), this, SLOT(achdExitError(QProcess::ProcessError)));
 
-
+    // For sending balancing commands to hubo
     achdBalCmd.start("achd push " + QString::number(ipAddrA)
                                  + "." + QString::number(ipAddrB)
                                  + "." + QString::number(ipAddrC)
@@ -454,6 +643,7 @@ void HuboWalkWidget::achdConnectSlot()
 void HuboWalkWidget::achdDisconnectSlot()
 {
     achdZmp.kill();
+    achdZmpState.kill();
     achdBal.kill();
     achdBalCmd.kill();
     statusLabel->setText("Disconnected");

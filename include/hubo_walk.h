@@ -76,8 +76,9 @@
 #include <hubo-jointparams.h>
 
 //#include <hubo_motion_ros/AchNetworkWidget.h>
-#include <hubo-zmp.h>
+#ifdef HAVE_HUBOMZ
 #include <zmp-daemon.h>
+#endif
 #include <balance-daemon.h>
 //#include <hubo_motion_ros/include/hubo_motion_ros/AchNetworkWidget.h>
 
@@ -107,12 +108,14 @@ signals:
 
 };
 
+#ifdef HAVE_HUBOMZ
 class ZmpProfile
 {
 public:
     QString name;
     zmp_cmd_t vals;
 };
+#endif // HAVE_HUBOMZ
 
 class BalProfile
 {
@@ -145,19 +148,22 @@ public:
 
   // Handler for the nested ach daemon process
   QProcess achChannelZmp;
+  QProcess achChannelZmpState;
   QProcess achChannelBal;
   QProcess achdZmp;
-  bool zmpConnected;
+  QProcess achdZmpState;
   QProcess achdBal;
-  bool balConnected;
   QProcess achdBalCmd;
+  bool zmpConnected;
+  bool zmpStateConnected;
+  bool balConnected;
   
   // Update timer
   HuboRefreshManager* refreshManager;
   int getRefreshTime();
 
   // Ach Channels for sending and receiving data
-  ach_channel_t stateChan;
+  ach_channel_t zmpStateChan;
   ach_channel_t zmpCmdChan;
   ach_channel_t balanceParamChan;
   ach_channel_t balanceCmdChan;
@@ -172,16 +178,24 @@ public:
 
   // Structs for storing data to transmit
   // TODO: Make the correct structs
+#ifdef HAVE_HUBOMZ
   struct zmp_cmd cmd;
+  struct zmp_state zmpState;
+  walkMode_t walkMode;
+#endif // HAVE_HUBOMZ
   struct balance_gains balParams;
   struct balance_cmd balCmd;
   
   
   // Handling profiles TODO
   //std::vector<zmp_params> profiles;
+#ifdef HAVE_HUBOMZ
   QVector<ZmpProfile> zmpProfiles;
-  void fillProfile(zmp_cmd_t &vals);
+  QVector<ZmpProfile> zmpQuadProfiles;
+  bool fillProfile(zmp_cmd_t &vals, const walkMode_t walkMode);
+#endif // HAVE_HUBOMZ
   void updateProfileBox();
+  void updateQuadrupedProfileBox();
   QVector<BalProfile> balProfiles;
   void fillbalProfile(balance_gains_t &vals);
   void updatebalProfileBox();
@@ -228,8 +242,10 @@ public:
   ///////////////
     
 
-    ///////////////
-    QWidget* zmpParamTab;
+    //----------------------
+    // ZMP BIPED PARAM TAB
+    //----------------------
+    QWidget* zmpBipedParamTab;
     
       QComboBox* profileSelect;
       QPushButton* saveProfile;
@@ -257,16 +273,51 @@ public:
       QDoubleSpinBox* sideStepDistanceBox;
       QDoubleSpinBox* lateralDistanceBox;
       
-      QDoubleSpinBox* bipedComHeightBox;
-      QDoubleSpinBox* quadrupedComHeightBox;
-      QDoubleSpinBox* torsoPitchBox;
+      QDoubleSpinBox* comHeightBox;
+	  QDoubleSpinBox* torsoPitchBox;
       QDoubleSpinBox* comIKAngleWeightBox;
     ///////////////
 
+    //----------------------
+    // ZMP QUADRUPED PARAM TAB
+    //----------------------
+    QWidget* zmpQuadrupedParamTab;
+    
+      QComboBox* profileSelectQuad;
+      QPushButton* saveProfileQuad;
+      QPushButton* deleteProfileQuad;
+      QPushButton* saveAsProfileQuad;
+      QLineEdit* saveAsEditQuad;
       
+      QDoubleSpinBox* xOffsetBoxQuad;
+      QDoubleSpinBox* yOffsetBoxQuad;
+      QDoubleSpinBox* jerkPenalBoxQuad;
+      double penalFactorQuad;
+      QDoubleSpinBox* lookAheadBoxQuad;
+      
+      QDoubleSpinBox* startupTimeBoxQuad;
+      QDoubleSpinBox* shutdownTimeBoxQuad;
+      QDoubleSpinBox* doubleSupportBoxQuad;
+      QDoubleSpinBox* singleSupportBoxQuad;
+      QDoubleSpinBox* pauseTimeBoxQuad;
+      
+      QComboBox* walkTypeSelectQuad;
+      QComboBox* ikSenseSelectQuad;
+      
+      QDoubleSpinBox* liftoffHeightBoxQuad;
+      QDoubleSpinBox* stepDistanceBoxQuad;
+      QDoubleSpinBox* sideStepDistanceBoxQuad;
+      QDoubleSpinBox* lateralDistanceBoxQuad;
+      
+      QDoubleSpinBox* comHeightBoxQuad;
+	  QDoubleSpinBox* torsoPitchBoxQuad;
+      QDoubleSpinBox* comIKAngleWeightBoxQuad;
+    //////////
+
+#ifdef HAVE_HUBOMZ
       ik_error_sensitivity int2ikSense(int index);
       int ikSense2int(ik_error_sensitivity ik_sense);
-
+#endif // HAVE_HUBOMZ
 
     QWidget* balParamTab;
 
@@ -330,6 +381,11 @@ protected Q_SLOTS:
   void handleProfileSaveAs();
   void handleProfileSelect(int index);
 
+  void handleQuadrupedProfileSave();
+  void handleQuadrupedProfileDelete();
+  void handleQuadrupedProfileSaveAs();
+  void handleQuadrupedProfileSelect(int index);
+
   void handlebalProfileSave();
   void handlebalProfileDelete();
   void handlebalProfileSaveAs();
@@ -346,6 +402,7 @@ protected Q_SLOTS:
   void handleStop();
   void handleGoQuadruped();
   void handleGoBiped();
+  void printNotWalkingMessage();
 
   // Update all state information
   void refreshState();
@@ -362,7 +419,8 @@ private:
 
   ///////////////
   void initializeCommandTab();
-  void initializeZmpParamTab();
+  void initializeZmpBipedParamTab();
+  void initializeZmpQuadrupedParamTab();
   void initializeBalParamTab();
   
 

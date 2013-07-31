@@ -72,7 +72,8 @@ void HuboWalkPanel::load(const rviz::Config &config)
     else
         content->setIPAddress(a.toInt(), b.toInt(), c.toInt(), d.toInt());
 
-    
+#ifdef HAVE_HUBOMZ
+    // Biped ZMP Profiles
     rviz::Config p_config = config.mapGetChild("ZmpProfiles");
     QVariant pNum;
     
@@ -90,64 +91,61 @@ void HuboWalkPanel::load(const rviz::Config &config)
             content->zmpProfiles[i].name = temp.toString();
             p_config.mapGetValue("max_step_count"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.max_step_count = size_t(temp.toDouble());
+            content->zmpProfiles[i].vals.params.max_step_count = size_t(temp.toDouble());
             p_config.mapGetValue("step_length"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.step_length = temp.toDouble();
+            content->zmpProfiles[i].vals.params.step_length = temp.toDouble();
             p_config.mapGetValue("half_stance_width"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.half_stance_width = temp.toDouble();
+            content->zmpProfiles[i].vals.params.half_stance_width = temp.toDouble();
             p_config.mapGetValue("step_height"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.step_height = temp.toDouble();
+            content->zmpProfiles[i].vals.params.step_height = temp.toDouble();
             p_config.mapGetValue("sidestep_length"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.sidestep_length = temp.toDouble();
-            p_config.mapGetValue("biped_com_height"+QString::number(i),
+            content->zmpProfiles[i].vals.params.sidestep_length = temp.toDouble();
+            p_config.mapGetValue("com_height"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.biped_com_height = temp.toDouble();
-            p_config.mapGetValue("quadruped_com_height"+QString::number(i),
-                                 &temp);
-            content->zmpProfiles[i].vals.quadruped_com_height = temp.toDouble();
+            content->zmpProfiles[i].vals.params.com_height = temp.toDouble();
             p_config.mapGetValue("torso_pitch"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.torso_pitch = temp.toDouble();
+            content->zmpProfiles[i].vals.params.torso_pitch = temp.toDouble();
             p_config.mapGetValue("com_ik_angle_weight"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.com_ik_angle_weight = temp.toDouble();
+            content->zmpProfiles[i].vals.params.com_ik_angle_weight = temp.toDouble();
             p_config.mapGetValue("zmpoff_y"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.zmpoff_y = temp.toDouble();
+            content->zmpProfiles[i].vals.params.zmpoff_y = temp.toDouble();
             p_config.mapGetValue("zmpoff_x"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.zmpoff_x = temp.toDouble();
+            content->zmpProfiles[i].vals.params.zmpoff_x = temp.toDouble();
             p_config.mapGetValue("lookahead_time"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.lookahead_time = temp.toDouble();
+            content->zmpProfiles[i].vals.params.lookahead_time = temp.toDouble();
             p_config.mapGetValue("startup_time"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.walk_startup_time = temp.toDouble();
+            content->zmpProfiles[i].vals.params.walk_startup_time = temp.toDouble();
             p_config.mapGetValue("shutdown_time"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.walk_shutdown_time = temp.toDouble();
+            content->zmpProfiles[i].vals.params.walk_shutdown_time = temp.toDouble();
             p_config.mapGetValue("min_double_support_time"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.min_double_support_time = temp.toDouble();
+            content->zmpProfiles[i].vals.params.min_double_support_time = temp.toDouble();
             p_config.mapGetValue("min_single_support_time"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.min_single_support_time = temp.toDouble();
+            content->zmpProfiles[i].vals.params.min_single_support_time = temp.toDouble();
             p_config.mapGetValue("min_pause_time"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.min_pause_time = temp.toDouble();
+            content->zmpProfiles[i].vals.params.min_pause_time = temp.toDouble();
             p_config.mapGetValue("zmp_jerk_penalty"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.zmp_R = temp.toDouble();
+            content->zmpProfiles[i].vals.params.zmp_R = temp.toDouble();
             p_config.mapGetValue("ik_sense"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.ik_sense = ik_error_sensitivity(temp.toInt());
+            content->zmpProfiles[i].vals.params.ik_sense = ik_error_sensitivity(temp.toInt());
             p_config.mapGetValue("zmp_jerk_penalty"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.zmp_R = temp.toDouble();
+            content->zmpProfiles[i].vals.params.zmp_R = temp.toDouble();
         }
         
         content->updateProfileBox();
@@ -156,6 +154,88 @@ void HuboWalkPanel::load(const rviz::Config &config)
     else
         ROS_INFO("No zmp profiles found");
 
+    // Quadruped ZMP Profiles
+    rviz::Config pQuad_config = config.mapGetChild("zmpQuadProfiles");
+    QVariant pNumQuad;
+    
+    if( p_config.mapGetValue("ZmpProfileNum", &pNumQuad) )
+    {
+        QVariant selectedProfileQuad;
+        config.mapGetValue("SelectedZmpQuadProfile", &selectedProfileQuad);
+        content->zmpQuadProfiles.resize(size_t(pNumQuad.toInt()));
+        
+        for(int i=0; i < int(content->zmpQuadProfiles.size()); i++)
+        {
+            QVariant temp;
+            pQuad_config.mapGetValue("ZmpProfileName"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].name = temp.toString();
+            pQuad_config.mapGetValue("max_step_count"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.max_step_count = size_t(temp.toDouble());
+            pQuad_config.mapGetValue("step_length"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.step_length = temp.toDouble();
+            pQuad_config.mapGetValue("half_stance_width"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.half_stance_width = temp.toDouble();
+            pQuad_config.mapGetValue("step_height"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.step_height = temp.toDouble();
+            pQuad_config.mapGetValue("sidestep_length"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.sidestep_length = temp.toDouble();
+            pQuad_config.mapGetValue("com_height"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.com_height = temp.toDouble();
+            pQuad_config.mapGetValue("torso_pitch"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.torso_pitch = temp.toDouble();
+            pQuad_config.mapGetValue("com_ik_angle_weight"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.com_ik_angle_weight = temp.toDouble();
+            pQuad_config.mapGetValue("zmpoff_y"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.zmpoff_y = temp.toDouble();
+            pQuad_config.mapGetValue("zmpoff_x"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.zmpoff_x = temp.toDouble();
+            pQuad_config.mapGetValue("lookahead_time"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.lookahead_time = temp.toDouble();
+            pQuad_config.mapGetValue("startup_time"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.walk_startup_time = temp.toDouble();
+            pQuad_config.mapGetValue("shutdown_time"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.walk_shutdown_time = temp.toDouble();
+            pQuad_config.mapGetValue("min_double_support_time"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.min_double_support_time = temp.toDouble();
+            pQuad_config.mapGetValue("min_single_support_time"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.min_single_support_time = temp.toDouble();
+            pQuad_config.mapGetValue("min_pause_time"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.min_pause_time = temp.toDouble();
+            pQuad_config.mapGetValue("zmp_jerk_penalty"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.zmp_R = temp.toDouble();
+            pQuad_config.mapGetValue("ik_sense"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.ik_sense = ik_error_sensitivity(temp.toInt());
+            pQuad_config.mapGetValue("zmp_jerk_penalty"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.zmp_R = temp.toDouble();
+        }
+        
+        content->updateProfileBox();
+        content->profileSelectQuad->setCurrentIndex(selectedProfileQuad.toInt());
+    }
+    else
+        ROS_INFO("No zmp profiles found");
+
+#endif // HAVE_HUBOMZ
 
     rviz::Config pb_config = config.mapGetChild("BalProfiles");
     QVariant pbNum;
@@ -265,10 +345,16 @@ void HuboWalkPanel::save(rviz::Config config) const
     ip_config.mapSetValue("ipAddrD", d);
     
     QVariant selectedProfile = QVariant(content->profileSelect->currentIndex());
+    QVariant selectedProfileQuad = QVariant(content->profileSelectQuad->currentIndex());
+
     config.mapSetValue("SelectedZmpProfile", selectedProfile);
-    
+    config.mapSetValue("SelectedZmpQuadProfile", selectedProfileQuad);
+
     rviz::Config p_config = config.mapMakeChild("ZmpProfiles");
-    
+    rviz::Config pQuad_config = config.mapMakeChild("ZmpQuadProfiles");
+
+#ifdef HAVE_HUBOMZ
+    // Biped zmp params tab 
     QVariant pNum = QVariant(int(content->zmpProfiles.size()));
     p_config.mapSetValue("ZmpProfileNum", pNum);
     
@@ -278,45 +364,92 @@ void HuboWalkPanel::save(rviz::Config config) const
         p_config.mapSetValue("ZmpProfileName"+QString::number(i),
                              QVariant(content->zmpProfiles[i].name));
         p_config.mapSetValue("max_step_count"+QString::number(i),
-                             QVariant(int(content->zmpProfiles[i].vals.max_step_count)));
+                             QVariant(int(content->zmpProfiles[i].vals.params.max_step_count)));
         p_config.mapSetValue("step_length"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.step_length));
+                             QVariant(content->zmpProfiles[i].vals.params.step_length));
         p_config.mapSetValue("half_stance_width"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.half_stance_width));
+                             QVariant(content->zmpProfiles[i].vals.params.half_stance_width));
         p_config.mapSetValue("step_height"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.step_height));
+                             QVariant(content->zmpProfiles[i].vals.params.step_height));
         p_config.mapSetValue("sidestep_length"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.sidestep_length));
-        p_config.mapSetValue("biped_com_height"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.biped_com_height));
-        p_config.mapSetValue("quadruped_com_height"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.quadruped_com_height));
+                             QVariant(content->zmpProfiles[i].vals.params.sidestep_length));
+        p_config.mapSetValue("com_height"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.params.com_height));
         p_config.mapSetValue("torso_pitch"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.torso_pitch));
+                             QVariant(content->zmpProfiles[i].vals.params.torso_pitch));
         p_config.mapSetValue("com_ik_angle_weight"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.com_ik_angle_weight));
+                             QVariant(content->zmpProfiles[i].vals.params.com_ik_angle_weight));
         p_config.mapSetValue("zmpoff_y"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.zmpoff_y));
+                             QVariant(content->zmpProfiles[i].vals.params.zmpoff_y));
         p_config.mapSetValue("zmpoff_x"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.zmpoff_x));
+                             QVariant(content->zmpProfiles[i].vals.params.zmpoff_x));
         p_config.mapSetValue("lookahead_time"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.lookahead_time));
+                             QVariant(content->zmpProfiles[i].vals.params.lookahead_time));
         p_config.mapSetValue("startup_time"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.walk_startup_time));
+                             QVariant(content->zmpProfiles[i].vals.params.walk_startup_time));
         p_config.mapSetValue("shutdown_time"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.walk_shutdown_time));
+                             QVariant(content->zmpProfiles[i].vals.params.walk_shutdown_time));
         p_config.mapSetValue("min_double_support_time"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.min_double_support_time));
+                             QVariant(content->zmpProfiles[i].vals.params.min_double_support_time));
         p_config.mapSetValue("min_single_support_time"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.min_single_support_time));
+                             QVariant(content->zmpProfiles[i].vals.params.min_single_support_time));
         p_config.mapSetValue("min_pause_time"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.min_pause_time));
+                             QVariant(content->zmpProfiles[i].vals.params.min_pause_time));
         p_config.mapSetValue("zmp_jerk_penalty"+QString::number(i),
-                             QVariant(content->zmpProfiles[i].vals.zmp_R));
+                             QVariant(content->zmpProfiles[i].vals.params.zmp_R));
         p_config.mapSetValue("ik_sense"+QString::number(i),
-                             QVariant(int(content->zmpProfiles[i].vals.ik_sense)));
+                             QVariant(int(content->zmpProfiles[i].vals.params.ik_sense)));
     }
 
+    // Quadruped zmp params tab 
+    QVariant pNumQuad = QVariant(int(content->zmpQuadProfiles.size()));
+    pQuad_config.mapSetValue("ZmpProfileNum", pNumQuad);
+    
+    for(int i=0; i < int(content->zmpQuadProfiles.size()); i++)
+    {
+        content->zmpQuadProfiles[i].name.replace(" ","_");
+        pQuad_config.mapSetValue("ZmpProfileName"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].name));
+        pQuad_config.mapSetValue("max_step_count"+QString::number(i),
+                             QVariant(int(content->zmpQuadProfiles[i].vals.params.max_step_count)));
+        pQuad_config.mapSetValue("step_length"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.step_length));
+        pQuad_config.mapSetValue("half_stance_width"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.half_stance_width));
+        pQuad_config.mapSetValue("step_height"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.step_height));
+        pQuad_config.mapSetValue("sidestep_length"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.sidestep_length));
+        pQuad_config.mapSetValue("com_height"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.com_height));
+        pQuad_config.mapSetValue("torso_pitch"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.torso_pitch));
+        pQuad_config.mapSetValue("com_ik_angle_weight"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.com_ik_angle_weight));
+        pQuad_config.mapSetValue("zmpoff_y"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.zmpoff_y));
+        pQuad_config.mapSetValue("zmpoff_x"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.zmpoff_x));
+        pQuad_config.mapSetValue("lookahead_time"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.lookahead_time));
+        pQuad_config.mapSetValue("startup_time"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.walk_startup_time));
+        pQuad_config.mapSetValue("shutdown_time"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.walk_shutdown_time));
+        pQuad_config.mapSetValue("min_double_support_time"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.min_double_support_time));
+        pQuad_config.mapSetValue("min_single_support_time"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.min_single_support_time));
+        pQuad_config.mapSetValue("min_pause_time"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.min_pause_time));
+        pQuad_config.mapSetValue("zmp_jerk_penalty"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.zmp_R));
+        p_config.mapSetValue("ik_sense"+QString::number(i),
+                             QVariant(int(content->zmpQuadProfiles[i].vals.params.ik_sense)));
+    }
+
+
+#endif // HAVE_HUBOMZ
 
     QVariant selectedbalProfile = QVariant(content->balProfileSelect->currentIndex());
     config.mapSetValue("SelectedBalProfile", selectedbalProfile);
@@ -392,21 +525,32 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
                       "padding: 0 3px 0 3px;"
                       "}";
 
+
+#ifdef HAVE_HUBOMZ
     memset(&cmd, 0, sizeof(cmd));
+    memset(&zmpState, 0, sizeof(zmpState));
+#endif // HAVE_HUBOMZ
     memset(&balParams, 0, sizeof(balParams));
     memset(&balCmd, 0, sizeof(balCmd));
 
     initializeCommandTab();
     std::cerr << "Command Tab loaded" << std::endl;
-    
-    initializeZmpParamTab();
-    std::cerr << "ZMP Parameters Tab loaded" << std::endl;
+    addTab(commandTab, "Command");
+
+#ifdef HAVE_HUBOMZ
+    initializeZmpBipedParamTab();
+    std::cerr << "ZMP Biped Parameters Tab loaded" << std::endl;
+    addTab(zmpBipedParamTab, "ZMP Biped Parameters");
+
+    initializeZmpQuadrupedParamTab();
+    std::cerr << "ZMP Quadruped Parameters Tab loaded" << std::endl;
+    addTab(zmpQuadrupedParamTab, "ZMP Quad Parameters");
+#else
+    std::cerr << "ZMP Parameters Tabs will NOT be loaded because hubomz is not installed" << std::endl;
+#endif // HAVE_HUBOMZ
 
     initializeBalParamTab();
     std::cerr << "Balance Parameters Tab loaded" << std::endl;
-    
-    addTab(commandTab, "Command");
-    addTab(zmpParamTab, "ZMP Parameters");
     addTab(balParamTab, "Balance Parameters");
 
     initializeAchConnections();
@@ -528,7 +672,7 @@ void HuboWalkWidget::initializeCommandTab()
     networkBox->setTitle("Ach Networking");
     networkBox->setLayout(networkLayout);
 
-    setIPAddress(192, 168, 1, 0);
+    setIPAddress(192, 168, 0, 201);
     ////////////////////
     
     QHBoxLayout* controlSelectLayout = new QHBoxLayout;
@@ -579,7 +723,7 @@ void HuboWalkWidget::initializeCommandTab()
     
     
     QHBoxLayout* controlLayout = new QHBoxLayout;
-    
+
     QGroupBox* zmpCtrlGroup = new QGroupBox;
     zmpCtrlGroup->setTitle("ZMP Commands");
     zmpCtrlGroup->setStyleSheet(groupStyleSheet);
@@ -700,7 +844,6 @@ void HuboWalkWidget::initializeCommandTab()
     zmpCtrlGroup->setLayout(zmpCtrlLayout);
     controlLayout->addWidget(zmpCtrlGroup, 0, Qt::AlignLeft);
 
-
     QGroupBox* balCtrlGroup = new QGroupBox;
     balCtrlGroup->setTitle("Static Commands");
     balCtrlGroup->setStyleSheet(groupStyleSheet);
@@ -765,7 +908,10 @@ void HuboWalkWidget::initializeCommandTab()
     commandTab->setLayout(masterCTLayout);
 }
 
-void HuboWalkWidget::initializeZmpParamTab()
+#ifdef HAVE_HUBOMZ
+
+// BIPED PARAM TAB INITIALIZATION
+void HuboWalkWidget::initializeZmpBipedParamTab()
 {
     QSizePolicy pbsize(QSizePolicy::Maximum, QSizePolicy::Maximum);
     
@@ -1136,47 +1282,26 @@ void HuboWalkWidget::initializeZmpParamTab()
     QVBoxLayout* comSettingsLayout = new QVBoxLayout;
     comSettingsLayout->setAlignment(Qt::AlignCenter);
 
-    // BIPED CENTER OF MASS HEIGHT    
-    QHBoxLayout* bipedComHeightLay = new QHBoxLayout;
-    QLabel* bipedComHeightLab = new QLabel;
-    bipedComHeightLab->setText("Biped COM Height:");
-    bipedComHeightLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-    bipedComHeightLab->setToolTip("How heigh (m) should the center of mass be from the ground in biped stance?");
-    bipedComHeightLay->addWidget(bipedComHeightLab);
+    // CENTER OF MASS HEIGHT
+    QHBoxLayout* comHeightLay = new QHBoxLayout;
+    QLabel* comHeightLab = new QLabel;
+    comHeightLab->setText("Biped COM Height:");
+    comHeightLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    comHeightLab->setToolTip("How heigh (m) should the center of mass be from the ground in biped stance?");
+    comHeightLay->addWidget(comHeightLab);
 
-    bipedComHeightBox = new QDoubleSpinBox;
-    bipedComHeightBox->setSizePolicy(pbsize);
-    bipedComHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
-    bipedComHeightBox->setToolTip(bipedComHeightLab->toolTip());
-    bipedComHeightBox->setDecimals(3);
-    bipedComHeightBox->setValue(0.5);
-    bipedComHeightBox->setSingleStep(0.01);
-    bipedComHeightBox->setMinimum(0);
-    bipedComHeightBox->setMaximum(5);
-    bipedComHeightLay->addWidget(bipedComHeightBox);
+    comHeightBox = new QDoubleSpinBox;
+    comHeightBox->setSizePolicy(pbsize);
+    comHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    comHeightBox->setToolTip(comHeightLab->toolTip());
+    comHeightBox->setDecimals(3);
+    comHeightBox->setValue(0.5);
+    comHeightBox->setSingleStep(0.01);
+    comHeightBox->setMinimum(0);
+    comHeightBox->setMaximum(5);
+    comHeightLay->addWidget(comHeightBox);
     
-    comSettingsLayout->addLayout(bipedComHeightLay);
-
-    // QUADRUPED CENTER OF MASS HEIGHT
-    QHBoxLayout* quadrupedComHeightLay = new QHBoxLayout;
-    QLabel* quadrupedComHeightLab = new QLabel;
-    quadrupedComHeightLab->setText("Quadruped COM Height:");
-    quadrupedComHeightLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-    quadrupedComHeightLab->setToolTip("How heigh (m) should the center of mass be from the ground in quadruruped stance?");
-    quadrupedComHeightLay->addWidget(quadrupedComHeightLab);
-
-    quadrupedComHeightBox = new QDoubleSpinBox;
-    quadrupedComHeightBox->setSizePolicy(pbsize);
-    quadrupedComHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
-    quadrupedComHeightBox->setToolTip(quadrupedComHeightLab->toolTip());
-    quadrupedComHeightBox->setDecimals(3);
-    quadrupedComHeightBox->setValue(0.25);
-    quadrupedComHeightBox->setSingleStep(0.01);
-    quadrupedComHeightBox->setMinimum(0);
-    quadrupedComHeightBox->setMaximum(5);
-    quadrupedComHeightLay->addWidget(quadrupedComHeightBox);
-    
-    comSettingsLayout->addLayout(quadrupedComHeightLay);
+    comSettingsLayout->addLayout(comHeightLay);
 
     // TORSO PITCH
     QHBoxLayout* torsoPitchLay = new QHBoxLayout;
@@ -1235,8 +1360,8 @@ void HuboWalkWidget::initializeZmpParamTab()
     masterZMPLayout->addLayout(profileLayoutMaster);
     masterZMPLayout->addLayout(bottomLayout);
     
-    zmpParamTab = new QWidget;
-    zmpParamTab->setLayout(masterZMPLayout);
+    zmpBipedParamTab = new QWidget;
+    zmpBipedParamTab->setLayout(masterZMPLayout);
     
     saveAsEdit->setText("Default");
     handleProfileSaveAs();
@@ -1246,7 +1371,472 @@ void HuboWalkWidget::initializeZmpParamTab()
     
     profileSelect->setCurrentIndex(0);
 }
+// end BIPED PARAM TAB INITIALIZATION
 
+// QUADRUPED PARAM TAB INITIALIZATION
+void HuboWalkWidget::initializeZmpQuadrupedParamTab()
+{
+    QSizePolicy pbsize(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    
+    QHBoxLayout* profileLayoutTop = new QHBoxLayout;
+    QLabel* profileLab = new QLabel;
+    profileLab->setText("Profile:");
+    profileLayoutTop->addWidget(profileLab, 0, Qt::AlignVCenter | Qt::AlignRight);
+    
+    profileSelectQuad = new QComboBox;
+    profileLayoutTop->addWidget(profileSelectQuad);
+    connect(profileSelectQuad, SIGNAL(currentIndexChanged(int)), this, SLOT(handleQuadrupedProfileSelect(int)));
+    
+    saveProfileQuad = new QPushButton;
+    saveProfileQuad->setSizePolicy(pbsize);
+    saveProfileQuad->setText("Save");
+    saveProfileQuad->setToolTip("Save the values below into the currently selected profile");
+    profileLayoutTop->addWidget(saveProfileQuad);
+    connect(saveProfileQuad, SIGNAL(clicked()), this, SLOT(handleQuadrupedProfileSave()));
+    
+    deleteProfileQuad = new QPushButton;
+    deleteProfileQuad->setSizePolicy(pbsize);
+    deleteProfileQuad->setText("Delete");
+    deleteProfileQuad->setToolTip("Remove the current profile from the list\n"
+                              "WARNING: This is permanent!");
+    profileLayoutTop->addWidget(deleteProfileQuad);
+    connect(deleteProfileQuad, SIGNAL(clicked()), this, SLOT(handleQuadrupedProfileDelete()));
+    
+    QHBoxLayout* profileLayoutBottom = new QHBoxLayout;
+    saveAsProfileQuad = new QPushButton;
+    saveAsProfileQuad->setSizePolicy(pbsize);
+    saveAsProfileQuad->setText("Save As...");
+    saveAsProfileQuad->setToolTip("Save the values below as a new profile with the following name:");
+    profileLayoutBottom->addWidget(saveAsProfileQuad);
+    connect(saveAsProfileQuad, SIGNAL(clicked()), this, SLOT(handleQuadrupedProfileSaveAs()));
+    
+    saveAsEditQuad = new QLineEdit;
+    saveAsEditQuad->setToolTip("Enter a name for a new profile");
+    profileLayoutBottom->addWidget(saveAsEditQuad);
+    
+    QVBoxLayout* profileLayoutMaster = new QVBoxLayout;
+    profileLayoutMaster->addLayout(profileLayoutTop);
+    profileLayoutMaster->addLayout(profileLayoutBottom);
+    
+    
+    QVBoxLayout* leftColumn = new QVBoxLayout;
+    
+    QVBoxLayout* zmpSettingsLayout = new QVBoxLayout;
+    zmpSettingsLayout->setAlignment(Qt::AlignCenter);
+    
+    QHBoxLayout* xoffsetLay = new QHBoxLayout;
+    QLabel* xoffsetLab = new QLabel;
+    xoffsetLab->setText("X-Offset:");
+    xoffsetLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    xoffsetLab->setToolTip("How far in x should the ZMP be offset from the ankle joint?");
+    xoffsetLay->addWidget(xoffsetLab);
+    
+    xOffsetBoxQuad = new QDoubleSpinBox;
+    xOffsetBoxQuad->setSizePolicy(pbsize);
+    xOffsetBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    xOffsetBoxQuad->setToolTip(xoffsetLab->toolTip());
+    xOffsetBoxQuad->setDecimals(4);
+    xOffsetBoxQuad->setValue(0.038);
+    xOffsetBoxQuad->setSingleStep(0.01);
+    xOffsetBoxQuad->setMinimum(-10);
+    xOffsetBoxQuad->setMaximum(10);
+    xoffsetLay->addWidget(xOffsetBoxQuad);
+    
+    zmpSettingsLayout->addLayout(xoffsetLay);
+    
+    QHBoxLayout* yoffsetLay = new QHBoxLayout;
+    QLabel* yoffsetLab = new QLabel;
+    yoffsetLab->setText("Y-Offset:");
+    yoffsetLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    yoffsetLab->setToolTip("How far in y should the ZMP be offset from the ankle joint?");
+    yoffsetLay->addWidget(yoffsetLab);
+    
+    yOffsetBoxQuad = new QDoubleSpinBox;
+    yOffsetBoxQuad->setSizePolicy(pbsize);
+    yOffsetBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    yOffsetBoxQuad->setToolTip(yoffsetLab->toolTip());
+    yOffsetBoxQuad->setDecimals(4);
+    yOffsetBoxQuad->setValue(0);
+    yOffsetBoxQuad->setSingleStep(0.01);
+    yOffsetBoxQuad->setMinimum(-10);
+    yOffsetBoxQuad->setMaximum(10);
+    yoffsetLay->addWidget(yOffsetBoxQuad);
+    
+    zmpSettingsLayout->addLayout(yoffsetLay);
+    
+    QHBoxLayout* jerkLayout = new QHBoxLayout;
+    QLabel* jerkPenaltyLab = new QLabel;
+    jerkPenaltyLab->setText("Jerk Penalty:");
+    jerkPenaltyLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    jerkPenaltyLab->setToolTip("How much should jerk be penalized by the Preview Controller?");
+    jerkLayout->addWidget(jerkPenaltyLab);
+    
+    jerkPenalBoxQuad = new QDoubleSpinBox;
+    jerkPenalBoxQuad->setSizePolicy(pbsize);
+    jerkPenalBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    jerkPenalBoxQuad->setToolTip(jerkPenaltyLab->toolTip());
+    jerkPenalBoxQuad->setValue(1);
+    jerkPenalBoxQuad->setSingleStep(0.1);
+    jerkPenalBoxQuad->setMinimum(0);
+    jerkPenalBoxQuad->setMaximum(1000);
+    jerkLayout->addWidget(jerkPenalBoxQuad);
+
+    penalFactor = 1e-8;
+    QLabel* penalFactorLab = new QLabel;
+    penalFactorLab->setText(" x "+QString::number(penalFactor,'g'));
+    jerkLayout->addWidget(penalFactorLab);
+    
+    zmpSettingsLayout->addLayout(jerkLayout);
+    
+    QHBoxLayout* lookAheadLayout = new QHBoxLayout;
+    QLabel* lookAheadLab = new QLabel;
+    lookAheadLab->setText("Look Ahead Time:");
+    lookAheadLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    lookAheadLab->setToolTip("How far ahead (sec) should the Preview Controller consider?");
+    lookAheadLayout->addWidget(lookAheadLab);
+    
+    lookAheadBoxQuad = new QDoubleSpinBox;
+    lookAheadBoxQuad->setSizePolicy(pbsize);
+    lookAheadBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    lookAheadBoxQuad->setToolTip(lookAheadLab->toolTip());
+    lookAheadBoxQuad->setValue(2.5);
+    lookAheadBoxQuad->setSingleStep(0.1);
+    lookAheadBoxQuad->setMinimum(0);
+    lookAheadBoxQuad->setMaximum(1000);
+    lookAheadLayout->addWidget(lookAheadBoxQuad);
+    
+    zmpSettingsLayout->addLayout(lookAheadLayout);
+    
+    
+    QGroupBox* zmpSettingsBoxQuad = new QGroupBox;
+    zmpSettingsBoxQuad->setTitle("ZMP Settings");
+    zmpSettingsBoxQuad->setStyleSheet(groupStyleSheet);
+    zmpSettingsBoxQuad->setLayout(zmpSettingsLayout);
+    leftColumn->addWidget(zmpSettingsBoxQuad);
+    
+    
+    QVBoxLayout* timeSettingsLayout = new QVBoxLayout;
+    timeSettingsLayout->setAlignment(Qt::AlignCenter);
+
+    // Startup time
+    QHBoxLayout* startupTimeLay = new QHBoxLayout;
+    QLabel* startupTimeLab = new QLabel;
+    startupTimeLab->setText("Startup Time:");
+    startupTimeLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    startupTimeLab->setToolTip("How much time (s) should be spent starting up?");
+    startupTimeLay->addWidget(startupTimeLab);
+    
+    startupTimeBoxQuad = new QDoubleSpinBox;
+    startupTimeBoxQuad->setSizePolicy(pbsize);
+    startupTimeBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    startupTimeBoxQuad->setToolTip(startupTimeLab->toolTip());
+    startupTimeBoxQuad->setDecimals(3);
+    startupTimeBoxQuad->setValue(0.5);
+    startupTimeBoxQuad->setSingleStep(0.01);
+    startupTimeBoxQuad->setMinimum(0);
+    startupTimeBoxQuad->setMaximum(1000);
+    startupTimeLay->addWidget(startupTimeBoxQuad);
+    
+    timeSettingsLayout->addLayout(startupTimeLay);
+
+    // Shutdown time
+    QHBoxLayout* shutdownTimeLay = new QHBoxLayout;
+    QLabel* shutdownTimeLab = new QLabel;
+    shutdownTimeLab->setText("Shutdown Time:");
+    shutdownTimeLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    shutdownTimeLab->setToolTip("How much time (s) should be spent stopping?");
+    shutdownTimeLay->addWidget(shutdownTimeLab);
+    
+    shutdownTimeBoxQuad = new QDoubleSpinBox;
+    shutdownTimeBoxQuad->setSizePolicy(pbsize);
+    shutdownTimeBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    shutdownTimeBoxQuad->setToolTip(shutdownTimeLab->toolTip());
+    shutdownTimeBoxQuad->setDecimals(3);
+    shutdownTimeBoxQuad->setValue(0.5);
+    shutdownTimeBoxQuad->setSingleStep(0.01);
+    shutdownTimeBoxQuad->setMinimum(0);
+    shutdownTimeBoxQuad->setMaximum(1000);
+    shutdownTimeLay->addWidget(shutdownTimeBoxQuad);
+    
+    timeSettingsLayout->addLayout(shutdownTimeLay);
+
+    // Min double support time
+    QHBoxLayout* doubleSupTimeLay = new QHBoxLayout;
+    QLabel* doubleSupTimeLab = new QLabel;
+    doubleSupTimeLab->setText("Double Support Time:");
+    doubleSupTimeLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    doubleSupTimeLab->setToolTip("How much time (s) should be spent in double support?\n"
+                                 "i.e. Having two feet on the ground");
+    doubleSupTimeLay->addWidget(doubleSupTimeLab);
+    
+    doubleSupportBoxQuad = new QDoubleSpinBox;
+    doubleSupportBoxQuad->setSizePolicy(pbsize);
+    doubleSupportBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    doubleSupportBoxQuad->setToolTip(doubleSupTimeLab->toolTip());
+    doubleSupportBoxQuad->setDecimals(3);
+    doubleSupportBoxQuad->setValue(0.01);
+    doubleSupportBoxQuad->setSingleStep(0.01);
+    doubleSupportBoxQuad->setMinimum(0);
+    doubleSupportBoxQuad->setMaximum(1000);
+    doubleSupTimeLay->addWidget(doubleSupportBoxQuad);
+    
+    timeSettingsLayout->addLayout(doubleSupTimeLay);
+
+    // Min single support time
+    QHBoxLayout* singleSupTimeLay = new QHBoxLayout;
+    QLabel* singleSupTimeLab = new QLabel;
+    singleSupTimeLab->setText("Single Support Time:");
+    singleSupTimeLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    singleSupTimeLab->setToolTip("How much time (s) should be spent in single support?\n"
+                                 "i.e. Having one foot on the ground");
+    singleSupTimeLay->addWidget(singleSupTimeLab);
+    
+    singleSupportBoxQuad = new QDoubleSpinBox;
+    singleSupportBoxQuad->setSizePolicy(pbsize);
+    singleSupportBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    singleSupportBoxQuad->setToolTip(singleSupTimeLab->toolTip());
+    singleSupportBoxQuad->setDecimals(3);
+    singleSupportBoxQuad->setValue(0.50);
+    singleSupportBoxQuad->setSingleStep(0.01);
+    singleSupportBoxQuad->setMinimum(0);
+    singleSupportBoxQuad->setMaximum(1000);
+    singleSupTimeLay->addWidget(singleSupportBoxQuad);
+    
+    timeSettingsLayout->addLayout(singleSupTimeLay);
+
+    // Min pause time
+    QHBoxLayout* pauseTimeLay = new QHBoxLayout;
+    QLabel* pauseTimeLab = new QLabel;
+    pauseTimeLab->setText("Pause Time:");
+    pauseTimeLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    pauseTimeLab->setToolTip("How much time (s) should be spent stationary in double support?");
+    pauseTimeLay->addWidget(pauseTimeLab);
+    
+    pauseTimeBoxQuad = new QDoubleSpinBox;
+    pauseTimeBoxQuad->setSizePolicy(pbsize);
+    pauseTimeBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    pauseTimeBoxQuad->setToolTip(pauseTimeLab->toolTip());
+    pauseTimeBoxQuad->setDecimals(3);
+    pauseTimeBoxQuad->setValue(0.00);
+    pauseTimeBoxQuad->setSingleStep(0.01);
+    pauseTimeBoxQuad->setMinimum(0);
+    pauseTimeBoxQuad->setMaximum(1000);
+    pauseTimeLay->addWidget(pauseTimeBoxQuad);
+    
+    timeSettingsLayout->addLayout(pauseTimeLay);
+
+    QGroupBox* timeSettingsBoxQuad = new QGroupBox;
+    timeSettingsBoxQuad->setTitle("Time Settings");
+    timeSettingsBoxQuad->setStyleSheet(groupStyleSheet);
+    timeSettingsBoxQuad->setLayout(timeSettingsLayout);
+    leftColumn->addWidget(timeSettingsBoxQuad);
+    
+    
+    
+    QVBoxLayout* rightColumn = new QVBoxLayout;
+    
+    QHBoxLayout* ikSenseLayout = new QHBoxLayout;
+    QLabel* ikSenseLab = new QLabel;
+    ikSenseLab->setText("IK Sensitivity:");
+    ikSenseLayout->addWidget(ikSenseLab, 0, Qt::AlignVCenter | Qt::AlignRight);
+    ikSenseSelectQuad = new QComboBox;
+    ikSenseLayout->addWidget(ikSenseSelectQuad);//, 0, Qt::AlignVCenter | Qt::AlignLeft);
+    
+    ikSenseSelectQuad->addItem("Strict");
+    ikSenseSelectQuad->addItem("Permissive");
+    ikSenseSelectQuad->addItem("Sloppy (DANGEROUS)");
+    ikSenseSelectQuad->setCurrentIndex(0);
+    
+    rightColumn->addLayout(ikSenseLayout);
+    
+    
+    QVBoxLayout* swingSettingsLayout = new QVBoxLayout;
+    swingSettingsLayout->setAlignment(Qt::AlignCenter);
+    
+    QHBoxLayout* footLiftLay = new QHBoxLayout;
+    QLabel* footliftLab = new QLabel;
+    footliftLab->setText("Foot Liftoff Height:");
+    footliftLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    footliftLab->setToolTip("How heigh (m) should the swing foot lift off the ground?");
+    footLiftLay->addWidget(footliftLab);
+
+    liftoffHeightBoxQuad = new QDoubleSpinBox;
+    liftoffHeightBoxQuad->setSizePolicy(pbsize);
+    liftoffHeightBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    liftoffHeightBoxQuad->setToolTip(footliftLab->toolTip());
+    liftoffHeightBoxQuad->setDecimals(4);
+    liftoffHeightBoxQuad->setValue(0.04);
+    liftoffHeightBoxQuad->setSingleStep(0.01);
+    liftoffHeightBoxQuad->setMinimum(0);
+    liftoffHeightBoxQuad->setMaximum(2);
+    footLiftLay->addWidget(liftoffHeightBoxQuad);
+    
+    swingSettingsLayout->addLayout(footLiftLay);
+    
+    QHBoxLayout* stepDistanceLay = new QHBoxLayout;
+    QLabel* stepDistanceLab = new QLabel;
+    stepDistanceLab->setText("Step Distance:");
+    stepDistanceLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    stepDistanceLab->setToolTip("How far forward (m) should the swing foot step?");
+    stepDistanceLay->addWidget(stepDistanceLab);
+
+    stepDistanceBoxQuad = new QDoubleSpinBox;
+    stepDistanceBoxQuad->setSizePolicy(pbsize);
+    stepDistanceBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    stepDistanceBoxQuad->setToolTip(stepDistanceLab->toolTip());
+    stepDistanceBoxQuad->setDecimals(4);
+    stepDistanceBoxQuad->setValue(0.1);
+    stepDistanceBoxQuad->setSingleStep(0.01);
+    stepDistanceBoxQuad->setMinimum(0);
+    stepDistanceBoxQuad->setMaximum(5);
+    stepDistanceLay->addWidget(stepDistanceBoxQuad);
+    
+    swingSettingsLayout->addLayout(stepDistanceLay);
+
+    QHBoxLayout* sideStepDistanceLay = new QHBoxLayout;
+    QLabel* sideStepDistanceLab = new QLabel;
+    sideStepDistanceLab->setText("Side Step Distance:");
+    sideStepDistanceLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    sideStepDistanceLab->setToolTip("How far sideways (m) should the swing foot step?");
+    sideStepDistanceLay->addWidget(sideStepDistanceLab);
+
+    sideStepDistanceBoxQuad = new QDoubleSpinBox;
+    sideStepDistanceBoxQuad->setSizePolicy(pbsize);
+    sideStepDistanceBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    sideStepDistanceBoxQuad->setToolTip(sideStepDistanceLab->toolTip());
+    sideStepDistanceBoxQuad->setDecimals(4);
+    sideStepDistanceBoxQuad->setValue(0.04);
+    sideStepDistanceBoxQuad->setSingleStep(0.01);
+    sideStepDistanceBoxQuad->setMinimum(0);
+    sideStepDistanceBoxQuad->setMaximum(5);
+    sideStepDistanceLay->addWidget(sideStepDistanceBoxQuad);
+
+    swingSettingsLayout->addLayout(sideStepDistanceLay);
+
+    
+    QHBoxLayout* lateralDistanceLay = new QHBoxLayout;
+    QLabel* lateralDistanceLab = new QLabel;
+    lateralDistanceLab->setText("Lateral Distance:");
+    lateralDistanceLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    lateralDistanceLab->setToolTip("How far from the center (m) should the swing foot be placed?");
+    lateralDistanceLay->addWidget(lateralDistanceLab);
+
+    lateralDistanceBoxQuad = new QDoubleSpinBox;
+    lateralDistanceBoxQuad->setSizePolicy(pbsize);
+    lateralDistanceBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    lateralDistanceBoxQuad->setToolTip(lateralDistanceLab->toolTip());
+    lateralDistanceBoxQuad->setDecimals(4);
+    lateralDistanceBoxQuad->setValue(0.0885);
+    lateralDistanceBoxQuad->setSingleStep(0.01);
+    lateralDistanceBoxQuad->setMinimum(0);
+    lateralDistanceBoxQuad->setMaximum(5);
+    lateralDistanceLay->addWidget(lateralDistanceBoxQuad);
+    
+    swingSettingsLayout->addLayout(lateralDistanceLay);
+    
+    QGroupBox* swingSettingsBoxQuad = new QGroupBox;
+    swingSettingsBoxQuad->setTitle("Swing Foot Settings");
+    swingSettingsBoxQuad->setStyleSheet(groupStyleSheet);
+    swingSettingsBoxQuad->setLayout(swingSettingsLayout);
+    rightColumn->addWidget(swingSettingsBoxQuad);
+    
+    
+    // CENTER OF MASS SETTINGS LAYOUT
+    QVBoxLayout* comSettingsLayout = new QVBoxLayout;
+    comSettingsLayout->setAlignment(Qt::AlignCenter);
+
+    // CENTER OF MASS HEIGHT
+    QHBoxLayout* comHeightLay = new QHBoxLayout;
+    QLabel* comHeightLab = new QLabel;
+    comHeightLab->setText("Quadruped COM Height:");
+    comHeightLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    comHeightLab->setToolTip("How heigh (m) should the center of mass be from the ground in biped stance?");
+    comHeightLay->addWidget(comHeightLab);
+
+    comHeightBoxQuad = new QDoubleSpinBox;
+    comHeightBoxQuad->setSizePolicy(pbsize);
+    comHeightBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    comHeightBoxQuad->setToolTip(comHeightLab->toolTip());
+    comHeightBoxQuad->setDecimals(3);
+    comHeightBoxQuad->setValue(0.5);
+    comHeightBoxQuad->setSingleStep(0.01);
+    comHeightBoxQuad->setMinimum(0);
+    comHeightBoxQuad->setMaximum(5);
+    comHeightLay->addWidget(comHeightBoxQuad);
+    
+    comSettingsLayout->addLayout(comHeightLay);
+
+    // TORSO PITCH
+    QHBoxLayout* torsoPitchLay = new QHBoxLayout;
+    QLabel* torsoPitchLab = new QLabel;
+    torsoPitchLab->setText("Torso Pitch:");
+    torsoPitchLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    torsoPitchLab->setToolTip("How much the torso should be pitched in radians. Positive is forward?");
+    torsoPitchLay->addWidget(torsoPitchLab);
+
+    torsoPitchBoxQuad = new QDoubleSpinBox;
+    torsoPitchBoxQuad->setSizePolicy(pbsize);
+    torsoPitchBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    torsoPitchBoxQuad->setToolTip(torsoPitchLab->toolTip());
+    torsoPitchBoxQuad->setDecimals(3);
+    torsoPitchBoxQuad->setValue(-1.22);
+    torsoPitchBoxQuad->setSingleStep(0.01);
+    torsoPitchBoxQuad->setMinimum(-3);
+    torsoPitchBoxQuad->setMaximum(3);
+    torsoPitchLay->addWidget(torsoPitchBoxQuad);
+    
+    comSettingsLayout->addLayout(torsoPitchLay);
+
+    
+    QHBoxLayout* comIKAngleWeightLay = new QHBoxLayout;
+    QLabel* comIKAngleWeightLab = new QLabel;
+    comIKAngleWeightLab->setText("IK Angle Weight:");
+    comIKAngleWeightLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    comIKAngleWeightLab->setToolTip("I don't really know what this does.");
+    comIKAngleWeightLay->addWidget(comIKAngleWeightLab);
+
+    comIKAngleWeightBoxQuad = new QDoubleSpinBox;
+    comIKAngleWeightBoxQuad->setSizePolicy(pbsize);
+    comIKAngleWeightBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    comIKAngleWeightBoxQuad->setToolTip(comIKAngleWeightLab->toolTip());
+    comIKAngleWeightBoxQuad->setDecimals(3);
+    comIKAngleWeightBoxQuad->setValue(0);
+    comIKAngleWeightBoxQuad->setSingleStep(0.01);
+    comIKAngleWeightBoxQuad->setMinimum(0);
+    comIKAngleWeightBoxQuad->setMaximum(5);
+    comIKAngleWeightLay->addWidget(comIKAngleWeightBoxQuad);
+    
+    comSettingsLayout->addLayout(comIKAngleWeightLay);
+    
+    QGroupBox* comSettingsBoxQuad = new QGroupBox;
+    comSettingsBoxQuad->setTitle("Center of Mass Settings");
+    comSettingsBoxQuad->setStyleSheet(groupStyleSheet);
+    comSettingsBoxQuad->setLayout(comSettingsLayout);
+    rightColumn->addWidget(comSettingsBoxQuad);
+    
+    
+    QHBoxLayout* bottomLayout = new QHBoxLayout;
+    bottomLayout->addLayout(leftColumn);
+    bottomLayout->addLayout(rightColumn);
+    
+    QVBoxLayout* masterZMPLayout = new QVBoxLayout;
+    masterZMPLayout->addLayout(profileLayoutMaster);
+    masterZMPLayout->addLayout(bottomLayout);
+    
+    zmpQuadrupedParamTab = new QWidget;
+    zmpQuadrupedParamTab->setLayout(masterZMPLayout);
+    
+    saveAsEditQuad->setText("Default");
+    handleQuadrupedProfileSaveAs();
+    saveAsEditQuad->setText("Default-Backup");
+    handleQuadrupedProfileSaveAs();
+    saveAsEditQuad->clear();
+    
+    profileSelectQuad->setCurrentIndex(0);
+    // end QUADRUPED PARAM TAB INITIALIZATION
+}
+
+#endif // HAVE_HUBOMZ
 
 void HuboWalkWidget::initializeBalParamTab()
 {

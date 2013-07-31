@@ -18,6 +18,18 @@ catkin_package(
     DEPENDS ach QtCore QtGui )
 
 
+## Find if hubomz is installed. If not, do not use zmp command stuff
+find_path(HUBOMZ_INCLUDE "zmp-daemon.h" PATHS ${CMAKE_INCLUDE_PATH})
+
+if(${HUBOMZ_INCLUDE} STREQUAL HUBOMZ_INCLUDE-NOTFOUND)
+  message("\n-- INFO: could not find hubomz includes. will not load zmp tab\n")
+  set(HAVE_HUBOMZ 0)
+else()
+  message("\n-- found hubomz includes at ${HUBOMZ_INCLUDE}\n")
+  add_definitions(-DHAVE_HUBOMZ)
+  set(HAVE_HUBOMZ 1)
+endif()
+
 
 ## Here we specify which header files need to be run through "moc",
 ## Qt's meta-object compiler.
