@@ -44,7 +44,9 @@ void HuboWalkWidget::refreshState()
 #ifdef HAVE_HUBOMZ
     size_t fs;
     memset(&zmpState, 0, sizeof(zmpState));
-    ach_get( &zmpStateChan, &zmpState, sizeof(zmpState), &fs, NULL, ACH_O_LAST );
+    ach_status_t r = ach_get( &zmpStateChan, &zmpState, sizeof(zmpState), &fs, NULL, ACH_O_LAST );
+    //if(!ACH_OK && !ACH_MISSED_FRAME)
+        std::cout << "ZMP State ach_get result: " << ach_result_to_string(r) << "\n";
     zmpResultEdit->setText(QString::fromStdString(zmp_result_to_string(zmpState.result)));
     walkModeEdit->setText(QString::fromStdString(walkMode_to_string(zmpState.walkMode)));
 #endif
@@ -172,7 +174,7 @@ void HuboWalkWidget::sendCommand()
 {
 #ifdef HAVE_HUBOMZ
     bool fillSuccess = false;
-    fillSuccess = fillProfile(cmd, walkMode);
+    fillSuccess = fillProfile(cmd, zmpState.walkMode);
     if(fillSuccess)
     {
         cmd.params.walk_dist = walkDistanceBox->value();
@@ -248,6 +250,9 @@ bool HuboWalkWidget::fillProfile(zmp_cmd_t &vals, const walkMode_t walkMode)
         vals.params.min_single_support_time = singleSupportBox->value() ;
         vals.params.min_pause_time = pauseTimeBox->value() ;
         vals.params.quad_transition_time = transitionToQuadTimeBox->value() ;
+        vals.params.quad_stance_length = quadStanceLengthBoxQuad->value() ;
+        vals.params.quad_stability_margin = quadStabilityMarginBoxQuad->value() ;
+        vals.params.half_peg_width = halfPegWidthBoxQuad->value() ;
         vals.params.zmp_R = jerkPenalBox->value()*penalFactor ;
         vals.params.ik_sense = int2ikSense(ikSenseSelect->currentIndex()) ;
         return true;
@@ -272,6 +277,9 @@ bool HuboWalkWidget::fillProfile(zmp_cmd_t &vals, const walkMode_t walkMode)
         vals.params.min_single_support_time = singleSupportBoxQuad->value() ;
         vals.params.min_pause_time = pauseTimeBoxQuad->value() ;
         vals.params.quad_transition_time = transitionToBipedTimeBoxQuad->value() ;
+        vals.params.quad_stance_length = quadStanceLengthBoxQuad->value() ;
+        vals.params.quad_stability_margin = quadStabilityMarginBoxQuad->value() ;
+        vals.params.half_peg_width = halfPegWidthBoxQuad->value() ;
         vals.params.zmp_R = jerkPenalBoxQuad->value()*penalFactor ;
         vals.params.ik_sense = int2ikSense(ikSenseSelectQuad->currentIndex()) ;
         return true;
@@ -349,6 +357,8 @@ void HuboWalkWidget::handleQuadrupedProfileSelect(int index)
     singleSupportBoxQuad->setValue(zmpQuadProfiles[index].vals.params.min_single_support_time ) ;
     pauseTimeBoxQuad->setValue(zmpQuadProfiles[index].vals.params.min_pause_time ) ;
     transitionToBipedTimeBoxQuad->setValue(zmpQuadProfiles[index].vals.params.quad_transition_time ) ;
+    quadStanceLengthBoxQuad->setValue(zmpQuadProfiles[index].vals.params.quad_stance_length ) ;
+    quadStabilityMarginBoxQuad->setValue(zmpQuadProfiles[index].vals.params.quad_stability_margin ) ;
     jerkPenalBoxQuad->setValue(zmpQuadProfiles[index].vals.params.zmp_R/penalFactor ) ;
     ikSenseSelectQuad->setCurrentIndex(ikSense2int(zmpQuadProfiles[index].vals.params.ik_sense));
     

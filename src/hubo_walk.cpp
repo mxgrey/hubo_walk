@@ -147,6 +147,12 @@ void HuboWalkPanel::load(const rviz::Config &config)
             p_config.mapGetValue("quad_transition_time"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.quad_transition_time = temp.toDouble();
+            p_config.mapGetValue("quad_stance_length"+QString::number(i),
+                                 &temp);
+            content->zmpProfiles[i].vals.params.quad_stance_length = temp.toDouble();
+            p_config.mapGetValue("quad_stability_margin"+QString::number(i),
+                                 &temp);
+            content->zmpProfiles[i].vals.params.quad_stability_margin = temp.toDouble();
             p_config.mapGetValue("zmp_jerk_penalty"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.zmp_R = temp.toDouble();
@@ -234,6 +240,12 @@ void HuboWalkPanel::load(const rviz::Config &config)
             pQuad_config.mapGetValue("biped_transition_time"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.quad_transition_time = temp.toDouble();
+            pQuad_config.mapGetValue("quad_stance_length"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.quad_stance_length = temp.toDouble();
+            pQuad_config.mapGetValue("quad_stability_margin"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.quad_stability_margin = temp.toDouble();
             pQuad_config.mapGetValue("zmp_jerk_penalty"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.zmp_R = temp.toDouble();
@@ -415,6 +427,10 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpProfiles[i].vals.params.min_pause_time));
         p_config.mapSetValue("quad_transition_time"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.quad_transition_time));
+        p_config.mapSetValue("quad_stance_length"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.params.quad_stance_length));
+        p_config.mapSetValue("quad_stability_margin"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.params.quad_stability_margin));
         p_config.mapSetValue("zmp_jerk_penalty"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.zmp_R));
         p_config.mapSetValue("ik_sense"+QString::number(i),
@@ -466,6 +482,10 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpQuadProfiles[i].vals.params.min_pause_time));
         pQuad_config.mapSetValue("biped_transition_time"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.quad_transition_time));
+        pQuad_config.mapSetValue("quad_stance_length"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.quad_stance_length));
+        pQuad_config.mapSetValue("quad_stability_margin"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.quad_stability_margin));
         pQuad_config.mapSetValue("zmp_jerk_penalty"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.zmp_R));
         p_config.mapSetValue("ik_sense"+QString::number(i),
@@ -562,13 +582,35 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
     addTab(commandTab, "Command");
 
 #ifdef HAVE_HUBOMZ
+    std::cerr << "Initializing Biped Param Tab\n";
     initializeZmpBipedParamTab();
     std::cerr << "ZMP Biped Parameters Tab loaded" << std::endl;
-    addTab(zmpBipedParamTab, "ZMP Biped Parameters");
 
+    std::cerr << "Initializing Quadruped Param Tab\n";
     initializeZmpQuadrupedParamTab();
     std::cerr << "ZMP Quadruped Parameters Tab loaded" << std::endl;
-    addTab(zmpQuadrupedParamTab, "ZMP Quad Parameters");
+
+    // Biped
+    saveAsEdit->setText("Default");
+    handleProfileSaveAs();
+    saveAsEdit->setText("Default-Backup");
+    handleProfileSaveAs();
+    saveAsEdit->clear();
+
+    profileSelect->setCurrentIndex(0);
+
+    // Quadruped
+    saveAsEditQuad->setText("Default");
+    handleQuadrupedProfileSaveAs();
+    saveAsEditQuad->setText("Default-Backup");
+    handleQuadrupedProfileSaveAs();
+    saveAsEditQuad->clear();
+
+    profileSelectQuad->setCurrentIndex(0);
+
+    // Add tabs
+    addTab(zmpBipedParamTab, "Biped Params");
+    addTab(zmpQuadrupedParamTab, "Quad Params");
 #else
     std::cerr << "ZMP Parameters Tabs will NOT be loaded because hubomz is not installed" << std::endl;
 #endif // HAVE_HUBOMZ
@@ -1465,13 +1507,13 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     zmpBipedParamTab = new QWidget;
     zmpBipedParamTab->setLayout(masterZMPLayout);
     
-    saveAsEdit->setText("Default");
-    handleProfileSaveAs();
-    saveAsEdit->setText("Default-Backup");
-    handleProfileSaveAs();
-    saveAsEdit->clear();
+//    saveAsEdit->setText("Default");
+//    handleProfileSaveAs();
+//    saveAsEdit->setText("Default-Backup");
+//    handleProfileSaveAs();
+//    saveAsEdit->clear();
     
-    profileSelect->setCurrentIndex(0);
+//    profileSelect->setCurrentIndex(0);
 }
 // end BIPED PARAM TAB INITIALIZATION
 
@@ -2020,13 +2062,13 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     zmpQuadrupedParamTab = new QWidget;
     zmpQuadrupedParamTab->setLayout(masterZMPLayout);
     
-    saveAsEditQuad->setText("Default");
-    handleQuadrupedProfileSaveAs();
-    saveAsEditQuad->setText("Default-Backup");
-    handleQuadrupedProfileSaveAs();
-    saveAsEditQuad->clear();
+//    saveAsEditQuad->setText("Default");
+//    handleQuadrupedProfileSaveAs();
+//    saveAsEditQuad->setText("Default-Backup");
+//    handleQuadrupedProfileSaveAs();
+//    saveAsEditQuad->clear();
     
-    profileSelectQuad->setCurrentIndex(0);
+//    profileSelectQuad->setCurrentIndex(0);
     // end QUADRUPED PARAM TAB INITIALIZATION
 }
 
