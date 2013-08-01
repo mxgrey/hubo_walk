@@ -234,6 +234,11 @@ public:
     QPushButton* quadrupedButton;
     QPushButton* bipedButton;
 
+    // ZMP State
+    QLineEdit* zmpResultEdit;
+    QLineEdit* walkModeEdit;
+
+
     double heightScale;
     QSlider* heightSlide;
     QDoubleSpinBox* comXOffsetBox;

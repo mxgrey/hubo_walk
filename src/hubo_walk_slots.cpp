@@ -41,11 +41,14 @@ namespace hubo_walk_space
 
 void HuboWalkWidget::refreshState()
 {
-/*    size_t fs;
 #ifdef HAVE_HUBOMZ
+    size_t fs;
+    memset(&zmpState, 0, sizeof(zmpState));
     ach_get( &zmpStateChan, &zmpState, sizeof(zmpState), &fs, NULL, ACH_O_LAST );
+    zmpResultEdit->setText(QString::fromStdString(zmp_result_to_string(zmpState.result)));
+    walkModeEdit->setText(QString::fromStdString(walkMode_to_string(zmpState.walkMode)));
 #endif
-*/
+
 }
 
 #ifdef HAVE_HUBOMZ

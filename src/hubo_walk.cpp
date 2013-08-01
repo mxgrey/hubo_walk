@@ -553,7 +553,6 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
 #ifdef HAVE_HUBOMZ
     memset(&cmd, 0, sizeof(cmd));
     memset(&zmpState, 0, sizeof(zmpState));
-    walkMode = BIPED_MODE;
 #endif // HAVE_HUBOMZ
     memset(&balParams, 0, sizeof(balParams));
     memset(&balCmd, 0, sizeof(balCmd));
@@ -756,6 +755,13 @@ void HuboWalkWidget::initializeCommandTab()
     QHBoxLayout* zmpCtrlLayout = new QHBoxLayout;
     QVBoxLayout* paramLayout = new QVBoxLayout;
 
+    continuousBox = new QCheckBox;
+    continuousBox->setText("Walk Continuously");
+    continuousBox->setToolTip("Ignore the walk distance, and walk until Stop is selected");
+    continuousBox->setChecked(true);
+    continuousBox->setDisabled(false);
+    paramLayout->addWidget(continuousBox, 0, Qt::AlignLeft);
+
     QLabel* walkLab = new QLabel;
     walkLab->setText("Walk Distance:");
     walkLab->setToolTip("Distance to walk (m) after a click");
@@ -765,13 +771,6 @@ void HuboWalkWidget::initializeCommandTab()
     walkDistanceBox->setValue(0.2);
     walkDistanceBox->setToolTip(walkLab->toolTip());
     paramLayout->addWidget(walkDistanceBox, 0, Qt::AlignLeft);
-    
-    continuousBox = new QCheckBox;
-    continuousBox->setText("Continuous");
-    continuousBox->setToolTip("Ignore the walk distance, and walk until Stop is selected");
-    continuousBox->setChecked(true);
-    continuousBox->setDisabled(false);
-    paramLayout->addWidget(continuousBox, 0, Qt::AlignLeft);
 
     QLabel* rotateAngleLab = new QLabel;
     rotateAngleLab->setText("Turn-in-place\nAngle:");
@@ -853,7 +852,7 @@ void HuboWalkWidget::initializeCommandTab()
     connect(backButton, SIGNAL(clicked()), this, SLOT(handleBackward()));
 
     quadrupedButton = new QPushButton;
-    quadrupedButton->setText("Go Quadped");
+    quadrupedButton->setText("Go Quad");
     quadrupedButton->setSizePolicy(pbsize);
     wasdLayout->addWidget(quadrupedButton, 4, 0, 1, 1, Qt::AlignCenter);
     connect(quadrupedButton, SIGNAL(clicked()), this, SLOT(handleGoQuadruped()));
@@ -869,6 +868,52 @@ void HuboWalkWidget::initializeCommandTab()
     zmpCtrlGroup->setLayout(zmpCtrlLayout);
     controlLayout->addWidget(zmpCtrlGroup, 0, Qt::AlignLeft);
 
+    // ZMP State Display
+    QGroupBox* zmpStateGroup = new QGroupBox;
+    zmpStateGroup->setTitle("ZMP State");
+    zmpStateGroup->setStyleSheet(groupStyleSheet);
+
+    QHBoxLayout* zmpStateLayout = new QHBoxLayout;
+    zmpStateLayout->setAlignment(Qt::AlignLeft);
+
+    QHBoxLayout* zmpResultLayout = new QHBoxLayout;
+    zmpResultLayout->setAlignment(Qt::AlignLeft);
+
+    QLabel* zmpResultLabel = new QLabel;
+    zmpResultLabel->setText("Result:");
+    zmpResultLabel->setToolTip("Result the zmp-daemon is in");
+    zmpResultLayout->addWidget(zmpResultLabel);
+
+    zmpResultEdit = new QLineEdit;
+    zmpResultEdit->setReadOnly(true);
+    zmpResultEdit->setMaxLength(18);
+    zmpResultEdit->setMaximumWidth(150);
+    zmpResultEdit->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    zmpResultEdit->setToolTip("Result of zmp-daemon command");
+    zmpResultLayout->addWidget(zmpResultEdit, 0, Qt::AlignLeft);
+
+    QHBoxLayout* walkModeLayout = new QHBoxLayout;
+    walkModeLayout->setAlignment(Qt::AlignLeft);
+
+    QLabel* walkModeLabel = new QLabel;
+    walkModeLabel->setText("Walk Mode:");
+    walkModeLabel->setToolTip("Walk mode the zmp-daemon is in");
+    walkModeLayout->addWidget(walkModeLabel);
+
+    walkModeEdit = new QLineEdit;
+    walkModeEdit->setReadOnly(true);
+    walkModeEdit->setMaxLength(18);
+    walkModeEdit->setMaximumWidth(150);
+    walkModeEdit->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    walkModeEdit->setToolTip("Walk mode the zmp-daemon is in");
+    walkModeLayout->addWidget(walkModeEdit, 0, Qt::AlignLeft);
+
+    zmpStateLayout->addLayout(zmpResultLayout);
+    zmpStateLayout->addLayout(walkModeLayout);
+    zmpStateGroup->setLayout(zmpStateLayout);
+
+
+    // Balance Control Group
     QGroupBox* balCtrlGroup = new QGroupBox;
     balCtrlGroup->setTitle("Static Commands");
     balCtrlGroup->setStyleSheet(groupStyleSheet);
@@ -928,6 +973,7 @@ void HuboWalkWidget::initializeCommandTab()
     masterCTLayout->addWidget(networkBox);
     masterCTLayout->addWidget(controlSelectBox);
     masterCTLayout->addLayout(controlLayout);
+    masterCTLayout->addWidget(zmpStateGroup);
 
     commandTab = new QWidget;
     commandTab->setLayout(masterCTLayout);
@@ -1093,7 +1139,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     startupTimeBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     startupTimeBox->setToolTip(startupTimeLab->toolTip());
     startupTimeBox->setDecimals(3);
-    startupTimeBox->setValue(0.5);
+    startupTimeBox->setValue(1.0);
     startupTimeBox->setSingleStep(0.01);
     startupTimeBox->setMinimum(0);
     startupTimeBox->setMaximum(1000);
@@ -1114,7 +1160,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     shutdownTimeBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     shutdownTimeBox->setToolTip(shutdownTimeLab->toolTip());
     shutdownTimeBox->setDecimals(3);
-    shutdownTimeBox->setValue(0.5);
+    shutdownTimeBox->setValue(1.8);
     shutdownTimeBox->setSingleStep(0.01);
     shutdownTimeBox->setMinimum(0);
     shutdownTimeBox->setMaximum(1000);
@@ -1136,7 +1182,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     doubleSupportBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     doubleSupportBox->setToolTip(doubleSupTimeLab->toolTip());
     doubleSupportBox->setDecimals(3);
-    doubleSupportBox->setValue(0.01);
+    doubleSupportBox->setValue(2.5);
     doubleSupportBox->setSingleStep(0.01);
     doubleSupportBox->setMinimum(0);
     doubleSupportBox->setMaximum(1000);
@@ -1158,7 +1204,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     singleSupportBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     singleSupportBox->setToolTip(singleSupTimeLab->toolTip());
     singleSupportBox->setDecimals(3);
-    singleSupportBox->setValue(0.50);
+    singleSupportBox->setValue(1.0);
     singleSupportBox->setSingleStep(0.01);
     singleSupportBox->setMinimum(0);
     singleSupportBox->setMaximum(1000);
@@ -1179,7 +1225,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     pauseTimeBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     pauseTimeBox->setToolTip(pauseTimeLab->toolTip());
     pauseTimeBox->setDecimals(2);
-    pauseTimeBox->setValue(0.00);
+    pauseTimeBox->setValue(0.30);
     pauseTimeBox->setSingleStep(0.1);
     pauseTimeBox->setMinimum(0);
     pauseTimeBox->setMaximum(50);
@@ -1341,7 +1387,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     comHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     comHeightBox->setToolTip(comHeightLab->toolTip());
     comHeightBox->setDecimals(3);
-    comHeightBox->setValue(0.5);
+    comHeightBox->setValue(0.48);
     comHeightBox->setSingleStep(0.01);
     comHeightBox->setMinimum(0);
     comHeightBox->setMaximum(5);
@@ -2079,14 +2125,14 @@ void HuboWalkWidget::initializeBalParamTab()
     threshMinBoxL->setSingleStep(1);
     threshMinBoxL->setMinimum(-99999);
     threshMinBoxL->setMaximum(99999);
-    threshMinBoxL->setValue(10);
+    threshMinBoxL->setValue(12);
     threshMinLayout->addWidget(threshMinBoxL);
     threshMinBoxR = new QDoubleSpinBox;
     threshMinBoxR->setDecimals(4);
     threshMinBoxR->setSingleStep(1);
     threshMinBoxR->setMinimum(-99999);
     threshMinBoxR->setMaximum(99999);
-    threshMinBoxR->setValue(10);
+    threshMinBoxR->setValue(12);
     threshMinLayout->addWidget(threshMinBoxR);
 
     bottomLayout->addLayout(threshMinLayout);
@@ -2101,14 +2147,14 @@ void HuboWalkWidget::initializeBalParamTab()
     threshMaxBoxL->setSingleStep(1);
     threshMaxBoxL->setMinimum(-99999);
     threshMaxBoxL->setMaximum(99999);
-    threshMaxBoxL->setValue(50);
+    threshMaxBoxL->setValue(55);
     threshMaxLayout->addWidget(threshMaxBoxL);
     threshMaxBoxR = new QDoubleSpinBox;
     threshMaxBoxR->setDecimals(4);
     threshMaxBoxR->setSingleStep(1);
     threshMaxBoxR->setMinimum(-99999);
     threshMaxBoxR->setMaximum(99999);
-    threshMaxBoxR->setValue(50);
+    threshMaxBoxR->setValue(55);
     threshMaxLayout->addWidget(threshMaxBoxR);
 
     bottomLayout->addLayout(threshMaxLayout);
