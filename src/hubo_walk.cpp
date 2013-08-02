@@ -53,13 +53,10 @@ HuboWalkPanel::HuboWalkPanel(QWidget *parent)
 
 HuboWalkWidget::~HuboWalkWidget()
 {
-    std::cerr << "Disconnecting Ach daemons\n";
     achdDisconnectSlot();
-    std::cerr << "Exiting refresh manager\n";
     refreshManager->alive = false;
     refreshManager->quit();
     refreshManager->wait();
-    std::cerr << "Done exiting\n";
 }
 
 void HuboWalkPanel::load(const rviz::Config &config)
@@ -800,7 +797,7 @@ void HuboWalkWidget::initializeCommandTab()
     continuousBox = new QCheckBox;
     continuousBox->setText("Walk Continuously");
     continuousBox->setToolTip("Ignore the walk distance, and walk until Stop is selected");
-    continuousBox->setChecked(true);
+    continuousBox->setChecked(false);
     continuousBox->setDisabled(false);
     paramLayout->addWidget(continuousBox, 0, Qt::AlignLeft);
 
@@ -831,7 +828,7 @@ void HuboWalkWidget::initializeCommandTab()
     maxStepBox = new QSpinBox;
     maxStepBox->setSingleStep(1);
     maxStepBox->setToolTip(maxStepLab->toolTip());
-    maxStepBox->setValue(10);
+    maxStepBox->setValue(4);
     paramLayout->addWidget(maxStepBox, 0, Qt::AlignLeft | Qt::AlignTop);
     
     QLabel* turnLab = new QLabel;
@@ -928,8 +925,8 @@ void HuboWalkWidget::initializeCommandTab()
 
     zmpResultEdit = new QLineEdit;
     zmpResultEdit->setReadOnly(true);
-    zmpResultEdit->setMaxLength(18);
-    zmpResultEdit->setMaximumWidth(150);
+    zmpResultEdit->setMaxLength(20);
+    zmpResultEdit->setMaximumWidth(250);
     zmpResultEdit->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     zmpResultEdit->setToolTip("Result of zmp-daemon command");
     zmpResultLayout->addWidget(zmpResultEdit, 0, Qt::AlignLeft);
@@ -944,8 +941,8 @@ void HuboWalkWidget::initializeCommandTab()
 
     walkModeEdit = new QLineEdit;
     walkModeEdit->setReadOnly(true);
-    walkModeEdit->setMaxLength(18);
-    walkModeEdit->setMaximumWidth(150);
+    walkModeEdit->setMaxLength(20);
+    walkModeEdit->setMaximumWidth(250);
     walkModeEdit->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     walkModeEdit->setToolTip("Walk mode the zmp-daemon is in");
     walkModeLayout->addWidget(walkModeEdit, 0, Qt::AlignLeft);

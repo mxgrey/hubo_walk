@@ -55,64 +55,57 @@ void HuboWalkWidget::refreshState()
 #ifdef HAVE_HUBOMZ
 void HuboWalkWidget::handleForward()
 {
-    cmd.walk_type = walk_line;
-    cmd.cmd_state = WALKING_FORWARD;
+    cmd.walk_type = WALK_FORWARD;
     sendCommand();
 }
 
 void HuboWalkWidget::handleBackward()
 {
-    cmd.walk_type = walk_line;
-    cmd.cmd_state = WALKING_BACKWARD;
+    cmd.walk_type = WALK_BACKWARD;
     sendCommand();
 }
 
 void HuboWalkWidget::handleLeft()
 {
-    cmd.walk_type = walk_sidestep;
-    cmd.cmd_state = SIDESTEPPING_LEFT;
+    cmd.walk_type = SIDESTEP_LEFT;
     sendCommand();
 }
 
 void HuboWalkWidget::handleRight()
 {
-    cmd.walk_type = walk_sidestep;
-    cmd.cmd_state = SIDESTEPPING_RIGHT;
+    cmd.walk_type = SIDESTEP_RIGHT;
     sendCommand();
 }
 
 void HuboWalkWidget::handleTurnLeft()
 {
-    cmd.walk_type = turn_in_place;
-    cmd.cmd_state = ROTATING_LEFT;
+    cmd.walk_type = ROTATE_LEFT;
     sendCommand();
 }
 
 void HuboWalkWidget::handleTurnRight()
 {
-    cmd.walk_type = turn_in_place;
-    cmd.cmd_state = ROTATING_RIGHT;
+    cmd.walk_type = ROTATE_RIGHT;
     sendCommand();
 }
 
 void HuboWalkWidget::handleStop()
 {
-    cmd.walk_type = walk_line;
-    cmd.cmd_state = STOP;
+    cmd.walk_type = STOP_WALKING;
     sendCommand();
 }
 
 void HuboWalkWidget::handleGoQuadruped()
 {
     zmpState.walkMode = QUADRUPED_MODE;
-    cmd.cmd_state = GOTO_QUADRUPED;
+    cmd.walk_type = GOTO_QUADRUPED;
     sendCommand();
 }
 
 void HuboWalkWidget::handleGoBiped()
 {
     zmpState.walkMode = BIPED_MODE;
-    cmd.cmd_state = GOTO_BIPED;
+    cmd.walk_type = GOTO_BIPED;
     sendCommand();
 }
 
