@@ -1986,7 +1986,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     comHeightBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     comHeightBoxQuad->setToolTip(comHeightLab->toolTip());
     comHeightBoxQuad->setDecimals(3);
-    comHeightBoxQuad->setValue(0.5);
+    comHeightBoxQuad->setValue(0.25);
     comHeightBoxQuad->setSingleStep(0.01);
     comHeightBoxQuad->setMinimum(0);
     comHeightBoxQuad->setMaximum(5);

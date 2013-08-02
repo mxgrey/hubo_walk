@@ -43,9 +43,8 @@ void HuboWalkWidget::refreshState()
 {
 #ifdef HAVE_HUBOMZ
     size_t fs;
-    memset(&zmpState, 0, sizeof(zmpState));
     ach_status_t r = ach_get( &zmpStateChan, &zmpState, sizeof(zmpState), &fs, NULL, ACH_O_LAST );
-    //if(!ACH_OK && !ACH_MISSED_FRAME)
+    if(!ACH_OK && !ACH_MISSED_FRAME && !ACH_STALE_FRAMES)
         std::cout << "ZMP State ach_get result: " << ach_result_to_string(r) << "\n";
     zmpResultEdit->setText(QString::fromStdString(zmp_result_to_string(zmpState.result)));
     walkModeEdit->setText(QString::fromStdString(walkMode_to_string(zmpState.walkMode)));
@@ -105,12 +104,14 @@ void HuboWalkWidget::handleStop()
 
 void HuboWalkWidget::handleGoQuadruped()
 {
+    zmpState.walkMode = QUADRUPED_MODE;
     cmd.cmd_state = GOTO_QUADRUPED;
     sendCommand();
 }
 
 void HuboWalkWidget::handleGoBiped()
 {
+    zmpState.walkMode = BIPED_MODE;
     cmd.cmd_state = GOTO_BIPED;
     sendCommand();
 }
