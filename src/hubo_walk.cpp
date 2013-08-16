@@ -570,6 +570,7 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
 #ifdef HAVE_HUBOMZ
     memset(&cmd, 0, sizeof(cmd));
     memset(&zmpState, 0, sizeof(zmpState));
+    tempWalkMode = MODELESS;
 #endif // HAVE_HUBOMZ
     memset(&balParams, 0, sizeof(balParams));
     memset(&balCmd, 0, sizeof(balCmd));

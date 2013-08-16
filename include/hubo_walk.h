@@ -167,6 +167,7 @@ public:
   ach_channel_t zmpCmdChan;
   ach_channel_t balanceParamChan;
   ach_channel_t balanceCmdChan;
+  walkMode_t tempWalkMode;
 
   void initializeAchConnections();
 //  void initializeAchStructs();

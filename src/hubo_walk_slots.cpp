@@ -48,6 +48,7 @@ void HuboWalkWidget::refreshState()
         std::cout << "ZMP State ach_get result: " << ach_result_to_string(r) << "\n";
     zmpResultEdit->setText(QString::fromStdString(zmp_result_to_string(zmpState.result)));
     walkModeEdit->setText(QString::fromStdString(walkMode_to_string(zmpState.walkMode)));
+    tempWalkMode = zmpState.walkMode;
 #endif
 
 }
@@ -100,6 +101,7 @@ void HuboWalkWidget::handleGoQuadruped()
     zmpState.walkMode = QUADRUPED_MODE;
     cmd.walk_type = GOTO_QUADRUPED;
     sendCommand();
+    zmpState.walkMode = tempWalkMode;
 }
 
 void HuboWalkWidget::handleGoBiped()
@@ -107,6 +109,7 @@ void HuboWalkWidget::handleGoBiped()
     zmpState.walkMode = BIPED_MODE;
     cmd.walk_type = GOTO_BIPED;
     sendCommand();
+    zmpState.walkMode = tempWalkMode;
 }
 
 #else
