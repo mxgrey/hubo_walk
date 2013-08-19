@@ -818,7 +818,7 @@ void HuboWalkWidget::initializeCommandTab()
     paramLayout->addWidget(rotateAngleLab, 0, Qt::AlignLeft | Qt::AlignBottom);
     rotateAngleBox = new QDoubleSpinBox;
     rotateAngleBox->setSingleStep(0.1);
-    rotateAngleBox->setValue(0.5);
+    rotateAngleBox->setValue(0.3);
     rotateAngleBox->setToolTip(rotateAngleLab->toolTip());
     paramLayout->addWidget(rotateAngleBox, 0, Qt::AlignLeft | Qt::AlignTop);
 
@@ -1278,7 +1278,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     QLabel* transitionToQuadTimeLab = new QLabel;
     transitionToQuadTimeLab->setText("Quadruped Transition Time:");
     transitionToQuadTimeLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-    transitionToQuadTimeLab->setToolTip("How much time (s) should be spent stationary in double support?");
+    transitionToQuadTimeLab->setToolTip("How much time (s) should be spent transitioning to Quadruped stance?");
     transitionToQuadTimeLay->addWidget(transitionToQuadTimeLab);
 
     transitionToQuadTimeBox = new QDoubleSpinBox;
@@ -1286,7 +1286,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     transitionToQuadTimeBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     transitionToQuadTimeBox->setToolTip(transitionToQuadTimeLab->toolTip());
     transitionToQuadTimeBox->setDecimals(2);
-    transitionToQuadTimeBox->setValue(4.00);
+    transitionToQuadTimeBox->setValue(8.00);
     transitionToQuadTimeBox->setSingleStep(0.5);
     transitionToQuadTimeBox->setMinimum(0);
     transitionToQuadTimeBox->setMaximum(50);
@@ -1440,7 +1440,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     QLabel* torsoPitchLab = new QLabel;
     torsoPitchLab->setText("Torso Pitch:");
     torsoPitchLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-    torsoPitchLab->setToolTip("How much the torso should be pitched in radians. Positive is forward?");
+    torsoPitchLab->setToolTip("How much the torso should be pitched in radians? (Positive is forward)");
     torsoPitchLay->addWidget(torsoPitchLab);
 
     torsoPitchBox = new QDoubleSpinBox;
@@ -1772,7 +1772,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     QLabel* transitionToBipedTimeLab = new QLabel;
     transitionToBipedTimeLab->setText("Biped Transition Time:");
     transitionToBipedTimeLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-    transitionToBipedTimeLab->setToolTip("How much time (s) should be spent stationary in double support?");
+    transitionToBipedTimeLab->setToolTip("How much time (s) should be spent transitioning to Biped stance?");
     transitionToBipedTimeLay->addWidget(transitionToBipedTimeLab);
 
     transitionToBipedTimeBoxQuad = new QDoubleSpinBox;
@@ -1780,7 +1780,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     transitionToBipedTimeBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     transitionToBipedTimeBoxQuad->setToolTip(transitionToBipedTimeLab->toolTip());
     transitionToBipedTimeBoxQuad->setDecimals(2);
-    transitionToBipedTimeBoxQuad->setValue(4.00);
+    transitionToBipedTimeBoxQuad->setValue(8.00);
     transitionToBipedTimeBoxQuad->setSingleStep(0.1);
     transitionToBipedTimeBoxQuad->setMinimum(0);
     transitionToBipedTimeBoxQuad->setMaximum(50);
@@ -1860,7 +1860,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     QLabel* sideStepDistanceLab = new QLabel;
     sideStepDistanceLab->setText("Side Step Length:");
     sideStepDistanceLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-    sideStepDistanceLab->setToolTip("How far sideways (m) should the swing foot step?");
+    sideStepDistanceLab->setToolTip("How far sideways (m) should the swing foot step in quadruped mode?");
     sideStepDistanceLay->addWidget(sideStepDistanceLab);
 
     sideStepDistanceBoxQuad = new QDoubleSpinBox;
@@ -1868,7 +1868,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     sideStepDistanceBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     sideStepDistanceBoxQuad->setToolTip(sideStepDistanceLab->toolTip());
     sideStepDistanceBoxQuad->setDecimals(3);
-    sideStepDistanceBoxQuad->setValue(0.1);
+    sideStepDistanceBoxQuad->setValue(0.05);
     sideStepDistanceBoxQuad->setSingleStep(0.01);
     sideStepDistanceBoxQuad->setMinimum(0);
     sideStepDistanceBoxQuad->setMaximum(5);
@@ -1902,7 +1902,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     QLabel* quadStanceLengthLab = new QLabel;
     quadStanceLengthLab->setText("Quad Stance Length:");
     quadStanceLengthLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-    quadStanceLengthLab->setToolTip("How far from the center (m) should the swing foot be placed?");
+    quadStanceLengthLab->setToolTip("How far from the feet (m) should the pegs be placed?");
     quadStanceLengthLay->addWidget(quadStanceLengthLab);
 
     quadStanceLengthBoxQuad = new QDoubleSpinBox;
@@ -1923,7 +1923,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     QLabel* quadStabilityMarginLab = new QLabel;
     quadStabilityMarginLab->setText("Quad Stability Margin:");
     quadStabilityMarginLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-    quadStabilityMarginLab->setToolTip("How far from the center (m) should the swing foot be placed?");
+    quadStabilityMarginLab->setToolTip("What is the margin of stability (m)?");
     quadStabilityMarginLay->addWidget(quadStabilityMarginLab);
 
     quadStabilityMarginBoxQuad = new QDoubleSpinBox;
@@ -1976,7 +1976,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     QLabel* comHeightLab = new QLabel;
     comHeightLab->setText("Quadruped COM Height:");
     comHeightLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-    comHeightLab->setToolTip("How heigh (m) should the center of mass be from the ground in biped stance?");
+    comHeightLab->setToolTip("How heigh (m) should the center of mass be from the ground in quadruped stance?");
     comHeightLay->addWidget(comHeightLab);
 
     comHeightBoxQuad = new QDoubleSpinBox;
@@ -1997,7 +1997,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     QLabel* torsoPitchLab = new QLabel;
     torsoPitchLab->setText("Torso Pitch:");
     torsoPitchLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-    torsoPitchLab->setToolTip("How much the torso should be pitched in radians. Positive is forward?");
+    torsoPitchLab->setToolTip("How much the torso should be pitched in radians? (Positive is forward)");
     torsoPitchLay->addWidget(torsoPitchLab);
 
     torsoPitchBoxQuad = new QDoubleSpinBox;
