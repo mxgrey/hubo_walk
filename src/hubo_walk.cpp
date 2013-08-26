@@ -737,7 +737,7 @@ void HuboWalkWidget::initializeCommandTab()
     networkBox->setTitle("Ach Networking");
     networkBox->setLayout(networkLayout);
 
-    setIPAddress(192, 168, 0, 201);
+    setIPAddress(192, 168, 1, 0);
     ////////////////////
     
     QHBoxLayout* controlSelectLayout = new QHBoxLayout;
