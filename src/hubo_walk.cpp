@@ -976,20 +976,30 @@ void HuboWalkWidget::initializeCommandTab()
     heightLayout->addWidget(heightSlide);
     connect( heightSlide, SIGNAL(valueChanged(int)), this, SLOT(handleStaticButton()) );
 
-    QVBoxLayout* comXOffsetLayout = new QVBoxLayout;
+    constArmAnglesBox = new QCheckBox;
+    constArmAnglesBox->setText("Keep Current Arm\nAngles While Walking");
+    constArmAnglesBox->setToolTip("Whether or not to keep the current arm angles during walking.");
+    constArmAnglesBox->setChecked(false);
+    constArmAnglesBox->setDisabled(false);
+
+    QHBoxLayout* comXOffsetLayout = new QHBoxLayout;
     QLabel* comXOffsetLab = new QLabel;
     comXOffsetLab->setText("COM-X Offset (m)");
-    comXOffsetLayout->addWidget(comXOffsetLab, 0, Qt::AlignCenter);
+    comXOffsetLayout->addWidget(comXOffsetLab, 0);
     comXOffsetBox = new QDoubleSpinBox;
     comXOffsetBox->setDecimals(4);
     comXOffsetBox->setSingleStep(0.001);
     comXOffsetBox->setMinimum(-0.05);
     comXOffsetBox->setMaximum(0.05);
     comXOffsetBox->setValue(0.0);
-    comXOffsetLayout->addWidget(comXOffsetBox, 0, Qt::AlignTop);
+    comXOffsetLayout->addWidget(comXOffsetBox, 0);
+
+    QVBoxLayout* balSettingsLayout = new QVBoxLayout;
+    balSettingsLayout->addWidget(constArmAnglesBox, 0);
+    balSettingsLayout->addLayout(comXOffsetLayout, 0);
 
     staticCmdsLayout->addLayout(heightLayout, 0);
-    staticCmdsLayout->addLayout(comXOffsetLayout, 1);
+    staticCmdsLayout->addLayout(balSettingsLayout, 1);
     staticCmdsLayout->setAlignment(Qt::AlignTop);
 
     balLayout->addLayout(staticCmdsLayout, 0);

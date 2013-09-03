@@ -209,6 +209,7 @@ void HuboWalkWidget::sendBalCommand()
 {
 
     balCmd.height = heightSlide->value()/heightScale;
+    balCmd.use_cur_arm_positions = constArmAnglesBox->isChecked();
     balCmd.com_x_offset = comXOffsetBox->value();
     ach_status_t r = ach_put( &balanceCmdChan, &balCmd, sizeof(balCmd) );
     if( r != ACH_OK )
