@@ -2129,14 +2129,14 @@ void HuboWalkWidget::initializeBalParamTab()
     flattenBoxL->setSingleStep(0.003);
     flattenBoxL->setMinimum(0);
     flattenBoxL->setMaximum(99999);
-    flattenBoxL->setValue(0.001);
+    flattenBoxL->setValue(0.0005);
     flatLayout->addWidget(flattenBoxL);
     flattenBoxR = new QDoubleSpinBox;
     flattenBoxR->setDecimals(4);
     flattenBoxR->setSingleStep(0.003);
     flattenBoxR->setMinimum(0);
     flattenBoxR->setMaximum(99999);
-    flattenBoxR->setValue(0.001);
+    flattenBoxR->setValue(0.0005);
     flatLayout->addWidget(flattenBoxR);
 
     bottomLayout->addLayout(flatLayout);
@@ -2209,14 +2209,14 @@ void HuboWalkWidget::initializeBalParamTab()
     straightenPBoxL->setSingleStep(1);
     straightenPBoxL->setMinimum(-99999);
     straightenPBoxL->setMaximum(99999);
-    straightenPBoxL->setValue(0.04);
+    straightenPBoxL->setValue(0.055);
     straightenPLayout->addWidget(straightenPBoxL);
     straightenPBoxR = new QDoubleSpinBox;
     straightenPBoxR->setDecimals(4);
     straightenPBoxR->setSingleStep(1);
     straightenPBoxR->setMinimum(-99999);
     straightenPBoxR->setMaximum(99999);
-    straightenPBoxR->setValue(0.012);
+    straightenPBoxR->setValue(0.055);
     straightenPLayout->addWidget(straightenPBoxR);
 
     bottomLayout->addLayout(straightenPLayout);
