@@ -277,70 +277,72 @@ void HuboWalkPanel::load(const rviz::Config &config)
             pb_config.mapGetValue("BalProfileName"+QString::number(i),
                                  &temp);
             content->balProfiles[i].name = temp.toString();
-            pb_config.mapGetValue("flatten_l"+QString::number(i),
+            pb_config.mapGetValue("flatten_bal"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.flattening_gain[LEFT] = temp.toDouble();
-            pb_config.mapGetValue("flatten_r"+QString::number(i),
+            content->balProfiles[i].vals.balance_gains.flattening_gain = temp.toDouble();
+            pb_config.mapGetValue("flatten_walk"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.flattening_gain[RIGHT] = temp.toDouble();
-            pb_config.mapGetValue("decay_gain"+QString::number(i),
+            content->balProfiles[i].vals.walking_gains.flattening_gain = temp.toDouble();
+            pb_config.mapGetValue("decay_gain_bal"+QString::number(i),
                                   &temp);
-            content->balProfiles[i].vals.decay_gain[LEFT] = temp.toDouble();
-            content->balProfiles[i].vals.decay_gain[RIGHT] = temp.toDouble();
-            pb_config.mapGetValue("thresh_min_l"+QString::number(i),
+            content->balProfiles[i].vals.balance_gains.decay_gain = temp.toDouble();
+            pb_config.mapGetValue("decay_gain_walk"+QString::number(i),
+                                  &temp);
+            content->balProfiles[i].vals.walking_gains.decay_gain = temp.toDouble();
+            pb_config.mapGetValue("thresh_min_bal"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.force_min_threshold[LEFT] = temp.toDouble();
-            pb_config.mapGetValue("thresh_min_r"+QString::number(i),
+            content->balProfiles[i].vals.balance_gains.force_min_threshold = temp.toDouble();
+            pb_config.mapGetValue("thresh_min_walk"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.force_min_threshold[RIGHT] = temp.toDouble();
-            pb_config.mapGetValue("thresh_max_l"+QString::number(i),
+            content->balProfiles[i].vals.walking_gains.force_min_threshold = temp.toDouble();
+            pb_config.mapGetValue("thresh_max_bal"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.force_max_threshold[LEFT] = temp.toDouble();
-            pb_config.mapGetValue("thresh_max_r"+QString::number(i),
+            content->balProfiles[i].vals.balance_gains.force_max_threshold = temp.toDouble();
+            pb_config.mapGetValue("thresh_max_walk"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.force_max_threshold[RIGHT] = temp.toDouble();
-            pb_config.mapGetValue("straightenP_l"+QString::number(i),
+            content->balProfiles[i].vals.walking_gains.force_max_threshold = temp.toDouble();
+            pb_config.mapGetValue("straightenP_bal"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.straightening_pitch_gain[LEFT] = temp.toDouble();
-            pb_config.mapGetValue("straightenP_r"+QString::number(i),
+            content->balProfiles[i].vals.balance_gains.straightening_pitch_gain = temp.toDouble();
+            pb_config.mapGetValue("straightenP_walk"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.straightening_pitch_gain[RIGHT] = temp.toDouble();
-            pb_config.mapGetValue("straightenR_l"+QString::number(i),
+            content->balProfiles[i].vals.walking_gains.straightening_pitch_gain = temp.toDouble();
+            pb_config.mapGetValue("straightenR_bal"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.straightening_roll_gain[LEFT] = temp.toDouble();
-            pb_config.mapGetValue("straightenR_r"+QString::number(i),
+            content->balProfiles[i].vals.balance_gains.straightening_roll_gain = temp.toDouble();
+            pb_config.mapGetValue("straightenR_walk"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.straightening_roll_gain[RIGHT] = temp.toDouble();
-            pb_config.mapGetValue("spring_l"+QString::number(i),
+            content->balProfiles[i].vals.walking_gains.straightening_roll_gain = temp.toDouble();
+            pb_config.mapGetValue("spring_bal"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.spring_gain[LEFT] = temp.toDouble();
-            pb_config.mapGetValue("spring_r"+QString::number(i),
+            content->balProfiles[i].vals.balance_gains.spring_gain = temp.toDouble();
+            pb_config.mapGetValue("spring_walk"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.spring_gain[RIGHT] = temp.toDouble();
-            pb_config.mapGetValue("damp_l"+QString::number(i),
+            content->balProfiles[i].vals.walking_gains.spring_gain = temp.toDouble();
+            pb_config.mapGetValue("damp_bal"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.damping_gain[LEFT] = temp.toDouble();
-            pb_config.mapGetValue("damp_r"+QString::number(i),
+            content->balProfiles[i].vals.balance_gains.damping_gain = temp.toDouble();
+            pb_config.mapGetValue("damp_walk"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.damping_gain[RIGHT] = temp.toDouble();
-            pb_config.mapGetValue("response_l"+QString::number(i),
+            content->balProfiles[i].vals.walking_gains.damping_gain = temp.toDouble();
+            pb_config.mapGetValue("response_bal"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.fz_response[LEFT] = temp.toDouble();
-            pb_config.mapGetValue("response_r"+QString::number(i),
+            content->balProfiles[i].vals.balance_gains.fz_response = temp.toDouble();
+            pb_config.mapGetValue("response_walk"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.fz_response[RIGHT] = temp.toDouble();
+            content->balProfiles[i].vals.walking_gains.fz_response = temp.toDouble();
             pb_config.mapGetValue("single_support_hip_nudge_kp"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.single_support_hip_nudge_kp = temp.toDouble();
+            content->balProfiles[i].vals.balance_gains.single_support_hip_nudge_kp = temp.toDouble();
             pb_config.mapGetValue("single_support_hip_nudge_kd"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.single_support_hip_nudge_kd = temp.toDouble();
+            content->balProfiles[i].vals.balance_gains.single_support_hip_nudge_kd = temp.toDouble();
             pb_config.mapGetValue("double_support_hip_nudge_kp"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.double_support_hip_nudge_kp = temp.toDouble();
+            content->balProfiles[i].vals.balance_gains.double_support_hip_nudge_kp = temp.toDouble();
             pb_config.mapGetValue("double_support_hip_nudge_kd"+QString::number(i),
                                  &temp);
-            content->balProfiles[i].vals.double_support_hip_nudge_kd = temp.toDouble();
+            content->balProfiles[i].vals.balance_gains.double_support_hip_nudge_kd = temp.toDouble();
         }
 
         content->updatebalProfileBox();
@@ -505,48 +507,50 @@ void HuboWalkPanel::save(rviz::Config config) const
         content->balProfiles[i].name.replace(" ","_");
         pb_config.mapSetValue("BalProfileName"+QString::number(i),
                              QVariant(content->balProfiles[i].name));
-        pb_config.mapSetValue("flatten_l"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.flattening_gain[LEFT]));
-        pb_config.mapSetValue("flatten_r"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.flattening_gain[RIGHT]));
-        pb_config.mapSetValue("decay_gain"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.decay_gain[LEFT]));
-        pb_config.mapSetValue("thresh_min_l"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.force_min_threshold[LEFT]));
-        pb_config.mapSetValue("thresh_min_r"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.force_min_threshold[RIGHT]));
-        pb_config.mapSetValue("thresh_max_l"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.force_max_threshold[LEFT]));
-        pb_config.mapSetValue("thresh_max_r"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.force_max_threshold[RIGHT]));
-        pb_config.mapSetValue("straightenP_l"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.straightening_pitch_gain[LEFT]));
-        pb_config.mapSetValue("straightenP_r"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.straightening_pitch_gain[RIGHT]));
-        pb_config.mapSetValue("straightenR_l"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.straightening_roll_gain[LEFT]));
-        pb_config.mapSetValue("straightenR_r"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.straightening_roll_gain[RIGHT]));
-        pb_config.mapSetValue("spring_l"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.spring_gain[LEFT]));
-        pb_config.mapSetValue("spring_r"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.spring_gain[RIGHT]));
-        pb_config.mapSetValue("damp_l"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.damping_gain[LEFT]));
-        pb_config.mapSetValue("damp_r"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.damping_gain[RIGHT]));
-        pb_config.mapSetValue("response_l"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.fz_response[LEFT]));
-        pb_config.mapSetValue("response_r"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.fz_response[RIGHT]));
+        pb_config.mapSetValue("flatten_bal"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.balance_gains.flattening_gain));
+        pb_config.mapSetValue("flatten_walk"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.walking_gains.flattening_gain));
+        pb_config.mapSetValue("decay_gain_bal"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.balance_gains.decay_gain));
+        pb_config.mapSetValue("decay_gain_walk"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.walking_gains.decay_gain));
+        pb_config.mapSetValue("thresh_min_bal"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.balance_gains.force_min_threshold));
+        pb_config.mapSetValue("thresh_min_walk"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.walking_gains.force_min_threshold));
+        pb_config.mapSetValue("thresh_max_bal"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.balance_gains.force_max_threshold));
+        pb_config.mapSetValue("thresh_max_walk"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.walking_gains.force_max_threshold));
+        pb_config.mapSetValue("straightenP_bal"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.balance_gains.straightening_pitch_gain));
+        pb_config.mapSetValue("straightenP_walk"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.walking_gains.straightening_pitch_gain));
+        pb_config.mapSetValue("straightenR_bal"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.balance_gains.straightening_roll_gain));
+        pb_config.mapSetValue("straightenR_walk"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.walking_gains.straightening_roll_gain));
+        pb_config.mapSetValue("spring_bal"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.balance_gains.spring_gain));
+        pb_config.mapSetValue("spring_walk"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.walking_gains.spring_gain));
+        pb_config.mapSetValue("damp_bal"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.balance_gains.damping_gain));
+        pb_config.mapSetValue("damp_walk"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.walking_gains.damping_gain));
+        pb_config.mapSetValue("response_bal"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.balance_gains.fz_response));
+        pb_config.mapSetValue("response_walk"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.walking_gains.fz_response));
         pb_config.mapSetValue("single_support_hip_nudge_kp"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.single_support_hip_nudge_kp));
+                             QVariant(content->balProfiles[i].vals.balance_gains.single_support_hip_nudge_kp));
         pb_config.mapSetValue("single_support_hip_nudge_kd"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.single_support_hip_nudge_kd));
+                             QVariant(content->balProfiles[i].vals.balance_gains.single_support_hip_nudge_kd));
         pb_config.mapSetValue("double_support_hip_nudge_kp"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.double_support_hip_nudge_kp));
+                             QVariant(content->balProfiles[i].vals.balance_gains.double_support_hip_nudge_kp));
         pb_config.mapSetValue("double_support_hip_nudge_kd"+QString::number(i),
-                             QVariant(content->balProfiles[i].vals.double_support_hip_nudge_kd));
+                             QVariant(content->balProfiles[i].vals.balance_gains.double_support_hip_nudge_kd));
     }
     
 }
@@ -2119,25 +2123,37 @@ void HuboWalkWidget::initializeBalParamTab()
 
     QVBoxLayout* bottomLayout = new QVBoxLayout;
 
+    QHBoxLayout* gainsLabelLayout = new QHBoxLayout;
+    QLabel* gainTypeLab = new QLabel;
+    gainTypeLab->setText("<u><b>Gain Type</b></u>");
+    gainsLabelLayout->addWidget(gainTypeLab, Qt::AlignBottom | Qt::AlignCenter);
+    QLabel* balGainsLab = new QLabel;
+    balGainsLab->setText("<u><b>Balance Gains<\b></u>");
+    gainsLabelLayout->addWidget(balGainsLab, Qt::AlignBottom | Qt::AlignCenter);
+    QLabel* walkGainsLab = new QLabel;
+    walkGainsLab->setText("<u><b>Walking Gains</b></u>");
+    gainsLabelLayout->addWidget(walkGainsLab, Qt::AlignBottom | Qt::AlignCenter);
+    bottomLayout->addLayout(gainsLabelLayout);
+
     QHBoxLayout* flatLayout = new QHBoxLayout;
     QLabel* flatLab = new QLabel;
     flatLab->setText("Flattening Gains:");
     flatLab->setToolTip("Gains for foot flattening (Left/Right)");
     flatLayout->addWidget(flatLab);
-    flattenBoxL = new QDoubleSpinBox;
-    flattenBoxL->setDecimals(4);
-    flattenBoxL->setSingleStep(0.003);
-    flattenBoxL->setMinimum(0);
-    flattenBoxL->setMaximum(99999);
-    flattenBoxL->setValue(0.0005);
-    flatLayout->addWidget(flattenBoxL);
-    flattenBoxR = new QDoubleSpinBox;
-    flattenBoxR->setDecimals(4);
-    flattenBoxR->setSingleStep(0.003);
-    flattenBoxR->setMinimum(0);
-    flattenBoxR->setMaximum(99999);
-    flattenBoxR->setValue(0.0005);
-    flatLayout->addWidget(flattenBoxR);
+    flattenBoxBal = new QDoubleSpinBox;
+    flattenBoxBal->setDecimals(4);
+    flattenBoxBal->setSingleStep(0.003);
+    flattenBoxBal->setMinimum(0);
+    flattenBoxBal->setMaximum(99999);
+    flattenBoxBal->setValue(0.0005);
+    flatLayout->addWidget(flattenBoxBal);
+    flattenBoxWalk = new QDoubleSpinBox;
+    flattenBoxWalk->setDecimals(4);
+    flattenBoxWalk->setSingleStep(0.003);
+    flattenBoxWalk->setMinimum(0);
+    flattenBoxWalk->setMaximum(99999);
+    flattenBoxWalk->setValue(0.0005);
+    flatLayout->addWidget(flattenBoxWalk);
 
     bottomLayout->addLayout(flatLayout);
 
@@ -2145,13 +2161,20 @@ void HuboWalkWidget::initializeBalParamTab()
     QLabel* decayLab = new QLabel;
     decayLab->setText("Decay Gain:");
     decayLayout->addWidget(decayLab);
-    decayBox = new QDoubleSpinBox;
-    decayBox->setDecimals(4);
-    decayBox->setSingleStep(0.05);
-    decayBox->setMinimum(0);
-    decayBox->setMaximum(1);
-    decayBox->setValue(0.5);
-    decayLayout->addWidget(decayBox);
+    decayBoxBal = new QDoubleSpinBox;
+    decayBoxBal->setDecimals(4);
+    decayBoxBal->setSingleStep(0.05);
+    decayBoxBal->setMinimum(0);
+    decayBoxBal->setMaximum(1);
+    decayBoxBal->setValue(0.5);
+    decayLayout->addWidget(decayBoxBal);
+    decayBoxWalk = new QDoubleSpinBox;
+    decayBoxWalk->setDecimals(4);
+    decayBoxWalk->setSingleStep(0.05);
+    decayBoxWalk->setMinimum(0);
+    decayBoxWalk->setMaximum(1);
+    decayBoxWalk->setValue(0.5);
+    decayLayout->addWidget(decayBoxWalk);
 
     bottomLayout->addLayout(decayLayout);
 
@@ -2160,20 +2183,20 @@ void HuboWalkWidget::initializeBalParamTab()
     threshMinLab->setText("Minimum Force Threshold:");
     threshMinLab->setToolTip("Minimum force cut-off for flattening foot (Left/Right)");
     threshMinLayout->addWidget(threshMinLab);
-    threshMinBoxL = new QDoubleSpinBox;
-    threshMinBoxL->setDecimals(4);
-    threshMinBoxL->setSingleStep(1);
-    threshMinBoxL->setMinimum(-99999);
-    threshMinBoxL->setMaximum(99999);
-    threshMinBoxL->setValue(12);
-    threshMinLayout->addWidget(threshMinBoxL);
-    threshMinBoxR = new QDoubleSpinBox;
-    threshMinBoxR->setDecimals(4);
-    threshMinBoxR->setSingleStep(1);
-    threshMinBoxR->setMinimum(-99999);
-    threshMinBoxR->setMaximum(99999);
-    threshMinBoxR->setValue(12);
-    threshMinLayout->addWidget(threshMinBoxR);
+    threshMinBoxBal = new QDoubleSpinBox;
+    threshMinBoxBal->setDecimals(4);
+    threshMinBoxBal->setSingleStep(1);
+    threshMinBoxBal->setMinimum(-99999);
+    threshMinBoxBal->setMaximum(99999);
+    threshMinBoxBal->setValue(12);
+    threshMinLayout->addWidget(threshMinBoxBal);
+    threshMinBoxWalk = new QDoubleSpinBox;
+    threshMinBoxWalk->setDecimals(4);
+    threshMinBoxWalk->setSingleStep(1);
+    threshMinBoxWalk->setMinimum(-99999);
+    threshMinBoxWalk->setMaximum(99999);
+    threshMinBoxWalk->setValue(12);
+    threshMinLayout->addWidget(threshMinBoxWalk);
 
     bottomLayout->addLayout(threshMinLayout);
 
@@ -2182,20 +2205,20 @@ void HuboWalkWidget::initializeBalParamTab()
     threshMaxLab->setText("Maximum Force Threshold:");
     threshMaxLab->setToolTip("Minimum force cut-off for flattening foot (Left/Right)");
     threshMaxLayout->addWidget(threshMaxLab);
-    threshMaxBoxL = new QDoubleSpinBox;
-    threshMaxBoxL->setDecimals(4);
-    threshMaxBoxL->setSingleStep(1);
-    threshMaxBoxL->setMinimum(-99999);
-    threshMaxBoxL->setMaximum(99999);
-    threshMaxBoxL->setValue(55);
-    threshMaxLayout->addWidget(threshMaxBoxL);
-    threshMaxBoxR = new QDoubleSpinBox;
-    threshMaxBoxR->setDecimals(4);
-    threshMaxBoxR->setSingleStep(1);
-    threshMaxBoxR->setMinimum(-99999);
-    threshMaxBoxR->setMaximum(99999);
-    threshMaxBoxR->setValue(55);
-    threshMaxLayout->addWidget(threshMaxBoxR);
+    threshMaxBoxBal = new QDoubleSpinBox;
+    threshMaxBoxBal->setDecimals(4);
+    threshMaxBoxBal->setSingleStep(1);
+    threshMaxBoxBal->setMinimum(-99999);
+    threshMaxBoxBal->setMaximum(99999);
+    threshMaxBoxBal->setValue(55);
+    threshMaxLayout->addWidget(threshMaxBoxBal);
+    threshMaxBoxWalk = new QDoubleSpinBox;
+    threshMaxBoxWalk->setDecimals(4);
+    threshMaxBoxWalk->setSingleStep(1);
+    threshMaxBoxWalk->setMinimum(-99999);
+    threshMaxBoxWalk->setMaximum(99999);
+    threshMaxBoxWalk->setValue(55);
+    threshMaxLayout->addWidget(threshMaxBoxWalk);
 
     bottomLayout->addLayout(threshMaxLayout);
 
@@ -2204,20 +2227,20 @@ void HuboWalkWidget::initializeBalParamTab()
     straightenPLab->setText("IMU Offset Gain P:");
     straightenPLab->setToolTip("Gain for keeping torso upright (Front/Back)");
     straightenPLayout->addWidget(straightenPLab);
-    straightenPBoxL = new QDoubleSpinBox;
-    straightenPBoxL->setDecimals(4);
-    straightenPBoxL->setSingleStep(1);
-    straightenPBoxL->setMinimum(-99999);
-    straightenPBoxL->setMaximum(99999);
-    straightenPBoxL->setValue(0.055);
-    straightenPLayout->addWidget(straightenPBoxL);
-    straightenPBoxR = new QDoubleSpinBox;
-    straightenPBoxR->setDecimals(4);
-    straightenPBoxR->setSingleStep(1);
-    straightenPBoxR->setMinimum(-99999);
-    straightenPBoxR->setMaximum(99999);
-    straightenPBoxR->setValue(0.055);
-    straightenPLayout->addWidget(straightenPBoxR);
+    straightenPBoxBal = new QDoubleSpinBox;
+    straightenPBoxBal->setDecimals(4);
+    straightenPBoxBal->setSingleStep(1);
+    straightenPBoxBal->setMinimum(-99999);
+    straightenPBoxBal->setMaximum(99999);
+    straightenPBoxBal->setValue(0.055);
+    straightenPLayout->addWidget(straightenPBoxBal);
+    straightenPBoxWalk = new QDoubleSpinBox;
+    straightenPBoxWalk->setDecimals(4);
+    straightenPBoxWalk->setSingleStep(1);
+    straightenPBoxWalk->setMinimum(-99999);
+    straightenPBoxWalk->setMaximum(99999);
+    straightenPBoxWalk->setValue(0.055);
+    straightenPLayout->addWidget(straightenPBoxWalk);
 
     bottomLayout->addLayout(straightenPLayout);
 
@@ -2226,20 +2249,20 @@ void HuboWalkWidget::initializeBalParamTab()
     straightenRLab->setText("IMU Offset Gain R:");
     straightenRLab->setToolTip("Gain for keeping torso upright (Left/Right)");
     straightenRLayout->addWidget(straightenRLab);
-    straightenRBoxL = new QDoubleSpinBox;
-    straightenRBoxL->setDecimals(4);
-    straightenRBoxL->setSingleStep(1);
-    straightenRBoxL->setMinimum(-99999);
-    straightenRBoxL->setMaximum(99999);
-    straightenRBoxL->setValue(0);
-    straightenRLayout->addWidget(straightenRBoxL);
-    straightenRBoxR = new QDoubleSpinBox;
-    straightenRBoxR->setDecimals(4);
-    straightenRBoxR->setSingleStep(1);
-    straightenRBoxR->setMinimum(-99999);
-    straightenRBoxR->setMaximum(99999);
-    straightenRBoxR->setValue(0);
-    straightenRLayout->addWidget(straightenRBoxR);
+    straightenRBoxBal = new QDoubleSpinBox;
+    straightenRBoxBal->setDecimals(4);
+    straightenRBoxBal->setSingleStep(1);
+    straightenRBoxBal->setMinimum(-99999);
+    straightenRBoxBal->setMaximum(99999);
+    straightenRBoxBal->setValue(0);
+    straightenRLayout->addWidget(straightenRBoxBal);
+    straightenRBoxWalk = new QDoubleSpinBox;
+    straightenRBoxWalk->setDecimals(4);
+    straightenRBoxWalk->setSingleStep(1);
+    straightenRBoxWalk->setMinimum(-99999);
+    straightenRBoxWalk->setMaximum(99999);
+    straightenRBoxWalk->setValue(0);
+    straightenRLayout->addWidget(straightenRBoxWalk);
 
     bottomLayout->addLayout(straightenRLayout);
 
@@ -2248,20 +2271,20 @@ void HuboWalkWidget::initializeBalParamTab()
     springLab->setText("Squat Velocity Gain:");
     springLab->setToolTip("Gain for the speed of squatting up and down");
     springLayout->addWidget(springLab);
-    springBoxL = new QDoubleSpinBox;
-    springBoxL->setDecimals(4);
-    springBoxL->setSingleStep(1);
-    springBoxL->setMinimum(-99999);
-    springBoxL->setMaximum(99999);
-    springBoxL->setValue(0.2);
-    springLayout->addWidget(springBoxL);
-    springBoxR = new QDoubleSpinBox;
-    springBoxR->setDecimals(4);
-    springBoxR->setSingleStep(1);
-    springBoxR->setMinimum(-99999);
-    springBoxR->setMaximum(99999);
-    springBoxR->setValue(0.2);
-    springLayout->addWidget(springBoxR);
+    springBoxBal = new QDoubleSpinBox;
+    springBoxBal->setDecimals(4);
+    springBoxBal->setSingleStep(1);
+    springBoxBal->setMinimum(-99999);
+    springBoxBal->setMaximum(99999);
+    springBoxBal->setValue(0.2);
+    springLayout->addWidget(springBoxBal);
+    springBoxWalk = new QDoubleSpinBox;
+    springBoxWalk->setDecimals(4);
+    springBoxWalk->setSingleStep(1);
+    springBoxWalk->setMinimum(-99999);
+    springBoxWalk->setMaximum(99999);
+    springBoxWalk->setValue(0.2);
+    springLayout->addWidget(springBoxWalk);
 
     bottomLayout->addLayout(springLayout);
 
@@ -2270,20 +2293,20 @@ void HuboWalkWidget::initializeBalParamTab()
     dampLab->setText("Damping Gain:");
     dampLab->setToolTip("Damping gain for complying the knees");
     dampLayout->addWidget(dampLab);
-    dampBoxL = new QDoubleSpinBox;
-    dampBoxL->setDecimals(4);
-    dampBoxL->setSingleStep(1);
-    dampBoxL->setMinimum(-99999);
-    dampBoxL->setMaximum(99999);
-    dampBoxL->setValue(0);
-    dampLayout->addWidget(dampBoxL);
-    dampBoxR = new QDoubleSpinBox;
-    dampBoxR->setDecimals(4);
-    dampBoxR->setSingleStep(1);
-    dampBoxR->setMinimum(-99999);
-    dampBoxR->setMaximum(99999);
-    dampBoxR->setValue(0);
-    dampLayout->addWidget(dampBoxR);
+    dampBoxBal = new QDoubleSpinBox;
+    dampBoxBal->setDecimals(4);
+    dampBoxBal->setSingleStep(1);
+    dampBoxBal->setMinimum(-99999);
+    dampBoxBal->setMaximum(99999);
+    dampBoxBal->setValue(0);
+    dampLayout->addWidget(dampBoxBal);
+    dampBoxWalk = new QDoubleSpinBox;
+    dampBoxWalk->setDecimals(4);
+    dampBoxWalk->setSingleStep(1);
+    dampBoxWalk->setMinimum(-99999);
+    dampBoxWalk->setMaximum(99999);
+    dampBoxWalk->setValue(0);
+    dampLayout->addWidget(dampBoxWalk);
 
     bottomLayout->addLayout(dampLayout);
 
@@ -2292,20 +2315,20 @@ void HuboWalkWidget::initializeBalParamTab()
     responseLab->setText("Response Gain:");
     responseLab->setToolTip("Knee response based on Fz in feet");
     responseLayout->addWidget(responseLab);
-    responseBoxL = new QDoubleSpinBox;
-    responseBoxL->setDecimals(4);
-    responseBoxL->setSingleStep(1);
-    responseBoxL->setMinimum(-99999);
-    responseBoxL->setMaximum(99999);
-    responseBoxL->setValue(0);
-    responseLayout->addWidget(responseBoxL);
-    responseBoxR = new QDoubleSpinBox;
-    responseBoxR->setDecimals(4);
-    responseBoxR->setSingleStep(1);
-    responseBoxR->setMinimum(-99999);
-    responseBoxR->setMaximum(99999);
-    responseBoxR->setValue(0);
-    responseLayout->addWidget(responseBoxR);
+    responseBoxBal = new QDoubleSpinBox;
+    responseBoxBal->setDecimals(4);
+    responseBoxBal->setSingleStep(1);
+    responseBoxBal->setMinimum(-99999);
+    responseBoxBal->setMaximum(99999);
+    responseBoxBal->setValue(0);
+    responseLayout->addWidget(responseBoxBal);
+    responseBoxWalk = new QDoubleSpinBox;
+    responseBoxWalk->setDecimals(4);
+    responseBoxWalk->setSingleStep(1);
+    responseBoxWalk->setMinimum(-99999);
+    responseBoxWalk->setMaximum(99999);
+    responseBoxWalk->setValue(0);
+    responseLayout->addWidget(responseBoxWalk);
 
     bottomLayout->addLayout(responseLayout);
 

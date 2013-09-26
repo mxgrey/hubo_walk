@@ -121,7 +121,7 @@ class BalProfile
 {
 public:
     QString name;
-    balance_gains_t vals;
+    balance_params_t vals;
 };
 
 // Here we declare our new subclass of rviz::Panel.  Every panel which
@@ -184,7 +184,7 @@ public:
   struct zmp_state zmpState;
   walkMode_t walkMode;
 #endif // HAVE_HUBOMZ
-  struct balance_gains balParams;
+  struct balance_params balParams;
   struct balance_cmd balCmd;
   
   
@@ -198,7 +198,7 @@ public:
   void updateProfileBox();
   void updateQuadrupedProfileBox();
   QVector<BalProfile> balProfiles;
-  void fillbalProfile(balance_gains_t &vals);
+  void fillbalProfile(balance_params_t &vals);
   void updatebalProfileBox();
   
   QWidget* commandTab;
@@ -341,26 +341,27 @@ public:
       QPushButton* saveAsbalProfile;
       QLineEdit* balSaveAsEdit;
 
-      QDoubleSpinBox* flattenBoxL;
-      QDoubleSpinBox* flattenBoxR;
-      QDoubleSpinBox* decayBox;
-      QDoubleSpinBox* threshMinBoxL;
-      QDoubleSpinBox* threshMinBoxR;
-      QDoubleSpinBox* threshMaxBoxL;
-      QDoubleSpinBox* threshMaxBoxR;
+      QDoubleSpinBox* flattenBoxBal;
+      QDoubleSpinBox* flattenBoxWalk;
+      QDoubleSpinBox* decayBoxBal;
+      QDoubleSpinBox* decayBoxWalk;
+      QDoubleSpinBox* threshMinBoxBal;
+      QDoubleSpinBox* threshMinBoxWalk;
+      QDoubleSpinBox* threshMaxBoxBal;
+      QDoubleSpinBox* threshMaxBoxWalk;
 
-      QDoubleSpinBox* straightenPBoxL;
-      QDoubleSpinBox* straightenPBoxR;
+      QDoubleSpinBox* straightenPBoxBal;
+      QDoubleSpinBox* straightenPBoxWalk;
 
-      QDoubleSpinBox* straightenRBoxL;
-      QDoubleSpinBox* straightenRBoxR;
+      QDoubleSpinBox* straightenRBoxBal;
+      QDoubleSpinBox* straightenRBoxWalk;
 
-      QDoubleSpinBox* springBoxL;
-      QDoubleSpinBox* springBoxR;
-      QDoubleSpinBox* dampBoxL;
-      QDoubleSpinBox* dampBoxR;
-      QDoubleSpinBox* responseBoxL;
-      QDoubleSpinBox* responseBoxR;
+      QDoubleSpinBox* springBoxBal;
+      QDoubleSpinBox* springBoxWalk;
+      QDoubleSpinBox* dampBoxBal;
+      QDoubleSpinBox* dampBoxWalk;
+      QDoubleSpinBox* responseBoxBal;
+      QDoubleSpinBox* responseBoxWalk;
 
       // Gains for nudging the hips using the F/T sensors.
       // Different gains for single and double support.

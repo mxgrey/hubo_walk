@@ -417,30 +417,34 @@ void HuboWalkWidget::updateQuadrupedProfileBox()
 
 ///////////// BALANCE
 
-void HuboWalkWidget::fillbalProfile(balance_gains_t &vals)
+void HuboWalkWidget::fillbalProfile(balance_params_t &vals)
 {
-    vals.flattening_gain[LEFT] = flattenBoxL->value();
-    vals.flattening_gain[RIGHT] = flattenBoxR->value() ;
-    vals.decay_gain[LEFT] = decayBox->value() ;
-    vals.decay_gain[RIGHT] = decayBox->value() ;
-    vals.force_min_threshold[LEFT] = threshMinBoxL->value();
-    vals.force_min_threshold[RIGHT] = threshMinBoxR->value();
-    vals.force_max_threshold[LEFT] = threshMaxBoxL->value();
-    vals.force_max_threshold[RIGHT] = threshMaxBoxR->value();
-    vals.straightening_pitch_gain[LEFT] = straightenPBoxL->value() ;
-    vals.straightening_pitch_gain[RIGHT] = straightenPBoxR->value() ;
-    vals.straightening_roll_gain[LEFT] = straightenRBoxL->value() ;
-    vals.straightening_roll_gain[RIGHT] = straightenRBoxR->value() ;
-    vals.spring_gain[LEFT] = springBoxL->value() ;
-    vals.spring_gain[RIGHT] = springBoxR->value() ;
-    vals.damping_gain[LEFT] = dampBoxL->value() ;
-    vals.damping_gain[RIGHT] = dampBoxR->value() ;
-    vals.fz_response[LEFT] = responseBoxL->value() ;
-    vals.fz_response[RIGHT] = responseBoxR->value() ;
-    vals.single_support_hip_nudge_kp = singleSupportHipNudgeGainBoxP->value();
-    vals.single_support_hip_nudge_kd = singleSupportHipNudgeGainBoxD->value();
-    vals.double_support_hip_nudge_kp = doubleSupportHipNudgeGainBoxP->value();
-    vals.double_support_hip_nudge_kd = doubleSupportHipNudgeGainBoxD->value();
+    // Fill in balance gains
+    vals.balance_gains.flattening_gain = flattenBoxBal->value();
+    vals.balance_gains.decay_gain = decayBoxBal->value() ;
+    vals.balance_gains.force_min_threshold = threshMinBoxBal->value();
+    vals.balance_gains.force_max_threshold = threshMaxBoxBal->value();
+    vals.balance_gains.straightening_pitch_gain = straightenPBoxBal->value() ;
+    vals.balance_gains.straightening_roll_gain = straightenRBoxBal->value() ;
+    vals.balance_gains.spring_gain = springBoxBal->value() ;
+    vals.balance_gains.damping_gain = dampBoxBal->value() ;
+    vals.balance_gains.fz_response = responseBoxBal->value() ;
+    vals.balance_gains.single_support_hip_nudge_kp = singleSupportHipNudgeGainBoxP->value();
+    vals.balance_gains.single_support_hip_nudge_kd = singleSupportHipNudgeGainBoxD->value();
+    vals.balance_gains.double_support_hip_nudge_kp = doubleSupportHipNudgeGainBoxP->value();
+    vals.balance_gains.double_support_hip_nudge_kd = doubleSupportHipNudgeGainBoxD->value();
+
+    // Fill in walking gains
+    vals.walking_gains.flattening_gain = flattenBoxWalk->value() ;
+    vals.walking_gains.decay_gain = decayBoxWalk->value() ;
+    vals.walking_gains.force_min_threshold = threshMinBoxWalk->value();
+    vals.walking_gains.force_max_threshold = threshMaxBoxWalk->value();
+    vals.walking_gains.straightening_pitch_gain = straightenPBoxWalk->value() ;
+    vals.walking_gains.straightening_roll_gain = straightenRBoxWalk->value() ;
+    vals.walking_gains.spring_gain = springBoxWalk->value() ;
+    vals.walking_gains.damping_gain = dampBoxWalk->value() ;
+    vals.walking_gains.fz_response = responseBoxWalk->value() ;
+
 }
 
 void HuboWalkWidget::handlebalProfileSave()
@@ -454,27 +458,31 @@ void HuboWalkWidget::handlebalProfileSave()
 
 void HuboWalkWidget::handlebalProfileSelect(int index)
 {
-    flattenBoxL->setValue( balProfiles[index].vals.flattening_gain[LEFT] );
-    flattenBoxR->setValue( balProfiles[index].vals.flattening_gain[RIGHT] );
-    decayBox->setValue( balProfiles[index].vals.decay_gain[LEFT] );
-    threshMinBoxL->setValue( balProfiles[index].vals.force_min_threshold[LEFT] );
-    threshMinBoxR->setValue( balProfiles[index].vals.force_min_threshold[RIGHT] );
-    threshMaxBoxL->setValue( balProfiles[index].vals.force_max_threshold[LEFT] );
-    threshMaxBoxR->setValue( balProfiles[index].vals.force_max_threshold[RIGHT] );
-    straightenPBoxL->setValue( balProfiles[index].vals.straightening_pitch_gain[LEFT] );
-    straightenPBoxR->setValue( balProfiles[index].vals.straightening_pitch_gain[RIGHT] );
-    straightenRBoxL->setValue( balProfiles[index].vals.straightening_roll_gain[LEFT] );
-    straightenRBoxR->setValue( balProfiles[index].vals.straightening_roll_gain[RIGHT] );
-    springBoxL->setValue( balProfiles[index].vals.spring_gain[LEFT] );
-    springBoxR->setValue( balProfiles[index].vals.spring_gain[RIGHT] );
-    dampBoxL->setValue( balProfiles[index].vals.damping_gain[LEFT] );
-    dampBoxR->setValue( balProfiles[index].vals.damping_gain[RIGHT] );
-    responseBoxL->setValue( balProfiles[index].vals.fz_response[LEFT] );
-    responseBoxR->setValue( balProfiles[index].vals.fz_response[RIGHT] );
-    singleSupportHipNudgeGainBoxP->setValue( balProfiles[index].vals.single_support_hip_nudge_kp );
-    singleSupportHipNudgeGainBoxD->setValue( balProfiles[index].vals.single_support_hip_nudge_kd );
-    doubleSupportHipNudgeGainBoxP->setValue( balProfiles[index].vals.double_support_hip_nudge_kp );
-    doubleSupportHipNudgeGainBoxD->setValue( balProfiles[index].vals.double_support_hip_nudge_kd );
+    // Set balance gains
+    flattenBoxBal->setValue( balProfiles[index].vals.balance_gains.flattening_gain );
+    decayBoxBal->setValue( balProfiles[index].vals.balance_gains.decay_gain );
+    threshMinBoxBal->setValue( balProfiles[index].vals.balance_gains.force_min_threshold );
+    threshMaxBoxBal->setValue( balProfiles[index].vals.balance_gains.force_max_threshold );
+    straightenPBoxBal->setValue( balProfiles[index].vals.balance_gains.straightening_pitch_gain );
+    straightenRBoxBal->setValue( balProfiles[index].vals.balance_gains.straightening_roll_gain );
+    springBoxBal->setValue( balProfiles[index].vals.balance_gains.spring_gain );
+    dampBoxBal->setValue( balProfiles[index].vals.balance_gains.damping_gain );
+    responseBoxBal->setValue( balProfiles[index].vals.balance_gains.fz_response );
+    singleSupportHipNudgeGainBoxP->setValue( balProfiles[index].vals.balance_gains.single_support_hip_nudge_kp );
+    singleSupportHipNudgeGainBoxD->setValue( balProfiles[index].vals.balance_gains.single_support_hip_nudge_kd );
+    doubleSupportHipNudgeGainBoxP->setValue( balProfiles[index].vals.balance_gains.double_support_hip_nudge_kp );
+    doubleSupportHipNudgeGainBoxD->setValue( balProfiles[index].vals.balance_gains.double_support_hip_nudge_kd );
+
+    // Set walking gains
+    flattenBoxWalk->setValue( balProfiles[index].vals.walking_gains.flattening_gain );
+    threshMinBoxWalk->setValue( balProfiles[index].vals.walking_gains.force_min_threshold );
+    threshMaxBoxWalk->setValue( balProfiles[index].vals.walking_gains.force_max_threshold );
+    straightenPBoxWalk->setValue( balProfiles[index].vals.walking_gains.straightening_pitch_gain );
+    straightenRBoxWalk->setValue( balProfiles[index].vals.walking_gains.straightening_roll_gain );
+    springBoxWalk->setValue( balProfiles[index].vals.walking_gains.spring_gain );
+    dampBoxWalk->setValue( balProfiles[index].vals.walking_gains.damping_gain );
+    responseBoxWalk->setValue( balProfiles[index].vals.walking_gains.fz_response );
+
     balSaveAsEdit->clear();
 }
 
