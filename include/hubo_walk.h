@@ -261,6 +261,7 @@ public:
       
       QDoubleSpinBox* xOffsetBox;
       QDoubleSpinBox* yOffsetBox;
+      QDoubleSpinBox* zmpDistGainBox;
       QDoubleSpinBox* jerkPenalBox;
       double penalFactor;
       QDoubleSpinBox* lookAheadBox;
@@ -283,6 +284,9 @@ public:
       QDoubleSpinBox* comHeightBox;
 	  QDoubleSpinBox* torsoPitchBox;
       QDoubleSpinBox* comIKAngleWeightBox;
+      QDoubleSpinBox* fixed_com_offset_xBox;
+      QDoubleSpinBox* fixed_com_offset_yBox;
+      QDoubleSpinBox* fixed_com_offset_zBox;
       QCheckBox* constantBodyZBox;
 
     ///////////////
@@ -300,6 +304,7 @@ public:
       
       QDoubleSpinBox* xOffsetBoxQuad;
       QDoubleSpinBox* yOffsetBoxQuad;
+      QDoubleSpinBox* zmpDistGainBoxQuad;
       QDoubleSpinBox* jerkPenalBoxQuad;
       double penalFactorQuad;
       QDoubleSpinBox* lookAheadBoxQuad;
@@ -325,6 +330,9 @@ public:
       QDoubleSpinBox* comHeightBoxQuad;
 	  QDoubleSpinBox* torsoPitchBoxQuad;
       QDoubleSpinBox* comIKAngleWeightBoxQuad;
+      QDoubleSpinBox* fixed_com_offset_xBoxQuad;
+      QDoubleSpinBox* fixed_com_offset_yBoxQuad;
+      QDoubleSpinBox* fixed_com_offset_zBoxQuad;
       QCheckBox* constantBodyZBoxQuad;
     //////////
 

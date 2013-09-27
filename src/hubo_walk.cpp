@@ -117,12 +117,24 @@ void HuboWalkPanel::load(const rviz::Config &config)
             p_config.mapGetValue("com_ik_angle_weight"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.com_ik_angle_weight = temp.toDouble();
+            p_config.mapGetValue("fixed_com_offset_x"+QString::number(i),
+                                 &temp);
+            content->zmpProfiles[i].vals.params.fixed_com_offset_x = temp.toDouble();
+            p_config.mapGetValue("fixed_com_offset_y"+QString::number(i),
+                                 &temp);
+            content->zmpProfiles[i].vals.params.fixed_com_offset_y = temp.toDouble();
+            p_config.mapGetValue("fixed_com_offset_z"+QString::number(i),
+                                 &temp);
+            content->zmpProfiles[i].vals.params.fixed_com_offset_z = temp.toDouble();
             p_config.mapGetValue("zmpoff_y"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.zmpoff_y = temp.toDouble();
             p_config.mapGetValue("zmpoff_x"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.zmpoff_x = temp.toDouble();
+            p_config.mapGetValue("zmp_dist_gain"+QString::number(i),
+                                 &temp);
+            content->zmpProfiles[i].vals.params.zmp_dist_gain = temp.toDouble();
             p_config.mapGetValue("lookahead_time"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.lookahead_time = temp.toDouble();
@@ -210,12 +222,24 @@ void HuboWalkPanel::load(const rviz::Config &config)
             pQuad_config.mapGetValue("com_ik_angle_weight"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.com_ik_angle_weight = temp.toDouble();
+            pQuad_config.mapGetValue("fixed_com_offset_x"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.fixed_com_offset_x = temp.toDouble();
+            pQuad_config.mapGetValue("fixed_com_offset_y"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.fixed_com_offset_y = temp.toDouble();
+            pQuad_config.mapGetValue("fixed_com_offset_z"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.fixed_com_offset_z = temp.toDouble();
             pQuad_config.mapGetValue("zmpoff_y"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.zmpoff_y = temp.toDouble();
             pQuad_config.mapGetValue("zmpoff_x"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.zmpoff_x = temp.toDouble();
+            pQuad_config.mapGetValue("zmp_dist_gain"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.zmp_dist_gain = temp.toDouble();
             pQuad_config.mapGetValue("lookahead_time"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.lookahead_time = temp.toDouble();
@@ -408,10 +432,18 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpProfiles[i].vals.params.torso_pitch));
         p_config.mapSetValue("com_ik_angle_weight"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.com_ik_angle_weight));
+        p_config.mapSetValue("fixed_com_offset_x"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.params.fixed_com_offset_x));
+        p_config.mapSetValue("fixed_com_offset_y"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.params.fixed_com_offset_y));
+        p_config.mapSetValue("fixed_com_offset_z"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.params.fixed_com_offset_z));
         p_config.mapSetValue("zmpoff_y"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.zmpoff_y));
         p_config.mapSetValue("zmpoff_x"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.zmpoff_x));
+        p_config.mapSetValue("zmp_dist_gain"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.params.zmp_dist_gain));
         p_config.mapSetValue("lookahead_time"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.lookahead_time));
         p_config.mapSetValue("startup_time"+QString::number(i),
@@ -463,10 +495,18 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpQuadProfiles[i].vals.params.torso_pitch));
         pQuad_config.mapSetValue("com_ik_angle_weight"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.com_ik_angle_weight));
+        pQuad_config.mapSetValue("fixed_com_offset_x"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.fixed_com_offset_x));
+        pQuad_config.mapSetValue("fixed_com_offset_y"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.fixed_com_offset_y));
+        pQuad_config.mapSetValue("fixed_com_offset_z"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.fixed_com_offset_z));
         pQuad_config.mapSetValue("zmpoff_y"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.zmpoff_y));
         pQuad_config.mapSetValue("zmpoff_x"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.zmpoff_x));
+        pQuad_config.mapSetValue("zmp_dist_gain"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.zmp_dist_gain));
         pQuad_config.mapSetValue("lookahead_time"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.lookahead_time));
         pQuad_config.mapSetValue("startup_time"+QString::number(i),
@@ -1116,6 +1156,26 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     yoffsetLay->addWidget(yOffsetBox);
     
     zmpSettingsLayout->addLayout(yoffsetLay);
+
+    QHBoxLayout* zmpDistGainLay = new QHBoxLayout;
+    QLabel* zmpDistGainLab = new QLabel;
+    zmpDistGainLab->setText("Distribution Gain:");
+    zmpDistGainLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    zmpDistGainLab->setToolTip("Additional seconds of double support per meter of ZMP motion");
+    zmpDistGainLay->addWidget(zmpDistGainLab);
+
+    zmpDistGainBox = new QDoubleSpinBox;
+    zmpDistGainBox->setSizePolicy(pbsize);
+    zmpDistGainBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    zmpDistGainBox->setToolTip(zmpDistGainLab->toolTip());
+    zmpDistGainBox->setDecimals(4);
+    zmpDistGainBox->setValue(0.00);
+    zmpDistGainBox->setSingleStep(0.5);
+    zmpDistGainBox->setMinimum(0);
+    zmpDistGainBox->setMaximum(20);
+    zmpDistGainLay->addWidget(zmpDistGainBox);
+
+    zmpSettingsLayout->addLayout(zmpDistGainLay);
     
     QHBoxLayout* jerkLayout = new QHBoxLayout;
     QLabel* jerkPenaltyLab = new QLabel;
@@ -1481,6 +1541,48 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     comIKAngleWeightLay->addWidget(comIKAngleWeightBox);
     
     comSettingsLayout->addLayout(comIKAngleWeightLay);
+
+    QHBoxLayout* fixed_com_offset_xLay = new QHBoxLayout;
+    QLabel* fixed_com_offset_xLab = new QLabel;
+    fixed_com_offset_xLab->setText("Fixed COM Offset:");
+    fixed_com_offset_xLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    fixed_com_offset_xLab->setToolTip("Offset of fixed COM from trunk (m).");
+    fixed_com_offset_xLay->addWidget(fixed_com_offset_xLab);
+
+    fixed_com_offset_xBox = new QDoubleSpinBox;
+    fixed_com_offset_xBox->setSizePolicy(pbsize);
+    fixed_com_offset_xBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    fixed_com_offset_xBox->setToolTip(fixed_com_offset_xLab->toolTip());
+    fixed_com_offset_xBox->setDecimals(3);
+    fixed_com_offset_xBox->setValue(0);
+    fixed_com_offset_xBox->setSingleStep(0.01);
+    fixed_com_offset_xBox->setMinimum(0);
+    fixed_com_offset_xBox->setMaximum(5);
+    fixed_com_offset_xLay->addWidget(fixed_com_offset_xBox);
+
+    fixed_com_offset_yBox = new QDoubleSpinBox;
+    fixed_com_offset_yBox->setSizePolicy(pbsize);
+    fixed_com_offset_yBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    fixed_com_offset_yBox->setToolTip(fixed_com_offset_xLab->toolTip());
+    fixed_com_offset_yBox->setDecimals(3);
+    fixed_com_offset_yBox->setValue(0);
+    fixed_com_offset_yBox->setSingleStep(0.01);
+    fixed_com_offset_yBox->setMinimum(0);
+    fixed_com_offset_yBox->setMaximum(5);
+    fixed_com_offset_xLay->addWidget(fixed_com_offset_yBox);
+
+    fixed_com_offset_zBox = new QDoubleSpinBox;
+    fixed_com_offset_zBox->setSizePolicy(pbsize);
+    fixed_com_offset_zBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    fixed_com_offset_zBox->setToolTip(fixed_com_offset_xLab->toolTip());
+    fixed_com_offset_zBox->setDecimals(3);
+    fixed_com_offset_zBox->setValue(0);
+    fixed_com_offset_zBox->setSingleStep(0.01);
+    fixed_com_offset_zBox->setMinimum(0);
+    fixed_com_offset_zBox->setMaximum(5);
+    fixed_com_offset_xLay->addWidget(fixed_com_offset_zBox);
+
+    comSettingsLayout->addLayout(fixed_com_offset_xLay);
     
     // Constant Body Z
     constantBodyZBox = new QCheckBox;
@@ -1610,7 +1712,27 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     yoffsetLay->addWidget(yOffsetBoxQuad);
     
     zmpSettingsLayout->addLayout(yoffsetLay);
-    
+
+    QHBoxLayout* zmpDistGainLay = new QHBoxLayout;
+    QLabel* zmpDistGainLab = new QLabel;
+    zmpDistGainLab->setText("Distribution Gain:");
+    zmpDistGainLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    zmpDistGainLab->setToolTip("How far in y should the ZMP be offset from the ankle joint?");
+    zmpDistGainLay->addWidget(zmpDistGainLab);
+
+    zmpDistGainBoxQuad = new QDoubleSpinBox;
+    zmpDistGainBoxQuad->setSizePolicy(pbsize);
+    zmpDistGainBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    zmpDistGainBoxQuad->setToolTip(zmpDistGainLab->toolTip());
+    zmpDistGainBoxQuad->setDecimals(4);
+    zmpDistGainBoxQuad->setValue(0);
+    zmpDistGainBoxQuad->setSingleStep(0.5);
+    zmpDistGainBoxQuad->setMinimum(0);
+    zmpDistGainBoxQuad->setMaximum(20);
+    zmpDistGainLay->addWidget(zmpDistGainBoxQuad);
+
+    zmpSettingsLayout->addLayout(zmpDistGainLay);
+
     QHBoxLayout* jerkLayout = new QHBoxLayout;
     QLabel* jerkPenaltyLab = new QLabel;
     jerkPenaltyLab->setText("Jerk Penalty:");
@@ -2039,6 +2161,48 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     
     comSettingsLayout->addLayout(comIKAngleWeightLay);
 
+    QHBoxLayout* fixed_com_offset_xLay = new QHBoxLayout;
+    QLabel* fixed_com_offset_xLab = new QLabel;
+    fixed_com_offset_xLab->setText("Fixed COM Offset X:");
+    fixed_com_offset_xLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    fixed_com_offset_xLab->setToolTip("Offset of fixed COM from trunk (m).");
+    fixed_com_offset_xLay->addWidget(fixed_com_offset_xLab);
+
+    fixed_com_offset_xBoxQuad = new QDoubleSpinBox;
+    fixed_com_offset_xBoxQuad->setSizePolicy(pbsize);
+    fixed_com_offset_xBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    fixed_com_offset_xBoxQuad->setToolTip(fixed_com_offset_xLab->toolTip());
+    fixed_com_offset_xBoxQuad->setDecimals(3);
+    fixed_com_offset_xBoxQuad->setValue(0);
+    fixed_com_offset_xBoxQuad->setSingleStep(0.01);
+    fixed_com_offset_xBoxQuad->setMinimum(0);
+    fixed_com_offset_xBoxQuad->setMaximum(5);
+    fixed_com_offset_xLay->addWidget(fixed_com_offset_xBoxQuad);
+
+    fixed_com_offset_yBoxQuad = new QDoubleSpinBox;
+    fixed_com_offset_yBoxQuad->setSizePolicy(pbsize);
+    fixed_com_offset_yBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    fixed_com_offset_yBoxQuad->setToolTip(fixed_com_offset_xLab->toolTip());
+    fixed_com_offset_yBoxQuad->setDecimals(3);
+    fixed_com_offset_yBoxQuad->setValue(0);
+    fixed_com_offset_yBoxQuad->setSingleStep(0.01);
+    fixed_com_offset_yBoxQuad->setMinimum(0);
+    fixed_com_offset_yBoxQuad->setMaximum(5);
+    fixed_com_offset_xLay->addWidget(fixed_com_offset_yBoxQuad);
+
+    fixed_com_offset_zBoxQuad = new QDoubleSpinBox;
+    fixed_com_offset_zBoxQuad->setSizePolicy(pbsize);
+    fixed_com_offset_zBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    fixed_com_offset_zBoxQuad->setToolTip(fixed_com_offset_xLab->toolTip());
+    fixed_com_offset_zBoxQuad->setDecimals(3);
+    fixed_com_offset_zBoxQuad->setValue(0);
+    fixed_com_offset_zBoxQuad->setSingleStep(0.01);
+    fixed_com_offset_zBoxQuad->setMinimum(0);
+    fixed_com_offset_zBoxQuad->setMaximum(5);
+    fixed_com_offset_xLay->addWidget(fixed_com_offset_zBoxQuad);
+
+    comSettingsLayout->addLayout(fixed_com_offset_xLay);
+
     // Constant Body Z
     constantBodyZBoxQuad = new QCheckBox;
     constantBodyZBoxQuad->setText("Constant Body Z");
@@ -2127,13 +2291,13 @@ void HuboWalkWidget::initializeBalParamTab()
     QHBoxLayout* gainsLabelLayout = new QHBoxLayout;
     QLabel* gainTypeLab = new QLabel;
     gainTypeLab->setText("<u><b>Gain Type</b></u>");
-    gainsLabelLayout->addWidget(gainTypeLab, Qt::AlignBottom | Qt::AlignCenter);
+    gainsLabelLayout->addWidget(gainTypeLab);
     QLabel* balGainsLab = new QLabel;
     balGainsLab->setText("<u><b>Balance Gains<\b></u>");
-    gainsLabelLayout->addWidget(balGainsLab, Qt::AlignBottom | Qt::AlignCenter);
+    gainsLabelLayout->addWidget(balGainsLab);
     QLabel* walkGainsLab = new QLabel;
     walkGainsLab->setText("<u><b>Walking Gains</b></u>");
-    gainsLabelLayout->addWidget(walkGainsLab, Qt::AlignBottom | Qt::AlignCenter);
+    gainsLabelLayout->addWidget(walkGainsLab);
     bottomLayout->addLayout(gainsLabelLayout);
 
     QHBoxLayout* flatLayout = new QHBoxLayout;
@@ -2240,7 +2404,7 @@ void HuboWalkWidget::initializeBalParamTab()
     straightenPBoxWalk->setSingleStep(1);
     straightenPBoxWalk->setMinimum(-99999);
     straightenPBoxWalk->setMaximum(99999);
-    straightenPBoxWalk->setValue(0.055);
+    straightenPBoxWalk->setValue(0.0);
     straightenPLayout->addWidget(straightenPBoxWalk);
 
     bottomLayout->addLayout(straightenPLayout);
@@ -2269,8 +2433,8 @@ void HuboWalkWidget::initializeBalParamTab()
 
     QHBoxLayout* springLayout = new QHBoxLayout;
     QLabel* springLab = new QLabel;
-    springLab->setText("Squat Velocity Gain:");
-    springLab->setToolTip("Gain for the speed of squatting up and down");
+    springLab->setText("Spring Gain:");
+    springLab->setToolTip("Gain for the speed of squatting up and down | Spring constant");
     springLayout->addWidget(springLab);
     springBoxBal = new QDoubleSpinBox;
     springBoxBal->setDecimals(4);
@@ -2284,7 +2448,7 @@ void HuboWalkWidget::initializeBalParamTab()
     springBoxWalk->setSingleStep(1);
     springBoxWalk->setMinimum(-99999);
     springBoxWalk->setMaximum(99999);
-    springBoxWalk->setValue(0.2);
+    springBoxWalk->setValue(0.0);
     springLayout->addWidget(springBoxWalk);
 
     bottomLayout->addLayout(springLayout);
@@ -2292,7 +2456,7 @@ void HuboWalkWidget::initializeBalParamTab()
     QHBoxLayout* dampLayout = new QHBoxLayout;
     QLabel* dampLab = new QLabel;
     dampLab->setText("Damping Gain:");
-    dampLab->setToolTip("Damping gain for complying the knees");
+    dampLab->setToolTip("Damping gain for complying the knees | Damping constant");
     dampLayout->addWidget(dampLab);
     dampBoxBal = new QDoubleSpinBox;
     dampBoxBal->setDecimals(4);
@@ -2313,8 +2477,8 @@ void HuboWalkWidget::initializeBalParamTab()
 
     QHBoxLayout* responseLayout = new QHBoxLayout;
     QLabel* responseLab = new QLabel;
-    responseLab->setText("Response Gain:");
-    responseLab->setToolTip("Knee response based on Fz in feet");
+    responseLab->setText("Mass Gain:");
+    responseLab->setToolTip("Knee response based on Fz in feet | Mass constant");
     responseLayout->addWidget(responseLab);
     responseBoxBal = new QDoubleSpinBox;
     responseBoxBal->setDecimals(4);
