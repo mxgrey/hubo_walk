@@ -1105,7 +1105,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     yOffsetBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     yOffsetBox->setToolTip(yoffsetLab->toolTip());
     yOffsetBox->setDecimals(4);
-    yOffsetBox->setValue(0);
+    yOffsetBox->setValue(0.010);
     yOffsetBox->setSingleStep(0.01);
     yOffsetBox->setMinimum(-10);
     yOffsetBox->setMaximum(10);
@@ -1201,7 +1201,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     shutdownTimeBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     shutdownTimeBox->setToolTip(shutdownTimeLab->toolTip());
     shutdownTimeBox->setDecimals(3);
-    shutdownTimeBox->setValue(1.8);
+    shutdownTimeBox->setValue(1.0);
     shutdownTimeBox->setSingleStep(0.01);
     shutdownTimeBox->setMinimum(0);
     shutdownTimeBox->setMaximum(1000);
@@ -1223,7 +1223,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     doubleSupportBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     doubleSupportBox->setToolTip(doubleSupTimeLab->toolTip());
     doubleSupportBox->setDecimals(3);
-    doubleSupportBox->setValue(2.5);
+    doubleSupportBox->setValue(0.1);
     doubleSupportBox->setSingleStep(0.01);
     doubleSupportBox->setMinimum(0);
     doubleSupportBox->setMaximum(1000);
@@ -1245,7 +1245,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     singleSupportBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     singleSupportBox->setToolTip(singleSupTimeLab->toolTip());
     singleSupportBox->setDecimals(3);
-    singleSupportBox->setValue(1.0);
+    singleSupportBox->setValue(0.8);
     singleSupportBox->setSingleStep(0.01);
     singleSupportBox->setMinimum(0);
     singleSupportBox->setMaximum(1000);
@@ -1266,7 +1266,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     pauseTimeBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     pauseTimeBox->setToolTip(pauseTimeLab->toolTip());
     pauseTimeBox->setDecimals(2);
-    pauseTimeBox->setValue(0.30);
+    pauseTimeBox->setValue(0.0);
     pauseTimeBox->setSingleStep(0.1);
     pauseTimeBox->setMinimum(0);
     pauseTimeBox->setMaximum(50);
@@ -1375,7 +1375,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     sideStepDistanceBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     sideStepDistanceBox->setToolTip(sideStepDistanceLab->toolTip());
     sideStepDistanceBox->setDecimals(4);
-    sideStepDistanceBox->setValue(0.04);
+    sideStepDistanceBox->setValue(0.03);
     sideStepDistanceBox->setSingleStep(0.01);
     sideStepDistanceBox->setMinimum(0);
     sideStepDistanceBox->setMaximum(5);
@@ -1428,7 +1428,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     comHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     comHeightBox->setToolTip(comHeightLab->toolTip());
     comHeightBox->setDecimals(3);
-    comHeightBox->setValue(0.48);
+    comHeightBox->setValue(0.84);
     comHeightBox->setSingleStep(0.01);
     comHeightBox->setMinimum(0);
     comHeightBox->setMaximum(5);
@@ -2344,7 +2344,7 @@ void HuboWalkWidget::initializeBalParamTab()
     doubleSupportHipNudgeGainBoxP->setSingleStep(0.01);
     doubleSupportHipNudgeGainBoxP->setMinimum(0);
     doubleSupportHipNudgeGainBoxP->setMaximum(10);
-    doubleSupportHipNudgeGainBoxP->setValue(0);
+    doubleSupportHipNudgeGainBoxP->setValue(0.0005);
     doubleSupportHipNudgeGainLayout->addWidget(doubleSupportHipNudgeGainBoxP);
     doubleSupportHipNudgeGainBoxD = new QDoubleSpinBox;
     doubleSupportHipNudgeGainBoxD->setDecimals(4);
