@@ -92,7 +92,7 @@ void HuboWalkPanel::load(const rviz::Config &config)
             content->zmpProfiles[i].name = temp.toString();
             p_config.mapGetValue("max_step_count"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.params.max_step_count = size_t(temp.toDouble());
+            content->zmpProfiles[i].vals.params.max_step_count = temp.toInt();
             p_config.mapGetValue("step_length"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.step_length = temp.toDouble();
@@ -171,7 +171,7 @@ void HuboWalkPanel::load(const rviz::Config &config)
     rviz::Config pQuad_config = config.mapGetChild("zmpQuadProfiles");
     QVariant pNumQuad;
     
-    if( pQuad_config.mapGetValue("ZmpProfileNum", &pNumQuad) )
+    if( pQuad_config.mapGetValue("ZmpQuadProfileNum", &pNumQuad) )
     {
         QVariant selectedProfileQuad;
         config.mapGetValue("SelectedZmpQuadProfile", &selectedProfileQuad);
@@ -180,12 +180,12 @@ void HuboWalkPanel::load(const rviz::Config &config)
         for(int i=0; i < int(content->zmpQuadProfiles.size()); i++)
         {
             QVariant temp;
-            pQuad_config.mapGetValue("ZmpProfileName"+QString::number(i),
+            pQuad_config.mapGetValue("ZmpQuadProfileName"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].name = temp.toString();
             pQuad_config.mapGetValue("max_step_count"+QString::number(i),
                                  &temp);
-            content->zmpQuadProfiles[i].vals.params.max_step_count = size_t(temp.toDouble());
+            content->zmpQuadProfiles[i].vals.params.max_step_count = temp.toInt();
             pQuad_config.mapGetValue("step_length"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.step_length = temp.toDouble();
@@ -376,7 +376,7 @@ void HuboWalkPanel::save(rviz::Config config) const
     config.mapSetValue("SelectedZmpQuadProfile", selectedProfileQuad);
 
     rviz::Config p_config = config.mapMakeChild("ZmpProfiles");
-    rviz::Config pQuad_config = config.mapMakeChild("ZmpQuadProfiles");
+    rviz::Config pQuad_config = config.mapMakeChild("zmpQuadProfiles");
 
 #ifdef HAVE_HUBOMZ
     // Biped zmp params tab 
@@ -436,12 +436,12 @@ void HuboWalkPanel::save(rviz::Config config) const
 
     // Quadruped zmp params tab 
     QVariant pNumQuad = QVariant(int(content->zmpQuadProfiles.size()));
-    pQuad_config.mapSetValue("ZmpProfileNum", pNumQuad);
+    pQuad_config.mapSetValue("ZmpQuadProfileNum", pNumQuad);
     
     for(int i=0; i < int(content->zmpQuadProfiles.size()); i++)
     {
         content->zmpQuadProfiles[i].name.replace(" ","_");
-        pQuad_config.mapSetValue("ZmpProfileName"+QString::number(i),
+        pQuad_config.mapSetValue("ZmpQuadProfileName"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].name));
         pQuad_config.mapSetValue("max_step_count"+QString::number(i),
                              QVariant(int(content->zmpQuadProfiles[i].vals.params.max_step_count)));
@@ -593,7 +593,7 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
     handleProfileSaveAs();
     saveAsEdit->setText("Default-Backup");
     handleProfileSaveAs();
-    saveAsEdit->clear();
+    //saveAsEdit->clear();
 
     profileSelect->setCurrentIndex(0);
 
@@ -602,13 +602,14 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
     handleQuadrupedProfileSaveAs();
     saveAsEditQuad->setText("Default-Backup");
     handleQuadrupedProfileSaveAs();
-    saveAsEditQuad->clear();
+    //saveAsEditQuad->clear();
 
     profileSelectQuad->setCurrentIndex(0);
 
     // Add tabs
     addTab(zmpBipedParamTab, "Biped Params");
     addTab(zmpQuadrupedParamTab, "Quad Params");
+
 #else
     std::cerr << "ZMP Parameters Tabs will NOT be loaded because hubomz is not installed" << std::endl;
 #endif // HAVE_HUBOMZ
@@ -2365,7 +2366,7 @@ void HuboWalkWidget::initializeBalParamTab()
     handlebalProfileSaveAs();
     balSaveAsEdit->setText("Default-Backup");
     handlebalProfileSaveAs();
-    balSaveAsEdit->clear();
+    //balSaveAsEdit->clear();
 
     balProfileSelect->setCurrentIndex(0);
 
