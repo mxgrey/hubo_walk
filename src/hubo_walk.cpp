@@ -92,7 +92,7 @@ void HuboWalkPanel::load(const rviz::Config &config)
             content->zmpProfiles[i].name = temp.toString();
             p_config.mapGetValue("max_step_count"+QString::number(i),
                                  &temp);
-            content->zmpProfiles[i].vals.params.max_step_count = size_t(temp.toDouble());
+            content->zmpProfiles[i].vals.params.max_step_count = temp.toInt();
             p_config.mapGetValue("step_length"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.step_length = temp.toDouble();
@@ -171,7 +171,7 @@ void HuboWalkPanel::load(const rviz::Config &config)
     rviz::Config pQuad_config = config.mapGetChild("zmpQuadProfiles");
     QVariant pNumQuad;
     
-    if( pQuad_config.mapGetValue("ZmpProfileNum", &pNumQuad) )
+    if( pQuad_config.mapGetValue("ZmpQuadProfileNum", &pNumQuad) )
     {
         QVariant selectedProfileQuad;
         config.mapGetValue("SelectedZmpQuadProfile", &selectedProfileQuad);
@@ -180,12 +180,12 @@ void HuboWalkPanel::load(const rviz::Config &config)
         for(int i=0; i < int(content->zmpQuadProfiles.size()); i++)
         {
             QVariant temp;
-            pQuad_config.mapGetValue("ZmpProfileName"+QString::number(i),
+            pQuad_config.mapGetValue("ZmpQuadProfileName"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].name = temp.toString();
             pQuad_config.mapGetValue("max_step_count"+QString::number(i),
                                  &temp);
-            content->zmpQuadProfiles[i].vals.params.max_step_count = size_t(temp.toDouble());
+            content->zmpQuadProfiles[i].vals.params.max_step_count = temp.toInt();
             pQuad_config.mapGetValue("step_length"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.step_length = temp.toDouble();
@@ -378,7 +378,7 @@ void HuboWalkPanel::save(rviz::Config config) const
     config.mapSetValue("SelectedZmpQuadProfile", selectedProfileQuad);
 
     rviz::Config p_config = config.mapMakeChild("ZmpProfiles");
-    rviz::Config pQuad_config = config.mapMakeChild("ZmpQuadProfiles");
+    rviz::Config pQuad_config = config.mapMakeChild("zmpQuadProfiles");
 
 #ifdef HAVE_HUBOMZ
     // Biped zmp params tab 
@@ -438,12 +438,12 @@ void HuboWalkPanel::save(rviz::Config config) const
 
     // Quadruped zmp params tab 
     QVariant pNumQuad = QVariant(int(content->zmpQuadProfiles.size()));
-    pQuad_config.mapSetValue("ZmpProfileNum", pNumQuad);
+    pQuad_config.mapSetValue("ZmpQuadProfileNum", pNumQuad);
     
     for(int i=0; i < int(content->zmpQuadProfiles.size()); i++)
     {
         content->zmpQuadProfiles[i].name.replace(" ","_");
-        pQuad_config.mapSetValue("ZmpProfileName"+QString::number(i),
+        pQuad_config.mapSetValue("ZmpQuadProfileName"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].name));
         pQuad_config.mapSetValue("max_step_count"+QString::number(i),
                              QVariant(int(content->zmpQuadProfiles[i].vals.params.max_step_count)));
@@ -613,6 +613,7 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
     // Add tabs
     addTab(zmpBipedParamTab, "Biped Params");
     addTab(zmpQuadrupedParamTab, "Quad Params");
+
 #else
     std::cerr << "ZMP Parameters Tabs will NOT be loaded because hubomz is not installed" << std::endl;
 #endif // HAVE_HUBOMZ
@@ -1108,7 +1109,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     yOffsetBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     yOffsetBox->setToolTip(yoffsetLab->toolTip());
     yOffsetBox->setDecimals(4);
-    yOffsetBox->setValue(0);
+    yOffsetBox->setValue(0.010);
     yOffsetBox->setSingleStep(0.01);
     yOffsetBox->setMinimum(-10);
     yOffsetBox->setMaximum(10);
@@ -1204,7 +1205,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     shutdownTimeBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     shutdownTimeBox->setToolTip(shutdownTimeLab->toolTip());
     shutdownTimeBox->setDecimals(3);
-    shutdownTimeBox->setValue(1.8);
+    shutdownTimeBox->setValue(1.0);
     shutdownTimeBox->setSingleStep(0.01);
     shutdownTimeBox->setMinimum(0);
     shutdownTimeBox->setMaximum(1000);
@@ -1226,7 +1227,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     doubleSupportBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     doubleSupportBox->setToolTip(doubleSupTimeLab->toolTip());
     doubleSupportBox->setDecimals(3);
-    doubleSupportBox->setValue(2.5);
+    doubleSupportBox->setValue(0.1);
     doubleSupportBox->setSingleStep(0.01);
     doubleSupportBox->setMinimum(0);
     doubleSupportBox->setMaximum(1000);
@@ -1248,7 +1249,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     singleSupportBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     singleSupportBox->setToolTip(singleSupTimeLab->toolTip());
     singleSupportBox->setDecimals(3);
-    singleSupportBox->setValue(1.0);
+    singleSupportBox->setValue(0.8);
     singleSupportBox->setSingleStep(0.01);
     singleSupportBox->setMinimum(0);
     singleSupportBox->setMaximum(1000);
@@ -1269,7 +1270,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     pauseTimeBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     pauseTimeBox->setToolTip(pauseTimeLab->toolTip());
     pauseTimeBox->setDecimals(2);
-    pauseTimeBox->setValue(0.30);
+    pauseTimeBox->setValue(0.0);
     pauseTimeBox->setSingleStep(0.1);
     pauseTimeBox->setMinimum(0);
     pauseTimeBox->setMaximum(50);
@@ -1378,7 +1379,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     sideStepDistanceBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     sideStepDistanceBox->setToolTip(sideStepDistanceLab->toolTip());
     sideStepDistanceBox->setDecimals(4);
-    sideStepDistanceBox->setValue(0.04);
+    sideStepDistanceBox->setValue(0.03);
     sideStepDistanceBox->setSingleStep(0.01);
     sideStepDistanceBox->setMinimum(0);
     sideStepDistanceBox->setMaximum(5);
@@ -1431,7 +1432,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     comHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     comHeightBox->setToolTip(comHeightLab->toolTip());
     comHeightBox->setDecimals(3);
-    comHeightBox->setValue(0.48);
+    comHeightBox->setValue(0.84);
     comHeightBox->setSingleStep(0.01);
     comHeightBox->setMinimum(0);
     comHeightBox->setMaximum(5);
@@ -2366,7 +2367,7 @@ void HuboWalkWidget::initializeBalParamTab()
     doubleSupportHipNudgeGainBoxP->setSingleStep(0.01);
     doubleSupportHipNudgeGainBoxP->setMinimum(0);
     doubleSupportHipNudgeGainBoxP->setMaximum(10);
-    doubleSupportHipNudgeGainBoxP->setValue(0);
+    doubleSupportHipNudgeGainBoxP->setValue(0.0005);
     doubleSupportHipNudgeGainLayout->addWidget(doubleSupportHipNudgeGainBoxP);
     doubleSupportHipNudgeGainBoxD = new QDoubleSpinBox;
     doubleSupportHipNudgeGainBoxD->setDecimals(4);

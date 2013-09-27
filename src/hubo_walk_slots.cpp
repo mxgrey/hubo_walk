@@ -184,7 +184,7 @@ void HuboWalkWidget::sendCommand()
             std::cout << "ZMP Command Ach Error: " << ach_result_to_string(r) << std::endl;
     }
     else
-        std::cout << "Invalid walk mode requested. Check headers. Command not sent" << std::endl;
+        std::cout << "Invalid walk mode requested: << " << zmpState.walkMode << " (" << walkMode_to_string(zmpState.walkMode) << "). Check headers. Command not sent" << std::endl;
 #endif // HAVE_HUBOMZ
 
     balCmd.cmd_request = BAL_ZMP_WALKING;
@@ -593,7 +593,7 @@ void HuboWalkWidget::initializeAchConnections()
     ach_status_t r;
 #ifdef HAVE_HUBOMZ
     achChannelZmp.start("ach mk " + QString::fromLocal8Bit(CHAN_ZMP_CMD_NAME)
-                        + " -1 -m 10 -n 8000 -o 666", QIODevice::ReadWrite);
+                        + " -1 -m 10 -n 3000 -o 666", QIODevice::ReadWrite);
     achChannelZmp.waitForFinished();
     r = ach_open(&zmpCmdChan, CHAN_ZMP_CMD_NAME, NULL);
     if( r != ACH_OK )
