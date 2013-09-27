@@ -593,7 +593,7 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
     handleProfileSaveAs();
     saveAsEdit->setText("Default-Backup");
     handleProfileSaveAs();
-    //saveAsEdit->clear();
+    saveAsEdit->clear();
 
     profileSelect->setCurrentIndex(0);
 
@@ -602,7 +602,7 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
     handleQuadrupedProfileSaveAs();
     saveAsEditQuad->setText("Default-Backup");
     handleQuadrupedProfileSaveAs();
-    //saveAsEditQuad->clear();
+    saveAsEditQuad->clear();
 
     profileSelectQuad->setCurrentIndex(0);
 
@@ -2366,7 +2366,7 @@ void HuboWalkWidget::initializeBalParamTab()
     handlebalProfileSaveAs();
     balSaveAsEdit->setText("Default-Backup");
     handlebalProfileSaveAs();
-    //balSaveAsEdit->clear();
+    balSaveAsEdit->clear();
 
     balProfileSelect->setCurrentIndex(0);
 
