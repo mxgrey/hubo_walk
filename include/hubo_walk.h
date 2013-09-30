@@ -280,6 +280,8 @@ public:
       QDoubleSpinBox* stepDistanceBox;
       QDoubleSpinBox* sideStepDistanceBox;
       QDoubleSpinBox* lateralDistanceBox;
+      QDoubleSpinBox* nomFootRatePosBox;
+      QDoubleSpinBox* nomFootRateRotBox;
       
       QDoubleSpinBox* comHeightBox;
 	  QDoubleSpinBox* torsoPitchBox;
@@ -288,6 +290,7 @@ public:
       QDoubleSpinBox* fixed_com_offset_yBox;
       QDoubleSpinBox* fixed_com_offset_zBox;
       QCheckBox* constantBodyZBox;
+      QCheckBox* useFixedComBox;
 
     ///////////////
 
@@ -326,6 +329,7 @@ public:
       QDoubleSpinBox* quadStanceLengthBoxQuad;
       QDoubleSpinBox* quadStabilityMarginBoxQuad;
       QDoubleSpinBox* halfPegWidthBoxQuad;
+      QDoubleSpinBox* pegRadiusBoxQuad;
 
       QDoubleSpinBox* comHeightBoxQuad;
 	  QDoubleSpinBox* torsoPitchBoxQuad;
@@ -334,6 +338,7 @@ public:
       QDoubleSpinBox* fixed_com_offset_yBoxQuad;
       QDoubleSpinBox* fixed_com_offset_zBoxQuad;
       QCheckBox* constantBodyZBoxQuad;
+      QCheckBox* useFixedComBoxQuad;
     //////////
 
 #ifdef HAVE_HUBOMZ

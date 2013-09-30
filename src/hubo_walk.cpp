@@ -102,6 +102,9 @@ void HuboWalkPanel::load(const rviz::Config &config)
             p_config.mapGetValue("half_peg_width"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.half_peg_width = temp.toDouble();
+            p_config.mapGetValue("peg_radius"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.peg_radius = temp.toDouble();
             p_config.mapGetValue("step_height"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.step_height = temp.toDouble();
@@ -207,6 +210,9 @@ void HuboWalkPanel::load(const rviz::Config &config)
             pQuad_config.mapGetValue("half_peg_width"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.half_peg_width = temp.toDouble();
+            pQuad_config.mapGetValue("peg_radius"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.peg_radius = temp.toDouble();
             pQuad_config.mapGetValue("step_height"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.step_height = temp.toDouble();
@@ -422,6 +428,8 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpProfiles[i].vals.params.half_stance_width));
         p_config.mapSetValue("half_peg_width"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.half_peg_width));
+        p_config.mapSetValue("peg_radius"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.peg_radius));
         p_config.mapSetValue("step_height"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.step_height));
         p_config.mapSetValue("sidestep_length"+QString::number(i),
@@ -485,6 +493,8 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpQuadProfiles[i].vals.params.half_stance_width));
         pQuad_config.mapSetValue("half_peg_width"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.half_peg_width));
+        pQuad_config.mapSetValue("peg_radius"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.peg_radius));
         pQuad_config.mapSetValue("step_height"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.step_height));
         pQuad_config.mapSetValue("sidestep_length"+QString::number(i),
@@ -1467,6 +1477,37 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     lateralDistanceLay->addWidget(lateralDistanceBox);
     
     swingSettingsLayout->addLayout(lateralDistanceLay);
+
+    QHBoxLayout* nomFootRateLay = new QHBoxLayout;
+    QLabel* nomFootRateLab = new QLabel;
+    nomFootRateLab->setText("Nom. Foot Rate (Pos,Rot):");
+    nomFootRateLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    nomFootRateLab->setToolTip("Nominal foot rate for position and rotation");
+    nomFootRateLay->addWidget(nomFootRateLab);
+
+    nomFootRatePosBox = new QDoubleSpinBox;
+    nomFootRatePosBox->setSizePolicy(pbsize);
+    nomFootRatePosBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    nomFootRatePosBox->setToolTip(nomFootRateLab->toolTip());
+    nomFootRatePosBox->setDecimals(4);
+    nomFootRatePosBox->setValue(0.3);
+    nomFootRatePosBox->setSingleStep(0.1);
+    nomFootRatePosBox->setMinimum(0);
+    nomFootRatePosBox->setMaximum(5);
+    nomFootRateLay->addWidget(nomFootRatePosBox);
+
+    nomFootRateRotBox = new QDoubleSpinBox;
+    nomFootRateRotBox->setSizePolicy(pbsize);
+    nomFootRateRotBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    nomFootRateRotBox->setToolTip(nomFootRateLab->toolTip());
+    nomFootRateRotBox->setDecimals(4);
+    nomFootRateRotBox->setValue(1.5);
+    nomFootRateRotBox->setSingleStep(0.1);
+    nomFootRateRotBox->setMinimum(0);
+    nomFootRateRotBox->setMaximum(5);
+    nomFootRateLay->addWidget(nomFootRateRotBox);
+
+    swingSettingsLayout->addLayout(nomFootRateLay);
     
     QGroupBox* swingSettingsBox = new QGroupBox;
     swingSettingsBox->setTitle("Swing Foot Settings");
@@ -1553,11 +1594,11 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     fixed_com_offset_xBox->setSizePolicy(pbsize);
     fixed_com_offset_xBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     fixed_com_offset_xBox->setToolTip(fixed_com_offset_xLab->toolTip());
-    fixed_com_offset_xBox->setDecimals(3);
-    fixed_com_offset_xBox->setValue(0);
+    fixed_com_offset_xBox->setDecimals(6);
     fixed_com_offset_xBox->setSingleStep(0.01);
-    fixed_com_offset_xBox->setMinimum(0);
-    fixed_com_offset_xBox->setMaximum(5);
+    fixed_com_offset_xBox->setMinimum(-1);
+    fixed_com_offset_xBox->setMaximum(1);
+    fixed_com_offset_xBox->setValue(-0.00725796);
     fixed_com_offset_xLay->addWidget(fixed_com_offset_xBox);
 
     fixed_com_offset_yBox = new QDoubleSpinBox;
@@ -1567,8 +1608,8 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     fixed_com_offset_yBox->setDecimals(3);
     fixed_com_offset_yBox->setValue(0);
     fixed_com_offset_yBox->setSingleStep(0.01);
-    fixed_com_offset_yBox->setMinimum(0);
-    fixed_com_offset_yBox->setMaximum(5);
+    fixed_com_offset_yBox->setMinimum(-1);
+    fixed_com_offset_yBox->setMaximum(1);
     fixed_com_offset_xLay->addWidget(fixed_com_offset_yBox);
 
     fixed_com_offset_zBox = new QDoubleSpinBox;
@@ -1576,23 +1617,31 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     fixed_com_offset_zBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     fixed_com_offset_zBox->setToolTip(fixed_com_offset_xLab->toolTip());
     fixed_com_offset_zBox->setDecimals(3);
-    fixed_com_offset_zBox->setValue(0);
+    fixed_com_offset_zBox->setValue(0.295); // if this is changed com_height also needs to be
     fixed_com_offset_zBox->setSingleStep(0.01);
-    fixed_com_offset_zBox->setMinimum(0);
-    fixed_com_offset_zBox->setMaximum(5);
+    fixed_com_offset_zBox->setMinimum(-1);
+    fixed_com_offset_zBox->setMaximum(1);
     fixed_com_offset_xLay->addWidget(fixed_com_offset_zBox);
 
     comSettingsLayout->addLayout(fixed_com_offset_xLay);
     
     // Constant Body Z
+    QHBoxLayout* comCheckboxesLayout = new QHBoxLayout;
     constantBodyZBox = new QCheckBox;
     constantBodyZBox->setText("Constant Body Z");
     constantBodyZBox->setToolTip("Ignore the walk distance, and walk until Stop is selected");
     constantBodyZBox->setChecked(true);
     constantBodyZBox->setDisabled(false);
-    comSettingsLayout->addWidget(constantBodyZBox, 0, Qt::AlignRight);
+    comCheckboxesLayout->addWidget(constantBodyZBox);
 
-    comSettingsLayout->addWidget(constantBodyZBox);
+    useFixedComBox = new QCheckBox;
+    useFixedComBox->setText("Use Fixed COM");
+    useFixedComBox->setToolTip("Place COM relative to body instead of getting it from the model");
+    useFixedComBox->setChecked(true);
+    useFixedComBox->setDisabled(false);
+    comCheckboxesLayout->addWidget(useFixedComBox);
+
+    comSettingsLayout->addLayout(comCheckboxesLayout);
 
     QGroupBox* comSettingsBox = new QGroupBox;
     comSettingsBox->setTitle("Center of Mass Settings");
@@ -2087,6 +2136,27 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
 
     swingSettingsLayout->addLayout(halfPegWidthLay);
 
+    // Peg Radius
+    QHBoxLayout* pegRadiusLay = new QHBoxLayout;
+    QLabel* pegRadiusLab = new QLabel;
+    pegRadiusLab->setText("Peg Radius:");
+    pegRadiusLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    pegRadiusLab->setToolTip("Radius of hand pegs (m)");
+    pegRadiusLay->addWidget(pegRadiusLab);
+
+    pegRadiusBoxQuad = new QDoubleSpinBox;
+    pegRadiusBoxQuad->setSizePolicy(pbsize);
+    pegRadiusBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    pegRadiusBoxQuad->setToolTip(pegRadiusLab->toolTip());
+    pegRadiusBoxQuad->setDecimals(4);
+    pegRadiusBoxQuad->setValue(0.025);
+    pegRadiusBoxQuad->setSingleStep(0.01);
+    pegRadiusBoxQuad->setMinimum(0);
+    pegRadiusBoxQuad->setMaximum(5);
+    pegRadiusLay->addWidget(pegRadiusBoxQuad);
+
+    swingSettingsLayout->addLayout(pegRadiusLay);
+
     QGroupBox* swingSettingsBoxQuad = new QGroupBox;
     swingSettingsBoxQuad->setTitle("Swing Foot Settings");
     swingSettingsBoxQuad->setStyleSheet(groupStyleSheet);
@@ -2204,13 +2274,24 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     comSettingsLayout->addLayout(fixed_com_offset_xLay);
 
     // Constant Body Z
+    QHBoxLayout* comCheckboxesLayout = new QHBoxLayout;
     constantBodyZBoxQuad = new QCheckBox;
     constantBodyZBoxQuad->setText("Constant Body Z");
     constantBodyZBoxQuad->setToolTip("Ignore the walk distance, and walk until Stop is selected");
     constantBodyZBoxQuad->setChecked(true);
     constantBodyZBoxQuad->setDisabled(false);
-    comSettingsLayout->addWidget(constantBodyZBoxQuad, 0, Qt::AlignRight);
-    
+    comCheckboxesLayout->addWidget(constantBodyZBoxQuad);
+
+    useFixedComBoxQuad = new QCheckBox;
+    useFixedComBoxQuad->setText("Use Fixed COM");
+    useFixedComBoxQuad->setToolTip("Place COM relative to body instead of getting it from the model");
+    useFixedComBoxQuad->setChecked(false);
+    useFixedComBoxQuad->setDisabled(true);
+    comCheckboxesLayout->addWidget(useFixedComBoxQuad);
+    std::cout << "use fixed com for quad? " << useFixedComBoxQuad->isChecked() << std::endl;
+
+    comSettingsLayout->addLayout(comCheckboxesLayout);
+
     QGroupBox* comSettingsBoxQuad = new QGroupBox;
     comSettingsBoxQuad->setTitle("Center of Mass Settings");
     comSettingsBoxQuad->setStyleSheet(groupStyleSheet);
@@ -2448,7 +2529,7 @@ void HuboWalkWidget::initializeBalParamTab()
     springBoxWalk->setSingleStep(1);
     springBoxWalk->setMinimum(-99999);
     springBoxWalk->setMaximum(99999);
-    springBoxWalk->setValue(0.0);
+    springBoxWalk->setValue(25000);
     springLayout->addWidget(springBoxWalk);
 
     bottomLayout->addLayout(springLayout);
@@ -2470,7 +2551,7 @@ void HuboWalkWidget::initializeBalParamTab()
     dampBoxWalk->setSingleStep(1);
     dampBoxWalk->setMinimum(-99999);
     dampBoxWalk->setMaximum(99999);
-    dampBoxWalk->setValue(0);
+    dampBoxWalk->setValue(8000);
     dampLayout->addWidget(dampBoxWalk);
 
     bottomLayout->addLayout(dampLayout);
@@ -2492,7 +2573,7 @@ void HuboWalkWidget::initializeBalParamTab()
     responseBoxWalk->setSingleStep(1);
     responseBoxWalk->setMinimum(-99999);
     responseBoxWalk->setMaximum(99999);
-    responseBoxWalk->setValue(0);
+    responseBoxWalk->setValue(25);
     responseLayout->addWidget(responseBoxWalk);
 
     bottomLayout->addLayout(responseLayout);

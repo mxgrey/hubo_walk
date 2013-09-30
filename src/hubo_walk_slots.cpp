@@ -241,6 +241,7 @@ bool HuboWalkWidget::fillProfile(zmp_cmd_t &vals, const walkMode_t walkMode)
         vals.params.fixed_com_offset_y = fixed_com_offset_yBox->value() ;
         vals.params.fixed_com_offset_z = fixed_com_offset_zBox->value() ;
         vals.params.constant_body_z = constantBodyZBox->isChecked() ;
+        vals.params.use_fixed_com = useFixedComBox->isChecked() ;
         vals.params.zmpoff_y = yOffsetBox->value() ;
         vals.params.zmpoff_x = xOffsetBox->value() ;
         vals.params.zmp_dist_gain = zmpDistGainBox->value() ;
@@ -254,6 +255,7 @@ bool HuboWalkWidget::fillProfile(zmp_cmd_t &vals, const walkMode_t walkMode)
         vals.params.quad_stance_length = quadStanceLengthBoxQuad->value() ;
         vals.params.quad_stability_margin = quadStabilityMarginBoxQuad->value() ;
         vals.params.half_peg_width = halfPegWidthBoxQuad->value() ;
+        vals.params.peg_radius = pegRadiusBoxQuad->value() ;
         vals.params.zmp_R = jerkPenalBox->value()*penalFactor ;
         vals.params.ik_sense = int2ikSense(ikSenseSelect->currentIndex()) ;
         return true;
@@ -272,6 +274,7 @@ bool HuboWalkWidget::fillProfile(zmp_cmd_t &vals, const walkMode_t walkMode)
         vals.params.fixed_com_offset_y = fixed_com_offset_yBoxQuad->value() ;
         vals.params.fixed_com_offset_z = fixed_com_offset_zBoxQuad->value() ;
         vals.params.constant_body_z = constantBodyZBoxQuad->isChecked() ;
+        vals.params.use_fixed_com = useFixedComBoxQuad->isChecked() ;
         vals.params.zmpoff_y = yOffsetBoxQuad->value() ;
         vals.params.zmpoff_x = xOffsetBoxQuad->value() ;
         vals.params.zmp_dist_gain = zmpDistGainBoxQuad->value() ;
@@ -285,6 +288,7 @@ bool HuboWalkWidget::fillProfile(zmp_cmd_t &vals, const walkMode_t walkMode)
         vals.params.quad_stance_length = quadStanceLengthBoxQuad->value() ;
         vals.params.quad_stability_margin = quadStabilityMarginBoxQuad->value() ;
         vals.params.half_peg_width = halfPegWidthBoxQuad->value() ;
+        vals.params.peg_radius = pegRadiusBoxQuad->value() ;
         vals.params.zmp_R = jerkPenalBoxQuad->value()*penalFactor ;
         vals.params.ik_sense = int2ikSense(ikSenseSelectQuad->currentIndex()) ;
         return true;
@@ -330,6 +334,7 @@ void HuboWalkWidget::handleProfileSelect(int index)
     fixed_com_offset_yBox->setValue(zmpProfiles[index].vals.params.fixed_com_offset_y ) ;
     fixed_com_offset_zBox->setValue(zmpProfiles[index].vals.params.fixed_com_offset_z ) ;
     constantBodyZBox->setChecked(zmpProfiles[index].vals.params.constant_body_z ) ;
+    useFixedComBox->setChecked(zmpProfiles[index].vals.params.use_fixed_com ) ;
     yOffsetBox->setValue(zmpProfiles[index].vals.params.zmpoff_y ) ;
     xOffsetBox->setValue(zmpProfiles[index].vals.params.zmpoff_x ) ;
     zmpDistGainBox->setValue(zmpProfiles[index].vals.params.zmp_dist_gain ) ;
@@ -360,6 +365,7 @@ void HuboWalkWidget::handleQuadrupedProfileSelect(int index)
     fixed_com_offset_yBoxQuad->setValue(zmpQuadProfiles[index].vals.params.fixed_com_offset_y ) ;
     fixed_com_offset_zBoxQuad->setValue(zmpQuadProfiles[index].vals.params.fixed_com_offset_z ) ;
     constantBodyZBoxQuad->setChecked(zmpQuadProfiles[index].vals.params.constant_body_z ) ;
+    useFixedComBoxQuad->setChecked(zmpProfiles[index].vals.params.use_fixed_com ) ;
     yOffsetBoxQuad->setValue(zmpQuadProfiles[index].vals.params.zmpoff_y ) ;
     xOffsetBoxQuad->setValue(zmpQuadProfiles[index].vals.params.zmpoff_x ) ;
     zmpDistGainBoxQuad->setValue(zmpQuadProfiles[index].vals.params.zmp_dist_gain ) ;
