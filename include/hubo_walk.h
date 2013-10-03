@@ -124,6 +124,14 @@ public:
     balance_params_t vals;
 };
 
+// Cascade Robust Posture Control
+class CrpcProfile
+{
+public:
+    QString name;
+    crpc_params_t vals;
+};
+
 // Here we declare our new subclass of rviz::Panel.  Every panel which
 // can be added via the Panels/Add_New_Panel menu is a subclass of
 // rviz::Panel.
@@ -150,13 +158,19 @@ public:
   QProcess achChannelZmp;
   QProcess achChannelZmpState;
   QProcess achChannelBal;
+  QProcess achChannelCrpc;
+  QProcess achChannelCrpcState;
   QProcess achdZmp;
   QProcess achdZmpState;
   QProcess achdBal;
   QProcess achdBalCmd;
+  QProcess achdCrpcParam;
+  QProcess achdCrpcState;
   bool zmpConnected;
   bool zmpStateConnected;
   bool balConnected;
+  bool crpcConnected;
+  bool crpcStateConnected;
 
   // Update timer
   HuboRefreshManager* refreshManager;
@@ -167,12 +181,15 @@ public:
   ach_channel_t zmpCmdChan;
   ach_channel_t balanceParamChan;
   ach_channel_t balanceCmdChan;
+  ach_channel_t crpcParamChan;
+  ach_channel_t crpcStateChan;
   walkMode_t tempWalkMode;
 
   void initializeAchConnections();
 //  void initializeAchStructs();
   void sendCommand();
   void sendBalCommand();
+  void sendCrpcParams();
 
   void setIPAddress(int a, int b, int c, int d);
   int getIPAddress(int index);
@@ -186,7 +203,11 @@ public:
 #endif // HAVE_HUBOMZ
   struct balance_params balParams;
   struct balance_cmd balCmd;
+  struct crpc_params crpcParams;
+  struct crpc_state crpcState;
   
+  int crpcResetCounter;
+  static const int crpcResetCounterMax = 200;
   
   // Handling profiles TODO
   //std::vector<zmp_params> profiles;
@@ -200,6 +221,10 @@ public:
   QVector<BalProfile> balProfiles;
   void fillbalProfile(balance_params_t &vals);
   void updatebalProfileBox();
+  // functions for CRPC
+  QVector<CrpcProfile> crpcProfiles;
+  void fillCrpcProfile(crpc_params_t &vals);
+  void updateCrpcProfileBox();
   
   QWidget* commandTab;
 
@@ -243,6 +268,7 @@ public:
     double heightScale;
     QSlider* heightSlide;
     QDoubleSpinBox* comXOffsetBox;
+    QPushButton* crpcButton;
     QPushButton* staticButton;
     QPushButton* balOffButton;
   ///////////////
@@ -385,6 +411,29 @@ public:
 
       QPushButton* updateBalParams;
 
+    // CRPC Tab Widgets
+    QWidget* crpcParamTab;
+
+      QComboBox* crpcProfileSelect;
+      QPushButton* saveCrpcProfile;
+      QPushButton* deleteCrpcProfile;
+      QPushButton* saveAsCrpcProfile;
+      QLineEdit* crpcSaveAsEdit;
+
+      QDoubleSpinBox* kpUpperBodyBox;
+      QSpinBox* kpUpperBodyExpBox;
+      QDoubleSpinBox* kpMassDistribBox;
+      QSpinBox* kpMassDistribExpBox;
+      QDoubleSpinBox* kpZmpDiffBox;
+      QSpinBox* kpZmpDiffExpBox;
+      QDoubleSpinBox* kpZmpComBox;
+      QSpinBox* kpZmpComExpBox;
+      QDoubleSpinBox* zmpRefXBox;
+      QDoubleSpinBox* zmpRefYBox;
+      QDoubleSpinBox* hipHeightBox;
+      QCheckBox* negateMomentsBox;
+
+      QPushButton* updateCrpcParams;
 
 protected:
   int ipAddrA;
@@ -402,22 +451,32 @@ protected Q_SLOTS:
 
   void handleStaticButton();
   void handleBalOffButton();
+  void handleRunCrpcButton();
 
   // Handle button events
+  // Biped profile functions
   void handleProfileSave();
   void handleProfileDelete();
   void handleProfileSaveAs();
   void handleProfileSelect(int index);
 
+  // Quadruped profile functions
   void handleQuadrupedProfileSave();
   void handleQuadrupedProfileDelete();
   void handleQuadrupedProfileSaveAs();
   void handleQuadrupedProfileSelect(int index);
 
+  // Balance profile functions
   void handlebalProfileSave();
   void handlebalProfileDelete();
   void handlebalProfileSaveAs();
   void handlebalProfileSelect(int index);
+
+  // CRPC profile functions
+  void handleCrpcProfileSave();
+  void handleCrpcProfileDelete();
+  void handleCrpcProfileSaveAs();
+  void handleCrpcProfileSelect(int index);
 
   void handleJoyLaunch();
   
@@ -443,6 +502,9 @@ protected Q_SLOTS:
   
   void ipEditHandle(const QString &text);
 
+  void colorButton(QPushButton* button, QColor &color, QString label);
+  int getExponent(double value);
+
 private:
 
   ///////////////
@@ -450,6 +512,7 @@ private:
   void initializeZmpBipedParamTab();
   void initializeZmpQuadrupedParamTab();
   void initializeBalParamTab();
+  void initializeCrpcParamTab();
   
 
 

@@ -381,6 +381,49 @@ void HuboWalkPanel::load(const rviz::Config &config)
     else
         ROS_INFO("No balance profiles found");
 
+
+    // load CRPC profile
+    pb_config = config.mapGetChild("CrpcProfiles");
+
+    if( pb_config.mapGetValue("CrpcProfileNum", &pbNum) )
+    {
+        QVariant selectedProfile;
+        config.mapGetValue("SelectedCrpcProfile", &selectedProfile);
+        content->crpcProfiles.resize(size_t(pbNum.toInt()));
+
+        for(int i=0; i < int(content->crpcProfiles.size()); i++)
+        {
+            QVariant temp;
+            pb_config.mapGetValue("CrpcProfileName"+QString::number(i),
+                                 &temp);
+            content->crpcProfiles[i].name = temp.toString();
+            pb_config.mapGetValue("kp_upper_body"+QString::number(i),
+                                 &temp);
+            content->crpcProfiles[i].vals.kp_upper_body = temp.toDouble();
+            pb_config.mapGetValue("kp_mass_distrib"+QString::number(i),
+                                 &temp);
+            content->crpcProfiles[i].vals.kp_mass_distrib = temp.toDouble();
+            pb_config.mapGetValue("kp_zmp_diff"+QString::number(i),
+                                  &temp);
+            content->crpcProfiles[i].vals.kp_zmp_diff = temp.toDouble();
+            pb_config.mapGetValue("kp_zmp_com"+QString::number(i),
+                                  &temp);
+            content->crpcProfiles[i].vals.kp_zmp_com = temp.toDouble();
+            pb_config.mapGetValue("zmp_ref_x"+QString::number(i),
+                                 &temp);
+            content->crpcProfiles[i].vals.zmp_ref_x = temp.toDouble();
+            pb_config.mapGetValue("zmp_ref_y"+QString::number(i),
+                                 &temp);
+            content->crpcProfiles[i].vals.zmp_ref_y = temp.toDouble();
+            pb_config.mapGetValue("hip_height"+QString::number(i),
+                                 &temp);
+            content->crpcProfiles[i].vals.hip_height = temp.toDouble();
+        }
+        content->updateCrpcProfileBox();
+        content->crpcProfileSelect->setCurrentIndex(selectedProfile.toInt());
+    }
+    else
+        ROS_INFO("No CRPC profiles found");
     
 }
 
@@ -602,6 +645,36 @@ void HuboWalkPanel::save(rviz::Config config) const
         pb_config.mapSetValue("double_support_hip_nudge_kd"+QString::number(i),
                              QVariant(content->balProfiles[i].vals.balance_gains.double_support_hip_nudge_kd));
     }
+
+    // Save CRPC Profile
+    QVariant selectedCrpcProfile = QVariant(content->crpcProfileSelect->currentIndex());
+    config.mapSetValue("SelectedCrpcProfile", selectedCrpcProfile);
+
+    pb_config = config.mapMakeChild("CrpcProfiles");
+
+    pbNum = QVariant(int(content->crpcProfiles.size()));
+    pb_config.mapSetValue("CrpcProfileNum", pbNum);
+
+    for(int i=0; i < int(content->crpcProfiles.size()); i++)
+    {
+        content->crpcProfiles[i].name.replace(" ","_");
+        pb_config.mapSetValue("CrpcProfileName"+QString::number(i),
+                             QVariant(content->crpcProfiles[i].name));
+        pb_config.mapSetValue("kp_upper_body"+QString::number(i),
+                             QVariant(content->crpcProfiles[i].vals.kp_upper_body));
+        pb_config.mapSetValue("kp_mass_distrib"+QString::number(i),
+                             QVariant(content->crpcProfiles[i].vals.kp_mass_distrib));
+        pb_config.mapSetValue("kp_zmp_diff"+QString::number(i),
+                             QVariant(content->crpcProfiles[i].vals.kp_zmp_diff));
+        pb_config.mapSetValue("kp_zmp_com"+QString::number(i),
+                             QVariant(content->crpcProfiles[i].vals.kp_zmp_com));
+        pb_config.mapSetValue("zmp_ref_x"+QString::number(i),
+                             QVariant(content->crpcProfiles[i].vals.zmp_ref_x));
+        pb_config.mapSetValue("zmp_ref_y"+QString::number(i),
+                             QVariant(content->crpcProfiles[i].vals.zmp_ref_y));
+        pb_config.mapSetValue("hip_height"+QString::number(i),
+                             QVariant(content->crpcProfiles[i].vals.hip_height));
+    }
     
 }
 
@@ -628,6 +701,9 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
 #endif // HAVE_HUBOMZ
     memset(&balParams, 0, sizeof(balParams));
     memset(&balCmd, 0, sizeof(balCmd));
+    memset(&crpcParams, 0, sizeof(crpcParams));
+    memset(&crpcState, 0, sizeof(crpcState));
+    crpcResetCounter = 0;
 
     initializeCommandTab();
     std::cerr << "Command Tab loaded" << std::endl;
@@ -671,6 +747,10 @@ HuboWalkWidget::HuboWalkWidget(QWidget *parent)
     initializeBalParamTab();
     std::cerr << "Balance Parameters Tab loaded" << std::endl;
     addTab(balParamTab, "Balance Parameters");
+
+    initializeCrpcParamTab();
+    std::cerr << "Crpc Parameters Tab loaded" << std::endl;
+    addTab(crpcParamTab, "CRPC Parameters");
 
     initializeAchConnections();
 
@@ -975,7 +1055,7 @@ void HuboWalkWidget::initializeCommandTab()
     zmpResultLayout->setAlignment(Qt::AlignLeft);
 
     QLabel* zmpResultLabel = new QLabel;
-    zmpResultLabel->setText("Result:");
+    zmpResultLabel->setText("State:");
     zmpResultLabel->setToolTip("Result the zmp-daemon is in");
     zmpResultLayout->addWidget(zmpResultLabel);
 
@@ -1048,6 +1128,12 @@ void HuboWalkWidget::initializeCommandTab()
     staticCmdsLayout->setAlignment(Qt::AlignTop);
 
     balLayout->addLayout(staticCmdsLayout, 0);
+
+    crpcButton = new QPushButton;
+    crpcButton->setText("Fix Posture");
+    crpcButton->setToolTip("Run Cascade Robust Posture Controller and apply offsets to balancing and walking.");
+    balLayout->addWidget(crpcButton);
+    connect( crpcButton, SIGNAL(clicked()), this, SLOT(handleRunCrpcButton()) );
 
     staticButton = new QPushButton;
     staticButton->setText("Balance");
@@ -2646,6 +2732,253 @@ void HuboWalkWidget::initializeBalParamTab()
     balParamTab->setLayout(masterBalLayout);
 }
 
+void HuboWalkWidget::initializeCrpcParamTab()
+{
+    QSizePolicy pbsize(QSizePolicy::Maximum, QSizePolicy::Maximum);
+
+    QHBoxLayout* crpcProfileLayoutTop = new QHBoxLayout;
+    QLabel* crpcProfileLab = new QLabel;
+    crpcProfileLab->setText("Profile:");
+    crpcProfileLayoutTop->addWidget(crpcProfileLab, 0, Qt::AlignVCenter | Qt::AlignRight);
+
+    crpcProfileSelect = new QComboBox;
+    crpcProfileLayoutTop->addWidget(crpcProfileSelect);
+    connect(crpcProfileSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCrpcProfileSelect(int)));
+
+    saveCrpcProfile = new QPushButton;
+    saveCrpcProfile->setSizePolicy(pbsize);
+    saveCrpcProfile->setText("Save");
+    saveCrpcProfile->setToolTip("Save the values below into the currently selected profile");
+    crpcProfileLayoutTop->addWidget(saveCrpcProfile);
+    connect(saveCrpcProfile, SIGNAL(clicked()), this, SLOT(handleCrpcProfileSave()));
+
+    deleteCrpcProfile = new QPushButton;
+    deleteCrpcProfile->setSizePolicy(pbsize);
+    deleteCrpcProfile->setText("Delete");
+    deleteCrpcProfile->setToolTip("Remove the current profile from the list\n"
+                                 "WARNING: This is permanent!");
+    crpcProfileLayoutTop->addWidget(deleteCrpcProfile);
+    connect(deleteCrpcProfile, SIGNAL(clicked()), this, SLOT(handleCrpcProfileDelete()));
+
+    QHBoxLayout* crpcProfileLayoutBottom = new QHBoxLayout;
+    saveAsCrpcProfile = new QPushButton;
+    saveAsCrpcProfile->setSizePolicy(pbsize);
+    saveAsCrpcProfile->setText("Save As...");
+    saveAsCrpcProfile->setToolTip("Save the values below as a new profile with the following name:");
+    crpcProfileLayoutBottom->addWidget(saveAsCrpcProfile);
+    connect(saveAsCrpcProfile, SIGNAL(clicked()), this, SLOT(handleCrpcProfileSaveAs()));
+
+    crpcSaveAsEdit = new QLineEdit;
+    crpcSaveAsEdit->setToolTip("Enter a name for a new profile");
+    crpcProfileLayoutBottom->addWidget(crpcSaveAsEdit);
+
+    QVBoxLayout* crpcProfileLayoutMaster = new QVBoxLayout;
+    crpcProfileLayoutMaster->addLayout(crpcProfileLayoutTop);
+    crpcProfileLayoutMaster->addLayout(crpcProfileLayoutBottom);
+
+
+    QVBoxLayout* bottomLayout = new QVBoxLayout;
+
+    // Kp Upper Body Gain Widgets
+    QHBoxLayout* kpUpperBodyLayout = new QHBoxLayout;
+    QLabel* kpUpperBodyLab = new QLabel;
+    kpUpperBodyLab->setText("Kp_Upper_Body:");
+    kpUpperBodyLab->setToolTip("Upper body gain");
+    kpUpperBodyLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    kpUpperBodyLayout->addWidget(kpUpperBodyLab);
+    kpUpperBodyBox = new QDoubleSpinBox;
+    kpUpperBodyBox->setDecimals(2);
+    kpUpperBodyBox->setSingleStep(0.5);
+    kpUpperBodyBox->setMinimum(0);
+    kpUpperBodyBox->setMaximum(20);
+    kpUpperBodyBox->setValue(5);
+    kpUpperBodyLayout->addWidget(kpUpperBodyBox);
+
+    QLabel* kpUpperBodyExpLab = new QLabel;
+    kpUpperBodyExpLab->setText(" x 10^");
+    kpUpperBodyExpLab->setFixedWidth(50);
+    kpUpperBodyLayout->addWidget(kpUpperBodyExpLab);
+
+    kpUpperBodyExpBox = new QSpinBox;
+    kpUpperBodyExpBox->setFixedWidth(50);
+    kpUpperBodyExpBox->setSingleStep(1);
+    kpUpperBodyExpBox->setMinimum(-20);
+    kpUpperBodyExpBox->setMaximum(20);
+    kpUpperBodyExpBox->setValue(-3);
+    kpUpperBodyLayout->addWidget(kpUpperBodyExpBox);
+
+    bottomLayout->addLayout(kpUpperBodyLayout);
+
+    // Kp Mass Distribution Gain Widgets
+    QHBoxLayout* kpMassDistribLayout = new QHBoxLayout;
+    QLabel* kpMassDistribLab = new QLabel;
+    kpMassDistribLab->setText("Kp_Mass_Distribution:");
+    kpMassDistribLab->setToolTip("Mass distribution gain");
+    kpMassDistribLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    kpMassDistribLayout->addWidget(kpMassDistribLab);
+    kpMassDistribBox = new QDoubleSpinBox;
+    kpMassDistribBox->setDecimals(2);
+    kpMassDistribBox->setSingleStep(0.5);
+    kpMassDistribBox->setMinimum(0);
+    kpMassDistribBox->setMaximum(20);
+    kpMassDistribBox->setValue(1);
+    kpMassDistribLayout->addWidget(kpMassDistribBox);
+
+    QLabel* kpMassDistribExpLab = new QLabel;
+    kpMassDistribExpLab->setText(" x 10^");
+    kpMassDistribExpLab->setFixedWidth(50);
+    kpMassDistribLayout->addWidget(kpMassDistribExpLab);
+
+    kpMassDistribExpBox = new QSpinBox;
+    kpMassDistribExpBox->setFixedWidth(50);
+    kpMassDistribExpBox->setSingleStep(1);
+    kpMassDistribExpBox->setMinimum(-20);
+    kpMassDistribExpBox->setMaximum(20);
+    kpMassDistribExpBox->setValue(-7);
+    kpMassDistribLayout->addWidget(kpMassDistribExpBox);
+
+    bottomLayout->addLayout(kpMassDistribLayout);
+
+    // Kp ZMP Difference Gain Widgets
+    QHBoxLayout* kpZmpDiffLayout = new QHBoxLayout;
+    QLabel* kpZmpDiffLab = new QLabel;
+    kpZmpDiffLab->setText("Kp_ZMP_Difference:");
+    kpZmpDiffLab->setToolTip("ZMP Difference gain");
+    kpZmpDiffLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    kpZmpDiffLayout->addWidget(kpZmpDiffLab);
+    kpZmpDiffBox = new QDoubleSpinBox;
+    kpZmpDiffBox->setDecimals(2);
+    kpZmpDiffBox->setSingleStep(0.5);
+    kpZmpDiffBox->setMinimum(0);
+    kpZmpDiffBox->setMaximum(20);
+    kpZmpDiffBox->setValue(4);
+    kpZmpDiffLayout->addWidget(kpZmpDiffBox);
+
+    QLabel* kpZmpDiffExpLab = new QLabel;
+    kpZmpDiffExpLab->setText(" x 10^");
+    kpZmpDiffExpLab->setFixedWidth(50);
+    kpZmpDiffLayout->addWidget(kpZmpDiffExpLab);
+
+    kpZmpDiffExpBox = new QSpinBox;
+    kpZmpDiffExpBox->setFixedWidth(50);
+    kpZmpDiffExpBox->setSingleStep(1);
+    kpZmpDiffExpBox->setMinimum(-20);
+    kpZmpDiffExpBox->setMaximum(20);
+    kpZmpDiffExpBox->setValue(-3);
+    kpZmpDiffLayout->addWidget(kpZmpDiffExpBox);
+
+    bottomLayout->addLayout(kpZmpDiffLayout);
+
+    // Kp ZMP COM Gain Widgets
+    QHBoxLayout* kpZmpComLayout = new QHBoxLayout;
+    QLabel* kpZmpComLab = new QLabel;
+    kpZmpComLab->setText("Kp_ZMP_COM:");
+    kpZmpComLab->setToolTip("ZMP COM gain");
+    kpZmpComLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    kpZmpComLayout->addWidget(kpZmpComLab);
+    kpZmpComBox = new QDoubleSpinBox;
+    kpZmpComBox->setDecimals(2);
+    kpZmpComBox->setSingleStep(0.5);
+    kpZmpComBox->setMinimum(0);
+    kpZmpComBox->setMaximum(20);
+    kpZmpComBox->setValue(1);
+    kpZmpComLayout->addWidget(kpZmpComBox);
+
+    QLabel* kpZmpComExpLab = new QLabel;
+    kpZmpComExpLab->setText(" x 10^");
+    kpZmpComExpLab->setFixedWidth(50);
+    kpZmpComLayout->addWidget(kpZmpComExpLab);
+
+    kpZmpComExpBox = new QSpinBox;
+    kpZmpComExpBox->setFixedWidth(50);
+    kpZmpComExpBox->setSingleStep(1);
+    kpZmpComExpBox->setMinimum(-20);
+    kpZmpComExpBox->setMaximum(20);
+    kpZmpComExpBox->setValue(-3);
+    kpZmpComLayout->addWidget(kpZmpComExpBox);
+
+    bottomLayout->addLayout(kpZmpComLayout);
+
+    // ZMP X Reference Widgets
+    QHBoxLayout* zmpRefXLayout = new QHBoxLayout;
+    QLabel* zmpRefXLab = new QLabel;
+    zmpRefXLab->setText("ZMP_Ref_X:");
+    zmpRefXLab->setToolTip("ZMP Reference for X (m)");
+    zmpRefXLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    zmpRefXLayout->addWidget(zmpRefXLab);
+    zmpRefXBox = new QDoubleSpinBox;
+    zmpRefXBox->setDecimals(3);
+    zmpRefXBox->setSingleStep(0.01);
+    zmpRefXBox->setMinimum(-0.1);
+    zmpRefXBox->setMaximum(0.1);
+    zmpRefXBox->setValue(0.02);
+    zmpRefXLayout->addWidget(zmpRefXBox);
+
+    bottomLayout->addLayout(zmpRefXLayout);
+
+    // ZMP Y Reference Widget
+    QHBoxLayout* zmpRefYLayout = new QHBoxLayout;
+    QLabel* zmpRefYLab = new QLabel;
+    zmpRefYLab->setText("ZMP_Ref_Y:");
+    zmpRefYLab->setToolTip("ZMP Reference for Y (m)");
+    zmpRefYLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    zmpRefYLayout->addWidget(zmpRefYLab);
+    zmpRefYBox = new QDoubleSpinBox;
+    zmpRefYBox->setDecimals(3);
+    zmpRefYBox->setSingleStep(0.01);
+    zmpRefYBox->setMinimum(-0.1);
+    zmpRefYBox->setMaximum(0.1);
+    zmpRefYBox->setValue(0);
+    zmpRefYLayout->addWidget(zmpRefYBox);
+
+    bottomLayout->addLayout(zmpRefYLayout);
+
+    // Hip Height Widget
+    QHBoxLayout* hipHeightLayout = new QHBoxLayout;
+    QLabel* hipHeightLab = new QLabel;
+    hipHeightLab->setText("Hip Height:");
+    hipHeightLab->setToolTip("Hip height for posture controller initial position (m)");
+    hipHeightLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    hipHeightLayout->addWidget(hipHeightLab);
+    hipHeightBox = new QDoubleSpinBox;
+    hipHeightBox->setDecimals(3);
+    hipHeightBox->setSingleStep(0.01);
+    hipHeightBox->setMinimum(0.5);
+    hipHeightBox->setMaximum(0.8);
+    hipHeightBox->setValue(0.76);
+    hipHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    hipHeightLayout->addWidget(hipHeightBox);
+
+    bottomLayout->addLayout(hipHeightLayout);
+
+    negateMomentsBox = new QCheckBox;
+    negateMomentsBox->setText("Negate Moments");
+    negateMomentsBox->setToolTip("Negate sign on moment sensors");
+    negateMomentsBox->setChecked(true);
+    negateMomentsBox->setDisabled(false);
+    bottomLayout->addWidget(negateMomentsBox, 0, Qt::AlignRight);
+
+    updateCrpcParams = new QPushButton;
+    updateCrpcParams->setText("Send");
+    updateCrpcParams->setToolTip("Send this set of parameters to the balance daemon");
+    connect(updateCrpcParams, SIGNAL(clicked()), this, SLOT(sendCrpcParams()));
+    bottomLayout->addWidget(updateCrpcParams);
+
+    crpcSaveAsEdit->setText("Default");
+    handleCrpcProfileSaveAs();
+    crpcSaveAsEdit->setText("Default-Backup");
+    handleCrpcProfileSaveAs();
+    crpcSaveAsEdit->clear();
+
+    crpcProfileSelect->setCurrentIndex(0);
+
+    QVBoxLayout* masterCrpcLayout = new QVBoxLayout;
+    masterCrpcLayout->addLayout(crpcProfileLayoutMaster);
+    masterCrpcLayout->addLayout(bottomLayout);
+
+    crpcParamTab = new QWidget;
+    crpcParamTab->setLayout(masterCrpcLayout);
+}
 
 
 

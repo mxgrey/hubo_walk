@@ -41,16 +41,54 @@ namespace hubo_walk_space
 
 void HuboWalkWidget::refreshState()
 {
-#ifdef HAVE_HUBOMZ
     size_t fs;
-    ach_status_t r = ach_get( &zmpStateChan, &zmpState, sizeof(zmpState), &fs, NULL, ACH_O_LAST );
+    ach_status_t r;
+#ifdef HAVE_HUBOMZ
+    r = ach_get( &zmpStateChan, &zmpState, sizeof(zmpState), &fs, NULL, ACH_O_LAST );
     if(!ACH_OK && !ACH_MISSED_FRAME && !ACH_STALE_FRAMES)
-        std::cout << "ZMP State ach_get result: " << ach_result_to_string(r) << "\n";
+        std::cout << "ZMP State ach_get result: " << ach_result_to_string(r) << std::endl;
     zmpResultEdit->setText(QString::fromStdString(zmp_result_to_string(zmpState.result)));
     walkModeEdit->setText(QString::fromStdString(walkMode_to_string(zmpState.walkMode)));
     tempWalkMode = zmpState.walkMode;
 #endif
+    // Refresh CRPC Posture Controller state
+    r = ach_get( &crpcStateChan, &crpcState, sizeof(crpcState), &fs, NULL, ACH_O_LAST );
+    if(!ACH_OK && !ACH_MISSED_FRAME && !ACH_STALE_FRAMES)
+        std::cout << "CRPC State ach_get result: " << ach_result_to_string(r) << std::endl;
 
+    crpcResetCounter++;
+    if(crpcResetCounterMax < crpcResetCounter && CRPC_DONE == crpcState.phase)
+    {
+        crpcState.phase = CRPC_READY;
+        crpcResetCounter = 0;
+    }
+
+    // Change CRPC button color according to phase it's in
+    if(CRPC_PHASE_1 == crpcState.phase)
+    {
+        QColor redColor(178,34,34);
+        colorButton(crpcButton, redColor, "Phase 1...");
+    }
+    else if(CRPC_PHASE_1 == crpcState.phase)
+    {
+        QColor orangeColor(255,140,0);
+        colorButton(crpcButton, orangeColor, "Phase 2...");
+    }
+    else if(CRPC_PHASE_3 == crpcState.phase)
+    {
+        QColor yellowColor(255,255,0);
+        colorButton(crpcButton, yellowColor, "Phase 3...");
+    }
+    else if(CRPC_DONE == crpcState.phase)
+    {
+        QColor greenColor(50,205,50);
+        colorButton(crpcButton, greenColor, "Done!");
+    }
+    else
+    {
+        QColor grayColor(230,230,230);
+        colorButton(crpcButton, grayColor, "Fix Posture");
+    }
 }
 
 #ifdef HAVE_HUBOMZ
@@ -205,6 +243,13 @@ void HuboWalkWidget::handleBalOffButton()
     sendBalCommand();
 }
 
+void HuboWalkWidget::handleRunCrpcButton()
+{
+    sendCrpcParams();
+    balCmd.cmd_request = BAL_CRPC;
+    sendBalCommand();
+}
+
 void HuboWalkWidget::sendBalCommand()
 {
 
@@ -222,6 +267,14 @@ void HuboWalkWidget::sendBalParams()
     ach_status_t r = ach_put(&balanceParamChan, &balParams, sizeof(balParams));
     if( r != ACH_OK )
         std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
+}
+
+void HuboWalkWidget::sendCrpcParams()
+{
+    fillCrpcProfile(crpcParams);
+    ach_status_t r = ach_put(&crpcParamChan, &crpcParams, sizeof(crpcParams));
+    if( r != ACH_OK )
+        std::cout << "Ach Error Putting onto CrpcParams Channel: " << ach_result_to_string(r) << std::endl;
 }
 
 #ifdef HAVE_HUBOMZ
@@ -538,6 +591,88 @@ void HuboWalkWidget::updatebalProfileBox()
 ///////////// END: BALANCE
 
 
+//////// START: CRPC
+
+void HuboWalkWidget::fillCrpcProfile(crpc_params_t &vals)
+{
+    // Fill in crpc params
+    std::cout << "kpUB: " << kpUpperBodyBox->value() << " x 10 ^ " << kpUpperBodyExpBox->value() << std::endl;
+    vals.kp_upper_body = kpUpperBodyBox->value() * pow(10, kpUpperBodyExpBox->value());
+    vals.kp_mass_distrib = kpMassDistribBox->value() * pow(10, kpMassDistribExpBox->value());
+    vals.kp_zmp_diff = kpZmpDiffBox->value() * pow(10, kpZmpDiffExpBox->value());
+    vals.kp_zmp_com = kpZmpComBox->value() * pow(10, kpZmpComExpBox->value());
+    vals.zmp_ref_x = zmpRefXBox->value();
+    vals.zmp_ref_y = zmpRefYBox->value();
+    vals.hip_height = hipHeightBox->value();
+    vals.negate_moments = negateMomentsBox->isChecked();
+}
+
+void HuboWalkWidget::handleCrpcProfileSave()
+{
+    int index = crpcProfileSelect->currentIndex();
+    fillCrpcProfile(crpcProfiles[index].vals);
+
+    crpcSaveAsEdit->clear();
+    crpcSaveAsEdit->setPlaceholderText("Remember to save your RViz session! (Ctrl-S)");
+}
+
+void HuboWalkWidget::handleCrpcProfileSelect(int index)
+{
+    // Set balance gains
+    kpUpperBodyBox->setValue( crpcProfiles[index].vals.kp_upper_body * pow(10, getExponent(crpcProfiles[index].vals.kp_upper_body)) );
+    kpUpperBodyExpBox->setValue( getExponent(crpcProfiles[index].vals.kp_upper_body) );
+    kpMassDistribBox->setValue( crpcProfiles[index].vals.kp_mass_distrib * pow(10, getExponent(crpcProfiles[index].vals.kp_mass_distrib)) );
+    kpMassDistribExpBox->setValue( getExponent(crpcProfiles[index].vals.kp_mass_distrib) );
+    kpZmpDiffBox->setValue( crpcProfiles[index].vals.kp_zmp_diff * pow(10, getExponent(crpcProfiles[index].vals.kp_zmp_diff)) );
+    kpZmpDiffExpBox->setValue( getExponent(crpcProfiles[index].vals.kp_zmp_diff) );
+    kpZmpComBox->setValue( crpcProfiles[index].vals.kp_zmp_com * pow(10, getExponent(crpcProfiles[index].vals.kp_zmp_com)) );
+    kpZmpComExpBox->setValue( getExponent(crpcProfiles[index].vals.kp_zmp_com) );
+    zmpRefXBox->setValue( crpcProfiles[index].vals.zmp_ref_x );
+    zmpRefYBox->setValue( crpcProfiles[index].vals.zmp_ref_y );
+    hipHeightBox->setValue( crpcProfiles[index].vals.hip_height );
+    negateMomentsBox->setChecked( crpcProfiles[index].vals.negate_moments );
+
+    crpcSaveAsEdit->clear();
+}
+
+int HuboWalkWidget::getExponent(double value)
+{
+    int exponent = 0;
+    for(; floor(value) <= 0 ; value *= 10)
+    {
+        exponent++;
+    }
+    return exponent;
+}
+
+void HuboWalkWidget::handleCrpcProfileDelete()
+{
+    crpcProfiles.remove(crpcProfileSelect->currentIndex());
+    updateCrpcProfileBox();
+}
+
+void HuboWalkWidget::handleCrpcProfileSaveAs()
+{
+    CrpcProfile tempProf;
+    tempProf.name = crpcSaveAsEdit->text();
+    fillCrpcProfile(tempProf.vals);
+    crpcProfiles.append(tempProf);
+    updateCrpcProfileBox();
+    crpcProfileSelect->setCurrentIndex(crpcProfileSelect->findText(tempProf.name));
+
+    crpcSaveAsEdit->clear();
+    crpcSaveAsEdit->setPlaceholderText("Remember to save your RViz session! (Ctrl-S)");
+}
+
+void HuboWalkWidget::updateCrpcProfileBox()
+{
+    crpcProfileSelect->clear();
+    for(int i=0; i < crpcProfiles.size(); i++)
+        crpcProfileSelect->addItem(crpcProfiles[i].name);
+}
+
+//////// END: CRPC
+
 
 
 void HuboWalkWidget::handleJoyLaunch()
@@ -645,6 +780,20 @@ void HuboWalkWidget::initializeAchConnections()
     r = ach_open(&balanceCmdChan, BALANCE_CMD_CHAN, NULL );
     if( r != ACH_OK )
         std::cout << "Ach Error: " << ach_result_to_string(r) << std::endl;
+
+    achChannelCrpc.start("ach mk " + QString::fromLocal8Bit(CRPC_PARAM_CHAN)
+                        + " -1 -m 10 -n 3000 -o 666", QIODevice::ReadWrite);
+    achChannelCrpc.waitForFinished();
+    r = ach_open(&crpcParamChan, CRPC_PARAM_CHAN, NULL );
+    if( r != ACH_OK )
+        std::cout << "Ach Error while opening " << CRPC_PARAM_CHAN << " channel: " << ach_result_to_string(r) << std::endl;
+
+    achChannelCrpcState.start("ach mk " + QString::fromLocal8Bit(CRPC_STATE_CHAN)
+                        + " -1 -m 10 -n 3000 -o 666", QIODevice::ReadWrite);
+    achChannelCrpcState.waitForFinished();
+    r = ach_open(&crpcStateChan, CRPC_STATE_CHAN, NULL );
+    if( r != ACH_OK )
+        std::cout << "Ach Error while opening " << CRPC_STATE_CHAN << " channel: " << ach_result_to_string(r) << std::endl;
 }
 
 void HuboWalkWidget::achdConnectSlot()
@@ -686,6 +835,24 @@ void HuboWalkWidget::achdConnectSlot()
     connect(&achdBalCmd, SIGNAL(finished(int)), this, SLOT(achdExitFinished(int)));
     connect(&achdBalCmd, SIGNAL(error(QProcess::ProcessError)), this, SLOT(achdExitError(QProcess::ProcessError)));
 
+    // For sending posture controller parameters to hubo
+    achdCrpcParam.start("achd push " + QString::number(ipAddrA)
+                                 + "." + QString::number(ipAddrB)
+                                 + "." + QString::number(ipAddrC)
+                                 + "." + QString::number(ipAddrD)
+                    + " " + QString::fromLocal8Bit(CRPC_PARAM_CHAN));
+    connect(&achdCrpcParam, SIGNAL(finished(int)), this, SLOT(achdExitFinished(int)));
+    connect(&achdCrpcParam, SIGNAL(error(QProcess::ProcessError)), this, SLOT(achdExitError(QProcess::ProcessError)));
+
+    // For receiving posture controller state info from hubo
+    achdCrpcState.start("achd push " + QString::number(ipAddrA)
+                                 + "." + QString::number(ipAddrB)
+                                 + "." + QString::number(ipAddrC)
+                                 + "." + QString::number(ipAddrD)
+                    + " " + QString::fromLocal8Bit(CRPC_STATE_CHAN));
+    connect(&achdCrpcState, SIGNAL(finished(int)), this, SLOT(achdExitFinished(int)));
+    connect(&achdCrpcState, SIGNAL(error(QProcess::ProcessError)), this, SLOT(achdExitError(QProcess::ProcessError)));
+
     statusLabel->setText("Connected");
 }
 
@@ -695,6 +862,8 @@ void HuboWalkWidget::achdDisconnectSlot()
     achdZmpState.kill();
     achdBal.kill();
     achdBalCmd.kill();
+    achdCrpcParam.kill();
+    achdCrpcState.kill();
     statusLabel->setText("Disconnected");
 }
 
@@ -706,6 +875,17 @@ void HuboWalkWidget::achdExitError(QProcess::ProcessError err)
 void HuboWalkWidget::achdExitFinished(int num)
 {
     statusLabel->setText("Disconnected");
+}
+
+void HuboWalkWidget::colorButton(QPushButton* button, QColor &color, QString label)
+{
+    // Set background color style
+    QString style = "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #dadbde, stop: 1 ";
+
+    // Set background style, label and tooltip
+    button->setStyleSheet(style + color.name() + ")");
+    button->setText(label);
+    button->setToolTip(label);
 }
 
 }
