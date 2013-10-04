@@ -603,7 +603,8 @@ void HuboWalkWidget::fillCrpcProfile(crpc_params_t &vals)
     vals.kp_zmp_com = kpZmpComBox->value() * pow(10, kpZmpComExpBox->value());
     vals.zmp_ref_x = zmpRefXBox->value();
     vals.zmp_ref_y = zmpRefYBox->value();
-    vals.hip_height = hipHeightBox->value();
+    vals.hip_crouch = hipCrouchBox->value();
+    vals.from_current_ref = fromCurrentRefBox->isChecked();
     vals.negate_moments = negateMomentsBox->isChecked();
 }
 
@@ -618,18 +619,21 @@ void HuboWalkWidget::handleCrpcProfileSave()
 
 void HuboWalkWidget::handleCrpcProfileSelect(int index)
 {
-    // Set balance gains
-    kpUpperBodyBox->setValue( crpcProfiles[index].vals.kp_upper_body * pow(10, getExponent(crpcProfiles[index].vals.kp_upper_body)) );
+    std::cout << "crpcProfileSelect" << std::endl;
+    // Set crpc gains
+    std::cout << crpcProfiles[index].vals.kp_upper_body << std::endl;
+    kpUpperBodyBox->setValue( crpcProfiles[index].vals.kp_upper_body * pow(10, -getExponent(crpcProfiles[index].vals.kp_upper_body)) );
     kpUpperBodyExpBox->setValue( getExponent(crpcProfiles[index].vals.kp_upper_body) );
-    kpMassDistribBox->setValue( crpcProfiles[index].vals.kp_mass_distrib * pow(10, getExponent(crpcProfiles[index].vals.kp_mass_distrib)) );
+    kpMassDistribBox->setValue( crpcProfiles[index].vals.kp_mass_distrib * pow(10, -getExponent(crpcProfiles[index].vals.kp_mass_distrib)) );
     kpMassDistribExpBox->setValue( getExponent(crpcProfiles[index].vals.kp_mass_distrib) );
-    kpZmpDiffBox->setValue( crpcProfiles[index].vals.kp_zmp_diff * pow(10, getExponent(crpcProfiles[index].vals.kp_zmp_diff)) );
+    kpZmpDiffBox->setValue( crpcProfiles[index].vals.kp_zmp_diff * pow(10, -getExponent(crpcProfiles[index].vals.kp_zmp_diff)) );
     kpZmpDiffExpBox->setValue( getExponent(crpcProfiles[index].vals.kp_zmp_diff) );
-    kpZmpComBox->setValue( crpcProfiles[index].vals.kp_zmp_com * pow(10, getExponent(crpcProfiles[index].vals.kp_zmp_com)) );
+    kpZmpComBox->setValue( crpcProfiles[index].vals.kp_zmp_com * pow(10, -getExponent(crpcProfiles[index].vals.kp_zmp_com)) );
     kpZmpComExpBox->setValue( getExponent(crpcProfiles[index].vals.kp_zmp_com) );
     zmpRefXBox->setValue( crpcProfiles[index].vals.zmp_ref_x );
     zmpRefYBox->setValue( crpcProfiles[index].vals.zmp_ref_y );
-    hipHeightBox->setValue( crpcProfiles[index].vals.hip_height );
+    hipCrouchBox->setValue( crpcProfiles[index].vals.hip_crouch );
+    fromCurrentRefBox->setChecked( crpcProfiles[index].vals.from_current_ref );
     negateMomentsBox->setChecked( crpcProfiles[index].vals.negate_moments );
 
     crpcSaveAsEdit->clear();
@@ -637,12 +641,10 @@ void HuboWalkWidget::handleCrpcProfileSelect(int index)
 
 int HuboWalkWidget::getExponent(double value)
 {
-    int exponent = 0;
-    for(; floor(value) <= 0 ; value *= 10)
-    {
-        exponent--;
-    }
-    return exponent;
+    if (!value) { return 0; }
+    std::cout << "value: " << value << std::endl;
+    std::cout << floor(log(value)/log(10)) << std::endl;
+    return floor(log(value)/log(10));
 }
 
 void HuboWalkWidget::handleCrpcProfileDelete()
@@ -659,7 +661,6 @@ void HuboWalkWidget::handleCrpcProfileSaveAs()
     crpcProfiles.append(tempProf);
     updateCrpcProfileBox();
     crpcProfileSelect->setCurrentIndex(crpcProfileSelect->findText(tempProf.name));
-
     crpcSaveAsEdit->clear();
     crpcSaveAsEdit->setPlaceholderText("Remember to save your RViz session! (Ctrl-S)");
 }

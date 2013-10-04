@@ -430,7 +430,8 @@ public:
       QSpinBox* kpZmpComExpBox;
       QDoubleSpinBox* zmpRefXBox;
       QDoubleSpinBox* zmpRefYBox;
-      QDoubleSpinBox* hipHeightBox;
+      QDoubleSpinBox* hipCrouchBox;
+      QCheckBox* fromCurrentRefBox;
       QCheckBox* negateMomentsBox;
 
       QPushButton* updateCrpcParams;

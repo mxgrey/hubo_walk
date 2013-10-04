@@ -129,6 +129,9 @@ void HuboWalkPanel::load(const rviz::Config &config)
             p_config.mapGetValue("fixed_com_offset_z"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.fixed_com_offset_z = temp.toDouble();
+            p_config.mapGetValue("constant_body_z"+QString::number(i),
+                                 &temp);
+            content->zmpProfiles[i].vals.params.constant_body_z = temp.toBool();
             p_config.mapGetValue("zmpoff_y"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.zmpoff_y = temp.toDouble();
@@ -415,9 +418,15 @@ void HuboWalkPanel::load(const rviz::Config &config)
             pb_config.mapGetValue("zmp_ref_y"+QString::number(i),
                                  &temp);
             content->crpcProfiles[i].vals.zmp_ref_y = temp.toDouble();
-            pb_config.mapGetValue("hip_height"+QString::number(i),
+            pb_config.mapGetValue("hip_crouch"+QString::number(i),
                                  &temp);
-            content->crpcProfiles[i].vals.hip_height = temp.toDouble();
+            content->crpcProfiles[i].vals.hip_crouch = temp.toDouble();
+            pb_config.mapGetValue("from_current_ref"+QString::number(i),
+                                  &temp);
+            content->crpcProfiles[i].vals.from_current_ref = temp.toBool();
+            pb_config.mapGetValue("negate_moments"+QString::number(i),
+                                  &temp);
+            content->crpcProfiles[i].vals.negate_moments = temp.toBool();
         }
         content->updateCrpcProfileBox();
         content->crpcProfileSelect->setCurrentIndex(selectedProfile.toInt());
@@ -489,6 +498,8 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpProfiles[i].vals.params.fixed_com_offset_y));
         p_config.mapSetValue("fixed_com_offset_z"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.fixed_com_offset_z));
+        p_config.mapSetValue("constant_body_z"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.params.constant_body_z));
         p_config.mapSetValue("zmpoff_y"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.zmpoff_y));
         p_config.mapSetValue("zmpoff_x"+QString::number(i),
@@ -672,8 +683,12 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->crpcProfiles[i].vals.zmp_ref_x));
         pb_config.mapSetValue("zmp_ref_y"+QString::number(i),
                              QVariant(content->crpcProfiles[i].vals.zmp_ref_y));
-        pb_config.mapSetValue("hip_height"+QString::number(i),
-                             QVariant(content->crpcProfiles[i].vals.hip_height));
+        pb_config.mapSetValue("hip_crouch"+QString::number(i),
+                             QVariant(content->crpcProfiles[i].vals.hip_crouch));
+        pb_config.mapSetValue("from_current_ref"+QString::number(i),
+                             QVariant(content->crpcProfiles[i].vals.from_current_ref));
+        pb_config.mapSetValue("negate_moments"+QString::number(i),
+                             QVariant(content->crpcProfiles[i].vals.negate_moments));
     }
     
 }
@@ -2934,22 +2949,29 @@ void HuboWalkWidget::initializeCrpcParamTab()
     bottomLayout->addLayout(zmpRefYLayout);
 
     // Hip Height Widget
-    QHBoxLayout* hipHeightLayout = new QHBoxLayout;
-    QLabel* hipHeightLab = new QLabel;
-    hipHeightLab->setText("Hip Height:");
-    hipHeightLab->setToolTip("Hip height for posture controller initial position (m)");
-    hipHeightLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-    hipHeightLayout->addWidget(hipHeightLab);
-    hipHeightBox = new QDoubleSpinBox;
-    hipHeightBox->setDecimals(3);
-    hipHeightBox->setSingleStep(0.01);
-    hipHeightBox->setMinimum(0.5);
-    hipHeightBox->setMaximum(0.8);
-    hipHeightBox->setValue(0.76);
-    hipHeightBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
-    hipHeightLayout->addWidget(hipHeightBox);
+    QHBoxLayout* hipCrouchLayout = new QHBoxLayout;
+    QLabel* hipCrouchLab = new QLabel;
+    hipCrouchLab->setText("Crouch Amount:");
+    hipCrouchLab->setToolTip("Distance to crouch for posture controller initial position (m)");
+    hipCrouchLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    hipCrouchLayout->addWidget(hipCrouchLab);
+    hipCrouchBox = new QDoubleSpinBox;
+    hipCrouchBox->setDecimals(3);
+    hipCrouchBox->setSingleStep(0.01);
+    hipCrouchBox->setMinimum(0.0);
+    hipCrouchBox->setMaximum(0.25);
+    hipCrouchBox->setValue(0.05);
+    hipCrouchBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    hipCrouchLayout->addWidget(hipCrouchBox);
 
-    bottomLayout->addLayout(hipHeightLayout);
+    bottomLayout->addLayout(hipCrouchLayout);
+
+    fromCurrentRefBox = new QCheckBox;
+    fromCurrentRefBox->setText("Offset From Current Angles");
+    fromCurrentRefBox->setToolTip("Make offsets relative to current reference angles");
+    fromCurrentRefBox->setChecked(false);
+    fromCurrentRefBox->setDisabled(false);
+    bottomLayout->addWidget(fromCurrentRefBox, 0, Qt::AlignRight);
 
     negateMomentsBox = new QCheckBox;
     negateMomentsBox->setText("Negate Moments");
