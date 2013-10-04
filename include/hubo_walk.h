@@ -189,7 +189,6 @@ public:
 //  void initializeAchStructs();
   void sendCommand();
   void sendBalCommand();
-  void sendCrpcParams();
 
   void setIPAddress(int a, int b, int c, int d);
   int getIPAddress(int index);
@@ -434,6 +433,9 @@ public:
       QCheckBox* fromCurrentRefBox;
       QCheckBox* negateMomentsBox;
 
+      QPushButton* sendOffsetsButton;
+      QLineEdit* offsetsFileEdit;
+
       QPushButton* updateCrpcParams;
 
 protected:
@@ -449,6 +451,8 @@ signals:
 protected Q_SLOTS:
 
   void sendBalParams();
+  void sendCrpcParams();
+  void sendCrpcOffsetsFileName();
 
   void handleStaticButton();
   void handleBalOffButton();

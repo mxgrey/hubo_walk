@@ -277,6 +277,18 @@ void HuboWalkWidget::sendCrpcParams()
         std::cout << "Ach Error Putting onto CrpcParams Channel: " << ach_result_to_string(r) << std::endl;
 }
 
+void HuboWalkWidget::sendCrpcOffsetsFileName()
+{
+    QByteArray st = offsetsFileEdit->text().toLocal8Bit();
+    if (st.count()==0) { return; }
+    strcpy(balCmd.filename, st.data());
+    std::cout << "file name: " << balCmd.filename << std::endl;
+    balCmd.cmd_request = LOAD_CRPC;
+    ach_status_t r = ach_put( &balanceCmdChan, &balCmd, sizeof(balCmd) );
+    if( r != ACH_OK )
+        std::cout << "Balance Command Ach Error: " << ach_result_to_string(r) << std::endl;
+}
+
 #ifdef HAVE_HUBOMZ
 bool HuboWalkWidget::fillProfile(zmp_cmd_t &vals, const walkMode_t walkMode)
 {
@@ -596,7 +608,6 @@ void HuboWalkWidget::updatebalProfileBox()
 void HuboWalkWidget::fillCrpcProfile(crpc_params_t &vals)
 {
     // Fill in crpc params
-    std::cout << "kpUB: " << kpUpperBodyBox->value() << " x 10 ^ " << kpUpperBodyExpBox->value() << std::endl;
     vals.kp_upper_body = kpUpperBodyBox->value() * pow(10, kpUpperBodyExpBox->value());
     vals.kp_mass_distrib = kpMassDistribBox->value() * pow(10, kpMassDistribExpBox->value());
     vals.kp_zmp_diff = kpZmpDiffBox->value() * pow(10, kpZmpDiffExpBox->value());
@@ -619,9 +630,7 @@ void HuboWalkWidget::handleCrpcProfileSave()
 
 void HuboWalkWidget::handleCrpcProfileSelect(int index)
 {
-    std::cout << "crpcProfileSelect" << std::endl;
     // Set crpc gains
-    std::cout << crpcProfiles[index].vals.kp_upper_body << std::endl;
     kpUpperBodyBox->setValue( crpcProfiles[index].vals.kp_upper_body * pow(10, -getExponent(crpcProfiles[index].vals.kp_upper_body)) );
     kpUpperBodyExpBox->setValue( getExponent(crpcProfiles[index].vals.kp_upper_body) );
     kpMassDistribBox->setValue( crpcProfiles[index].vals.kp_mass_distrib * pow(10, -getExponent(crpcProfiles[index].vals.kp_mass_distrib)) );
@@ -642,8 +651,6 @@ void HuboWalkWidget::handleCrpcProfileSelect(int index)
 int HuboWalkWidget::getExponent(double value)
 {
     if (!value) { return 0; }
-    std::cout << "value: " << value << std::endl;
-    std::cout << floor(log(value)/log(10)) << std::endl;
     return floor(log(value)/log(10));
 }
 

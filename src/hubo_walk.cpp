@@ -132,6 +132,9 @@ void HuboWalkPanel::load(const rviz::Config &config)
             p_config.mapGetValue("constant_body_z"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.constant_body_z = temp.toBool();
+            p_config.mapGetValue("use_fixed_com"+QString::number(i),
+                                 &temp);
+            content->zmpProfiles[i].vals.params.use_fixed_com = temp.toBool();
             p_config.mapGetValue("zmpoff_y"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.zmpoff_y = temp.toDouble();
@@ -2980,8 +2983,22 @@ void HuboWalkWidget::initializeCrpcParamTab()
     negateMomentsBox->setDisabled(false);
     bottomLayout->addWidget(negateMomentsBox, 0, Qt::AlignRight);
 
+    QHBoxLayout* offsetsFileNameLayout = new QHBoxLayout;
+
+    sendOffsetsButton = new QPushButton;
+    sendOffsetsButton->setText("Send Offsets");
+    sendOffsetsButton->setToolTip("Push to send offsets file name");
+    connect(sendOffsetsButton, SIGNAL(clicked()), this, SLOT(sendCrpcOffsetsFileName()));
+    offsetsFileNameLayout->addWidget(sendOffsetsButton);
+
+    offsetsFileEdit = new QLineEdit;
+    offsetsFileEdit->setToolTip("Type name of offsets file");
+    offsetsFileNameLayout->addWidget(offsetsFileEdit);
+
+    bottomLayout->addLayout(offsetsFileNameLayout);
+
     updateCrpcParams = new QPushButton;
-    updateCrpcParams->setText("Send");
+    updateCrpcParams->setText("Send CRPC Parameters");
     updateCrpcParams->setToolTip("Send this set of parameters to the balance daemon");
     connect(updateCrpcParams, SIGNAL(clicked()), this, SLOT(sendCrpcParams()));
     bottomLayout->addWidget(updateCrpcParams);
