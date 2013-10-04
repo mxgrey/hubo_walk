@@ -640,7 +640,7 @@ int HuboWalkWidget::getExponent(double value)
     int exponent = 0;
     for(; floor(value) <= 0 ; value *= 10)
     {
-        exponent++;
+        exponent--;
     }
     return exponent;
 }
