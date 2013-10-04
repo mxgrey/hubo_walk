@@ -282,7 +282,6 @@ void HuboWalkWidget::sendCrpcOffsetsFileName()
     QByteArray st = offsetsFileEdit->text().toLocal8Bit();
     if (st.count()==0) { return; }
     strcpy(balCmd.filename, st.data());
-    std::cout << "file name: " << balCmd.filename << std::endl;
     balCmd.cmd_request = LOAD_CRPC;
     ach_status_t r = ach_put( &balanceCmdChan, &balCmd, sizeof(balCmd) );
     if( r != ACH_OK )

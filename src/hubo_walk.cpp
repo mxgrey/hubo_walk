@@ -243,6 +243,12 @@ void HuboWalkPanel::load(const rviz::Config &config)
             pQuad_config.mapGetValue("fixed_com_offset_z"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.fixed_com_offset_z = temp.toDouble();
+            pQuad_config.mapGetValue("constant_body_z"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.constant_body_z = temp.toBool();
+            pQuad_config.mapGetValue("use_fixed_com"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.use_fixed_com = temp.toBool();
             pQuad_config.mapGetValue("zmpoff_y"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.zmpoff_y = temp.toDouble();
@@ -503,6 +509,8 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpProfiles[i].vals.params.fixed_com_offset_z));
         p_config.mapSetValue("constant_body_z"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.constant_body_z));
+        p_config.mapSetValue("use_fixed_com"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.params.use_fixed_com));
         p_config.mapSetValue("zmpoff_y"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.zmpoff_y));
         p_config.mapSetValue("zmpoff_x"+QString::number(i),
@@ -568,6 +576,10 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpQuadProfiles[i].vals.params.fixed_com_offset_y));
         pQuad_config.mapSetValue("fixed_com_offset_z"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.fixed_com_offset_z));
+        pQuad_config.mapSetValue("constant_body_z"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.constant_body_z));
+        pQuad_config.mapSetValue("use_fixed_com"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.use_fixed_com));
         pQuad_config.mapSetValue("zmpoff_y"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.zmpoff_y));
         pQuad_config.mapSetValue("zmpoff_x"+QString::number(i),
@@ -1148,7 +1160,7 @@ void HuboWalkWidget::initializeCommandTab()
     balLayout->addLayout(staticCmdsLayout, 0);
 
     crpcButton = new QPushButton;
-    crpcButton->setText("Fix Posture");
+    crpcButton->setText("Run CRPC");
     crpcButton->setToolTip("Run Cascade Robust Posture Controller and apply offsets to balancing and walking.");
     balLayout->addWidget(crpcButton);
     connect( crpcButton, SIGNAL(clicked()), this, SLOT(handleRunCrpcButton()) );
@@ -1243,7 +1255,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     xOffsetBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     xOffsetBox->setToolTip(xoffsetLab->toolTip());
     xOffsetBox->setDecimals(4);
-    xOffsetBox->setValue(0.038);
+    xOffsetBox->setValue(0.020);
     xOffsetBox->setSingleStep(0.01);
     xOffsetBox->setMinimum(-10);
     xOffsetBox->setMaximum(10);
@@ -1838,7 +1850,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     xOffsetBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     xOffsetBoxQuad->setToolTip(xoffsetLab->toolTip());
     xOffsetBoxQuad->setDecimals(4);
-    xOffsetBoxQuad->setValue(0.038);
+    xOffsetBoxQuad->setValue(0.020);
     xOffsetBoxQuad->setSingleStep(0.01);
     xOffsetBoxQuad->setMinimum(-10);
     xOffsetBoxQuad->setMaximum(10);
@@ -2392,7 +2404,6 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     useFixedComBoxQuad->setChecked(false);
     useFixedComBoxQuad->setDisabled(true);
     comCheckboxesLayout->addWidget(useFixedComBoxQuad);
-    std::cout << "use fixed com for quad? " << useFixedComBoxQuad->isChecked() << std::endl;
 
     comSettingsLayout->addLayout(comCheckboxesLayout);
 
@@ -2476,12 +2487,15 @@ void HuboWalkWidget::initializeBalParamTab()
     QHBoxLayout* gainsLabelLayout = new QHBoxLayout;
     QLabel* gainTypeLab = new QLabel;
     gainTypeLab->setText("<u><b>Gain Type</b></u>");
+    gainTypeLab->setFixedHeight(50);
     gainsLabelLayout->addWidget(gainTypeLab);
     QLabel* balGainsLab = new QLabel;
     balGainsLab->setText("<u><b>Balance Gains<\b></u>");
+    balGainsLab->setFixedHeight(50);
     gainsLabelLayout->addWidget(balGainsLab);
     QLabel* walkGainsLab = new QLabel;
     walkGainsLab->setText("<u><b>Walking Gains</b></u>");
+    walkGainsLab->setFixedHeight(50);
     gainsLabelLayout->addWidget(walkGainsLab);
     bottomLayout->addLayout(gainsLabelLayout);
 
@@ -2729,7 +2743,7 @@ void HuboWalkWidget::initializeBalParamTab()
     bottomLayout->addLayout(doubleSupportHipNudgeGainLayout);
 
     updateBalParams = new QPushButton;
-    updateBalParams->setText("Send");
+    updateBalParams->setText("Send Balance Parameters");
     updateBalParams->setToolTip("Send this set of parameters to the balancing daemon");
     connect(updateBalParams, SIGNAL(clicked()), this, SLOT(sendBalParams()));
     bottomLayout->addWidget(updateBalParams);
@@ -2986,8 +3000,8 @@ void HuboWalkWidget::initializeCrpcParamTab()
     QHBoxLayout* offsetsFileNameLayout = new QHBoxLayout;
 
     sendOffsetsButton = new QPushButton;
-    sendOffsetsButton->setText("Send Offsets");
-    sendOffsetsButton->setToolTip("Push to send offsets file name");
+    sendOffsetsButton->setText("Send Offsets Filename");
+    sendOffsetsButton->setToolTip("Push to send offsets file name. USE full path.");
     connect(sendOffsetsButton, SIGNAL(clicked()), this, SLOT(sendCrpcOffsetsFileName()));
     offsetsFileNameLayout->addWidget(sendOffsetsButton);
 
