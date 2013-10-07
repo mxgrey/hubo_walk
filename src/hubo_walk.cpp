@@ -385,6 +385,9 @@ void HuboWalkPanel::load(const rviz::Config &config)
             pb_config.mapGetValue("double_support_hip_nudge_kd"+QString::number(i),
                                  &temp);
             content->balProfiles[i].vals.balance_gains.double_support_hip_nudge_kd = temp.toDouble();
+            pb_config.mapGetValue("use_landing_controller"+QString::number(i),
+                                 &temp);
+            content->balProfiles[i].vals.walking_gains.useLandingController = temp.toInt();
         }
 
         content->updatebalProfileBox();
@@ -670,6 +673,8 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->balProfiles[i].vals.balance_gains.double_support_hip_nudge_kp));
         pb_config.mapSetValue("double_support_hip_nudge_kd"+QString::number(i),
                              QVariant(content->balProfiles[i].vals.balance_gains.double_support_hip_nudge_kd));
+        pb_config.mapSetValue("use_landing_controller"+QString::number(i),
+                             QVariant(content->balProfiles[i].vals.walking_gains.useLandingController));
     }
 
     // Save CRPC Profile
@@ -2742,6 +2747,13 @@ void HuboWalkWidget::initializeBalParamTab()
 
     bottomLayout->addLayout(doubleSupportHipNudgeGainLayout);
 
+    landingControllerBox = new QCheckBox;
+    landingControllerBox->setText("Use Landing Controller");
+    landingControllerBox->setToolTip("Activate landing controller during walking");
+    landingControllerBox->setChecked(false);
+    landingControllerBox->setDisabled(false);
+    bottomLayout->addWidget(landingControllerBox, 0, Qt::AlignRight);
+
     updateBalParams = new QPushButton;
     updateBalParams->setText("Send Balance Parameters");
     updateBalParams->setToolTip("Send this set of parameters to the balancing daemon");
@@ -2999,11 +3011,17 @@ void HuboWalkWidget::initializeCrpcParamTab()
 
     QHBoxLayout* offsetsFileNameLayout = new QHBoxLayout;
 
-    sendOffsetsButton = new QPushButton;
-    sendOffsetsButton->setText("Send Offsets Filename");
-    sendOffsetsButton->setToolTip("Push to send offsets file name. USE full path.");
-    connect(sendOffsetsButton, SIGNAL(clicked()), this, SLOT(sendCrpcOffsetsFileName()));
-    offsetsFileNameLayout->addWidget(sendOffsetsButton);
+    loadOffsetsButton = new QPushButton;
+    loadOffsetsButton->setText("Load Offsets");
+    loadOffsetsButton->setToolTip("Push to have balance-daemon load offsets from a file. USE full path.");
+    connect(loadOffsetsButton, SIGNAL(clicked()), this, SLOT(sendCrpcOffsetsFileCommand(LOAD_CRPC)));
+    offsetsFileNameLayout->addWidget(loadOffsetsButton);
+
+    saveOffsetsButton = new QPushButton;
+    saveOffsetsButton->setText("Save Offsets");
+    saveOffsetsButton->setToolTip("Push to have balance-daemon save offsets to a file. USE full path.");
+    connect(saveOffsetsButton, SIGNAL(clicked()), this, SLOT(sendCrpcOffsetsFileCommand(SAVE_CRPC)));
+    offsetsFileNameLayout->addWidget(saveOffsetsButton);
 
     offsetsFileEdit = new QLineEdit;
     offsetsFileEdit->setToolTip("Type name of offsets file");

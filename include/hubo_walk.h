@@ -408,6 +408,8 @@ public:
       QDoubleSpinBox* doubleSupportHipNudgeGainBoxP;
       QDoubleSpinBox* doubleSupportHipNudgeGainBoxD;
 
+      QCheckBox* landingControllerBox;
+
       QPushButton* updateBalParams;
 
     // CRPC Tab Widgets
@@ -433,7 +435,8 @@ public:
       QCheckBox* fromCurrentRefBox;
       QCheckBox* negateMomentsBox;
 
-      QPushButton* sendOffsetsButton;
+      QPushButton* loadOffsetsButton;
+      QPushButton* saveOffsetsButton;
       QLineEdit* offsetsFileEdit;
 
       QPushButton* updateCrpcParams;
@@ -452,7 +455,7 @@ protected Q_SLOTS:
 
   void sendBalParams();
   void sendCrpcParams();
-  void sendCrpcOffsetsFileName();
+  void sendCrpcOffsetsFileCommand(balance_mode_t request);
 
   void handleStaticButton();
   void handleBalOffButton();

@@ -87,7 +87,7 @@ void HuboWalkWidget::refreshState()
     else
     {
         QColor grayColor(230,230,230);
-        colorButton(crpcButton, grayColor, "Fix Posture");
+        colorButton(crpcButton, grayColor, "Run CRPC");
     }
 }
 
@@ -277,12 +277,12 @@ void HuboWalkWidget::sendCrpcParams()
         std::cout << "Ach Error Putting onto CrpcParams Channel: " << ach_result_to_string(r) << std::endl;
 }
 
-void HuboWalkWidget::sendCrpcOffsetsFileName()
+void HuboWalkWidget::sendCrpcOffsetsFileCommand(balance_mode_t request)
 {
+    balCmd.cmd_request = request;
     QByteArray st = offsetsFileEdit->text().toLocal8Bit();
     if (st.count()==0) { return; }
     strcpy(balCmd.filename, st.data());
-    balCmd.cmd_request = LOAD_CRPC;
     ach_status_t r = ach_put( &balanceCmdChan, &balCmd, sizeof(balCmd) );
     if( r != ACH_OK )
         std::cout << "Balance Command Ach Error: " << ach_result_to_string(r) << std::endl;
@@ -531,6 +531,9 @@ void HuboWalkWidget::fillbalProfile(balance_params_t &vals)
     vals.walking_gains.damping_gain = dampBoxWalk->value() ;
     vals.walking_gains.fz_response = responseBoxWalk->value() ;
 
+    // Fill in controller activation info
+    vals.walking_gains.useLandingController = landingControllerBox->isChecked() ;
+
 }
 
 void HuboWalkWidget::handlebalProfileSave()
@@ -568,6 +571,8 @@ void HuboWalkWidget::handlebalProfileSelect(int index)
     springBoxWalk->setValue( balProfiles[index].vals.walking_gains.spring_gain );
     dampBoxWalk->setValue( balProfiles[index].vals.walking_gains.damping_gain );
     responseBoxWalk->setValue( balProfiles[index].vals.walking_gains.fz_response );
+
+    landingControllerBox->setChecked( balProfiles[index].vals.walking_gains.useLandingController );
 
     balSaveAsEdit->clear();
 }
@@ -765,7 +770,7 @@ void HuboWalkWidget::initializeAchConnections()
                   << CHAN_ZMP_CMD_NAME << std::endl;
 
     achChannelZmpState.start("ach mk " + QString::fromLocal8Bit(HUBO_CHAN_ZMP_STATE_NAME)
-                        + " -1 -m 10 -n 8000 -o 666", QIODevice::ReadWrite);
+                        + " -1 -m 10 -n 3000 -o 666", QIODevice::ReadWrite);
     achChannelZmpState.waitForFinished();
     r = ach_open(&zmpStateChan, HUBO_CHAN_ZMP_STATE_NAME, NULL);
     if( r != ACH_OK )
@@ -852,7 +857,7 @@ void HuboWalkWidget::achdConnectSlot()
     connect(&achdCrpcParam, SIGNAL(error(QProcess::ProcessError)), this, SLOT(achdExitError(QProcess::ProcessError)));
 
     // For receiving posture controller state info from hubo
-    achdCrpcState.start("achd push " + QString::number(ipAddrA)
+    achdCrpcState.start("achd pull " + QString::number(ipAddrA)
                                  + "." + QString::number(ipAddrB)
                                  + "." + QString::number(ipAddrC)
                                  + "." + QString::number(ipAddrD)
