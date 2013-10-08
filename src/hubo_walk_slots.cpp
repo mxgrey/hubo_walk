@@ -69,7 +69,7 @@ void HuboWalkWidget::refreshState()
         QColor redColor(178,34,34);
         colorButton(crpcButton, redColor, "Phase 1...");
     }
-    else if(CRPC_PHASE_1 == crpcState.phase)
+    else if(CRPC_PHASE_2 == crpcState.phase)
     {
         QColor orangeColor(255,140,0);
         colorButton(crpcButton, orangeColor, "Phase 2...");
@@ -277,9 +277,21 @@ void HuboWalkWidget::sendCrpcParams()
         std::cout << "Ach Error Putting onto CrpcParams Channel: " << ach_result_to_string(r) << std::endl;
 }
 
-void HuboWalkWidget::sendCrpcOffsetsFileCommand(balance_mode_t request)
+void HuboWalkWidget::saveCrpcOffsets()
 {
-    balCmd.cmd_request = request;
+    balCmd.cmd_request = SAVE_CRPC;
+    sendCrpcOffsetsFileCommand();
+}
+
+void HuboWalkWidget::loadCrpcOffsets()
+{
+    balCmd.cmd_request = LOAD_CRPC;
+    sendCrpcOffsetsFileCommand();
+}
+
+void HuboWalkWidget::sendCrpcOffsetsFileCommand()
+{
+
     QByteArray st = offsetsFileEdit->text().toLocal8Bit();
     if (st.count()==0) { return; }
     strcpy(balCmd.filename, st.data());
@@ -298,6 +310,8 @@ bool HuboWalkWidget::fillProfile(zmp_cmd_t &vals, const walkMode_t walkMode)
         vals.params.half_stance_width = lateralDistanceBox->value() ;
         vals.params.step_height = liftoffHeightBox->value() ;
         vals.params.sidestep_length = sideStepDistanceBox->value() ;
+        vals.params.nominal_foot_pos_rate = nomFootRatePosBox->value() ;
+        vals.params.nominal_foot_rot_rate = nomFootRateRotBox->value() ;
         vals.params.com_height = comHeightBox->value() ;
         vals.params.torso_pitch = torsoPitchBox->value() ;
         vals.params.com_ik_angle_weight = comIKAngleWeightBox->value() ;
@@ -331,6 +345,8 @@ bool HuboWalkWidget::fillProfile(zmp_cmd_t &vals, const walkMode_t walkMode)
         vals.params.half_stance_width = lateralDistanceBoxQuad->value() ;
         vals.params.step_height = liftoffHeightBoxQuad->value() ;
         vals.params.sidestep_length = sideStepDistanceBoxQuad->value() ;
+        vals.params.nominal_foot_pos_rate = nomFootRatePosBoxQuad->value() ;
+        vals.params.nominal_foot_rot_rate = nomFootRateRotBoxQuad->value() ;
         vals.params.com_height = comHeightBoxQuad->value() ;
         vals.params.torso_pitch = torsoPitchBoxQuad->value() ;
         vals.params.com_ik_angle_weight = comIKAngleWeightBoxQuad->value() ;
@@ -391,6 +407,8 @@ void HuboWalkWidget::handleProfileSelect(int index)
     lateralDistanceBox->setValue(zmpProfiles[index].vals.params.half_stance_width ) ;
     liftoffHeightBox->setValue(zmpProfiles[index].vals.params.step_height ) ;
     sideStepDistanceBox->setValue(zmpProfiles[index].vals.params.sidestep_length ) ;
+    nomFootRatePosBox->setValue(zmpProfiles[index].vals.params.nominal_foot_pos_rate ) ;
+    nomFootRateRotBox->setValue(zmpProfiles[index].vals.params.nominal_foot_rot_rate ) ;
     comHeightBox->setValue(zmpProfiles[index].vals.params.com_height ) ;
     torsoPitchBox->setValue(zmpProfiles[index].vals.params.torso_pitch ) ;
     comIKAngleWeightBox->setValue(zmpProfiles[index].vals.params.com_ik_angle_weight ) ;
@@ -422,6 +440,8 @@ void HuboWalkWidget::handleQuadrupedProfileSelect(int index)
     lateralDistanceBoxQuad->setValue(zmpQuadProfiles[index].vals.params.half_stance_width ) ;
     liftoffHeightBoxQuad->setValue(zmpQuadProfiles[index].vals.params.step_height ) ;
     sideStepDistanceBoxQuad->setValue(zmpQuadProfiles[index].vals.params.sidestep_length ) ;
+    nomFootRatePosBoxQuad->setValue(zmpQuadProfiles[index].vals.params.nominal_foot_pos_rate );
+    nomFootRateRotBoxQuad->setValue(zmpQuadProfiles[index].vals.params.nominal_foot_rot_rate );
     comHeightBoxQuad->setValue(zmpQuadProfiles[index].vals.params.com_height ) ;
     torsoPitchBoxQuad->setValue(zmpQuadProfiles[index].vals.params.torso_pitch ) ;
     comIKAngleWeightBoxQuad->setValue(zmpQuadProfiles[index].vals.params.com_ik_angle_weight ) ;
@@ -776,6 +796,7 @@ void HuboWalkWidget::initializeAchConnections()
     if( r != ACH_OK )
         std::cout << "Ach Error: " << ach_result_to_string(r) << "for channel " 
                   << HUBO_CHAN_ZMP_STATE_NAME << std::endl;
+    ach_flush(&zmpStateChan);
 
 #endif // HAVE_HUBOMZ
 
@@ -806,6 +827,7 @@ void HuboWalkWidget::initializeAchConnections()
     r = ach_open(&crpcStateChan, CRPC_STATE_CHAN, NULL );
     if( r != ACH_OK )
         std::cout << "Ach Error while opening " << CRPC_STATE_CHAN << " channel: " << ach_result_to_string(r) << std::endl;
+    ach_flush(&crpcStateChan);
 }
 
 void HuboWalkWidget::achdConnectSlot()

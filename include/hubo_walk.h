@@ -189,6 +189,7 @@ public:
 //  void initializeAchStructs();
   void sendCommand();
   void sendBalCommand();
+  void sendCrpcOffsetsFileCommand();
 
   void setIPAddress(int a, int b, int c, int d);
   int getIPAddress(int index);
@@ -206,7 +207,7 @@ public:
   struct crpc_state crpcState;
   
   int crpcResetCounter;
-  static const int crpcResetCounterMax = 200;
+  static const int crpcResetCounterMax = 1000;
   
   // Handling profiles TODO
   //std::vector<zmp_params> profiles;
@@ -355,6 +356,8 @@ public:
       QDoubleSpinBox* quadStabilityMarginBoxQuad;
       QDoubleSpinBox* halfPegWidthBoxQuad;
       QDoubleSpinBox* pegRadiusBoxQuad;
+      QDoubleSpinBox* nomFootRatePosBoxQuad;
+      QDoubleSpinBox* nomFootRateRotBoxQuad;
 
       QDoubleSpinBox* comHeightBoxQuad;
 	  QDoubleSpinBox* torsoPitchBoxQuad;
@@ -455,7 +458,8 @@ protected Q_SLOTS:
 
   void sendBalParams();
   void sendCrpcParams();
-  void sendCrpcOffsetsFileCommand(balance_mode_t request);
+  void saveCrpcOffsets();
+  void loadCrpcOffsets();
 
   void handleStaticButton();
   void handleBalOffButton();

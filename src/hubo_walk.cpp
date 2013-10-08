@@ -111,6 +111,12 @@ void HuboWalkPanel::load(const rviz::Config &config)
             p_config.mapGetValue("sidestep_length"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.sidestep_length = temp.toDouble();
+            p_config.mapGetValue("nom_foot_pos_rate"+QString::number(i),
+                                 &temp);
+            content->zmpProfiles[i].vals.params.nominal_foot_pos_rate = temp.toDouble();
+            p_config.mapGetValue("nom_foot_rot_rate"+QString::number(i),
+                                 &temp);
+            content->zmpProfiles[i].vals.params.nominal_foot_rot_rate = temp.toDouble();
             p_config.mapGetValue("com_height"+QString::number(i),
                                  &temp);
             content->zmpProfiles[i].vals.params.com_height = temp.toDouble();
@@ -225,6 +231,12 @@ void HuboWalkPanel::load(const rviz::Config &config)
             pQuad_config.mapGetValue("sidestep_length"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.sidestep_length = temp.toDouble();
+            pQuad_config.mapGetValue("nom_foot_pos_rate"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.nominal_foot_pos_rate = temp.toDouble();
+            pQuad_config.mapGetValue("nom_foot_rot_rate"+QString::number(i),
+                                 &temp);
+            content->zmpQuadProfiles[i].vals.params.nominal_foot_rot_rate = temp.toDouble();
             pQuad_config.mapGetValue("com_height"+QString::number(i),
                                  &temp);
             content->zmpQuadProfiles[i].vals.params.com_height = temp.toDouble();
@@ -498,6 +510,10 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpProfiles[i].vals.params.step_height));
         p_config.mapSetValue("sidestep_length"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.sidestep_length));
+        p_config.mapSetValue("nom_foot_pos_rate"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.params.nominal_foot_pos_rate));
+        p_config.mapSetValue("nom_foot_rot_rate"+QString::number(i),
+                             QVariant(content->zmpProfiles[i].vals.params.nominal_foot_rot_rate));
         p_config.mapSetValue("com_height"+QString::number(i),
                              QVariant(content->zmpProfiles[i].vals.params.com_height));
         p_config.mapSetValue("torso_pitch"+QString::number(i),
@@ -567,6 +583,10 @@ void HuboWalkPanel::save(rviz::Config config) const
                              QVariant(content->zmpQuadProfiles[i].vals.params.step_height));
         pQuad_config.mapSetValue("sidestep_length"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.sidestep_length));
+        pQuad_config.mapSetValue("nom_foot_pos_rate"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.nominal_foot_pos_rate));
+        pQuad_config.mapSetValue("nom_foot_rot_rate"+QString::number(i),
+                             QVariant(content->zmpQuadProfiles[i].vals.params.nominal_foot_rot_rate));
         pQuad_config.mapSetValue("com_height"+QString::number(i),
                              QVariant(content->zmpQuadProfiles[i].vals.params.com_height));
         pQuad_config.mapSetValue("torso_pitch"+QString::number(i),
@@ -2194,6 +2214,37 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     
     swingSettingsLayout->addLayout(lateralDistanceLay);
 
+    QHBoxLayout* nomFootRateLay = new QHBoxLayout;
+    QLabel* nomFootRateLab = new QLabel;
+    nomFootRateLab->setText("Nom. Foot Rate (Pos,Rot):");
+    nomFootRateLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    nomFootRateLab->setToolTip("Nominal foot rate for position and rotation");
+    nomFootRateLay->addWidget(nomFootRateLab);
+
+    nomFootRatePosBoxQuad = new QDoubleSpinBox;
+    nomFootRatePosBoxQuad->setSizePolicy(pbsize);
+    nomFootRatePosBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    nomFootRatePosBoxQuad->setToolTip(nomFootRateLab->toolTip());
+    nomFootRatePosBoxQuad->setDecimals(4);
+    nomFootRatePosBoxQuad->setValue(0.3);
+    nomFootRatePosBoxQuad->setSingleStep(0.1);
+    nomFootRatePosBoxQuad->setMinimum(0);
+    nomFootRatePosBoxQuad->setMaximum(5);
+    nomFootRateLay->addWidget(nomFootRatePosBoxQuad);
+
+    nomFootRateRotBoxQuad = new QDoubleSpinBox;
+    nomFootRateRotBoxQuad->setSizePolicy(pbsize);
+    nomFootRateRotBoxQuad->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    nomFootRateRotBoxQuad->setToolTip(nomFootRateLab->toolTip());
+    nomFootRateRotBoxQuad->setDecimals(4);
+    nomFootRateRotBoxQuad->setValue(1.5);
+    nomFootRateRotBoxQuad->setSingleStep(0.1);
+    nomFootRateRotBoxQuad->setMinimum(0);
+    nomFootRateRotBoxQuad->setMaximum(5);
+    nomFootRateLay->addWidget(nomFootRateRotBoxQuad);
+
+    swingSettingsLayout->addLayout(nomFootRateLay);
+
     // Quad stance length
     QHBoxLayout* quadStanceLengthLay = new QHBoxLayout;
     QLabel* quadStanceLengthLab = new QLabel;
@@ -2835,7 +2886,7 @@ void HuboWalkWidget::initializeCrpcParamTab()
     kpUpperBodyBox->setSingleStep(0.5);
     kpUpperBodyBox->setMinimum(0);
     kpUpperBodyBox->setMaximum(20);
-    kpUpperBodyBox->setValue(5);
+    kpUpperBodyBox->setValue(0); // normally 5
     kpUpperBodyLayout->addWidget(kpUpperBodyBox);
 
     QLabel* kpUpperBodyExpLab = new QLabel;
@@ -2848,7 +2899,7 @@ void HuboWalkWidget::initializeCrpcParamTab()
     kpUpperBodyExpBox->setSingleStep(1);
     kpUpperBodyExpBox->setMinimum(-20);
     kpUpperBodyExpBox->setMaximum(20);
-    kpUpperBodyExpBox->setValue(-3);
+    kpUpperBodyExpBox->setValue(0); // normally -3
     kpUpperBodyLayout->addWidget(kpUpperBodyExpBox);
 
     bottomLayout->addLayout(kpUpperBodyLayout);
@@ -3014,13 +3065,13 @@ void HuboWalkWidget::initializeCrpcParamTab()
     loadOffsetsButton = new QPushButton;
     loadOffsetsButton->setText("Load Offsets");
     loadOffsetsButton->setToolTip("Push to have balance-daemon load offsets from a file. USE full path.");
-    connect(loadOffsetsButton, SIGNAL(clicked()), this, SLOT(sendCrpcOffsetsFileCommand(LOAD_CRPC)));
+    connect(loadOffsetsButton, SIGNAL(clicked()), this, SLOT(loadCrpcOffsets()));
     offsetsFileNameLayout->addWidget(loadOffsetsButton);
 
     saveOffsetsButton = new QPushButton;
     saveOffsetsButton->setText("Save Offsets");
     saveOffsetsButton->setToolTip("Push to have balance-daemon save offsets to a file. USE full path.");
-    connect(saveOffsetsButton, SIGNAL(clicked()), this, SLOT(sendCrpcOffsetsFileCommand(SAVE_CRPC)));
+    connect(saveOffsetsButton, SIGNAL(clicked()), this, SLOT(saveCrpcOffsets()));
     offsetsFileNameLayout->addWidget(saveOffsetsButton);
 
     offsetsFileEdit = new QLineEdit;
