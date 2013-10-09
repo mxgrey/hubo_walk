@@ -1280,7 +1280,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     xOffsetBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     xOffsetBox->setToolTip(xoffsetLab->toolTip());
     xOffsetBox->setDecimals(4);
-    xOffsetBox->setValue(0.020);
+    xOffsetBox->setValue(0.010);
     xOffsetBox->setSingleStep(0.01);
     xOffsetBox->setMinimum(-10);
     xOffsetBox->setMaximum(10);
@@ -1570,7 +1570,7 @@ void HuboWalkWidget::initializeZmpBipedParamTab()
     stepDistanceBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     stepDistanceBox->setToolTip(stepDistanceLab->toolTip());
     stepDistanceBox->setDecimals(4);
-    stepDistanceBox->setValue(0.1);
+    stepDistanceBox->setValue(0.04);
     stepDistanceBox->setSingleStep(0.01);
     stepDistanceBox->setMinimum(0);
     stepDistanceBox->setMaximum(5);
@@ -1875,7 +1875,7 @@ void HuboWalkWidget::initializeZmpQuadrupedParamTab()
     xOffsetBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     xOffsetBoxQuad->setToolTip(xoffsetLab->toolTip());
     xOffsetBoxQuad->setDecimals(4);
-    xOffsetBoxQuad->setValue(0.020);
+    xOffsetBoxQuad->setValue(0.010);
     xOffsetBoxQuad->setSingleStep(0.01);
     xOffsetBoxQuad->setMinimum(-10);
     xOffsetBoxQuad->setMaximum(10);
@@ -2572,7 +2572,7 @@ void HuboWalkWidget::initializeBalParamTab()
     flattenBoxWalk->setSingleStep(0.003);
     flattenBoxWalk->setMinimum(0);
     flattenBoxWalk->setMaximum(99999);
-    flattenBoxWalk->setValue(0.0005);
+    flattenBoxWalk->setValue(0.000); // usually 0.0005
     flatLayout->addWidget(flattenBoxWalk);
 
     bottomLayout->addLayout(flatLayout);
@@ -3006,7 +3006,7 @@ void HuboWalkWidget::initializeCrpcParamTab()
     zmpRefXBox->setSingleStep(0.01);
     zmpRefXBox->setMinimum(-0.1);
     zmpRefXBox->setMaximum(0.1);
-    zmpRefXBox->setValue(0.02);
+    zmpRefXBox->setValue(0.01);
     zmpRefXLayout->addWidget(zmpRefXBox);
 
     bottomLayout->addLayout(zmpRefXLayout);
@@ -3040,7 +3040,7 @@ void HuboWalkWidget::initializeCrpcParamTab()
     hipCrouchBox->setSingleStep(0.01);
     hipCrouchBox->setMinimum(0.0);
     hipCrouchBox->setMaximum(0.25);
-    hipCrouchBox->setValue(0.05);
+    hipCrouchBox->setValue(0.06);
     hipCrouchBox->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     hipCrouchLayout->addWidget(hipCrouchBox);
 
