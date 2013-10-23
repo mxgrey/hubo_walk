@@ -449,7 +449,7 @@ void HuboWalkWidget::handleQuadrupedProfileSelect(int index)
     fixed_com_offset_yBoxQuad->setValue(zmpQuadProfiles[index].vals.params.fixed_com_offset_y ) ;
     fixed_com_offset_zBoxQuad->setValue(zmpQuadProfiles[index].vals.params.fixed_com_offset_z ) ;
     constantBodyZBoxQuad->setChecked(zmpQuadProfiles[index].vals.params.constant_body_z ) ;
-    useFixedComBoxQuad->setChecked(zmpProfiles[index].vals.params.use_fixed_com ) ;
+    useFixedComBoxQuad->setChecked(zmpQuadProfiles[index].vals.params.use_fixed_com ) ;
     yOffsetBoxQuad->setValue(zmpQuadProfiles[index].vals.params.zmpoff_y ) ;
     xOffsetBoxQuad->setValue(zmpQuadProfiles[index].vals.params.zmpoff_x ) ;
     zmpDistGainBoxQuad->setValue(zmpQuadProfiles[index].vals.params.zmp_dist_gain ) ;
